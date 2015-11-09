@@ -12,8 +12,11 @@ and it must be copied in the "libraries" folder of Arduino.
 There are 4 commands that can be sent to the firmware:
 
 Mx y# -- Move motor x with y steps
+
 Dx#  -- Disables motor x
+
 Sx y# -- Set speed of motor x to y
+
 Ax y# -- Set acceleration of motor x to y#
 
 motor index is between 0 and 3.
