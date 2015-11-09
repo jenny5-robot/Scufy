@@ -23,7 +23,9 @@ motor index is between 0 and 3.
 Each command is terminated with #.
 
 Example:
+
 M0 100#
+
 D0#
 
 This will move the motor number 0 with 100 steps and then will disable it.
