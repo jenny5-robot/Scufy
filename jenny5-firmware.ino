@@ -1,5 +1,3 @@
-// version 2015.11.07.0
-
 #include <AccelStepper.h>
 
 #define num_motors 4
@@ -11,6 +9,8 @@ int enable_pins[4] = {4,7,10,13};
 
 int default_motor_speed = 3200; //maximum steps per second 
 int default_motor_acceleration = 800; //steps/second/second to accelerate
+
+char firmware_version[] = "2015.11.09.4";
 
 AccelStepper *steppers[num_motors];
 
@@ -29,16 +29,18 @@ void setup()
   reset_pins();
 
   Serial.begin(9600); //Open Serial connection
-  Serial.println("jenny 5 firmaware version 2015.11.09.4");
+  Serial.print("jenny 5 firmaware version: ");
+  Serial.print(firmware_version);
   Serial.println();
   //Print function list for user selection5
   Serial.println("Commands are:");
-  Serial.println("motor index can be between 0 and num_motors - 1");
-  Serial.println("M1 100# // move motor 1 to 100 steps");
-  Serial.println("D1#  // Disable 1");
-  Serial.println("S1 100# // set speed of motor 1 to 100");
-  Serial.println("A1 100# // set acceleration of motor 1 to 100");
-
+  Serial.println("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction.");
+  Serial.println("Dx#  // Disables motor x.");
+  Serial.println("Sx y# // Sets speed of motor x to y");
+  Serial.println("Ax y# // Sets acceleration of motor x to y");
+  Serial.println("Motor index can be between 0 and num_motors - 1");
+  Serial.println("Each command is terminated with #.");
+  
   Serial.println();
 
   current_buffer[0] = 0;
@@ -57,7 +59,6 @@ void loop() {
       strcat(current_buffer, arduino_buffer);
       // parse from the beginning until I find a M, D, S or A
       int buffer_length = strlen(current_buffer);
-      //Serial.write(current_buffer);
       for (int i = 0; i < buffer_length; i++)
         if (current_buffer[i] == 'M'){// move motor
           // find the terminal character #
@@ -65,17 +66,13 @@ void loop() {
           for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
           if (j < buffer_length){
               char tmp_str[64];
-             // Serial.println(i);
-             // Serial.println(j);
               strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
               tmp_str[j - i - 1] = 0;
               int motor_index, num_steps;
-        //      Serial.write(tmp_str);
               sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
               move_motor(motor_index, num_steps);
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);
-          //    Serial.write(current_buffer);
               break;
           }
           else{// the string is not completed ... so I must wait more...
@@ -83,23 +80,19 @@ void loop() {
           }
         }
         else
-        if (current_buffer[i] == 'D'){// disable motor
+        if (current_buffer[i] == 'D'){// Disables motor command.
           // find the terminal character #
           int j = i + 1;
           for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
           if (j < buffer_length){
               char tmp_str[64];
-             // Serial.println(i);
-             // Serial.println(j);
               strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
               tmp_str[j - i - 1] = 0;
               int motor_index;
-        //      Serial.write(tmp_str);
               sscanf(tmp_str, "%d", &motor_index);
               disable_motor(motor_index);
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);
-          //    Serial.write(current_buffer);
               break;
           }
           else{// the string is not completed ... so I must wait more...
@@ -116,16 +109,6 @@ void loop() {
       steppers[m]->run();
     else
       steppers[m]->setCurrentPosition(0);
-}
-//--------------------------------------------------------------------------------------------
-//Reset pins to default states
-void reset_pins()
-{
-  for (int m = 0; m < num_motors; m++){
-    digitalWrite(step_pins[m], LOW);
-    digitalWrite(dir_pins[m], LOW);
-    digitalWrite(enable_pins[m], HIGH); // all motors are disabled now
-  }
 }
 //--------------------------------------------------------------------------------------------
 void move_motor(int motor_index, int num_steps)
@@ -153,4 +136,15 @@ void disable_motor(int motor_index)
   digitalWrite(enable_pins[motor_index], HIGH); // disable motor
 }
 //--------------------------------------------------------------------------------------------
+//Reset pins to default states
+void reset_pins()
+{
+  for (int m = 0; m < num_motors; m++){
+    digitalWrite(step_pins[m], LOW);
+    digitalWrite(dir_pins[m], LOW);
+    digitalWrite(enable_pins[m], HIGH); // all motors are disabled now
+  }
+}
+//--------------------------------------------------------------------------------------------
+
 
