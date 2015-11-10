@@ -7,14 +7,18 @@ int dir_pins[num_motors] = {2,5,8,11};
 int step_pins[num_motors] = {3,6,9,12};
 int enable_pins[4] = {4,7,10,13};
 
-int default_motor_speed = 3200; //maximum steps per second 
+int default_motor_speed = 200; //maximum steps per second 
 int default_motor_acceleration = 800; //steps/second/second to accelerate
 
-char firmware_version[] = "2015.11.09.4";
+char is_command_running;
+
+char firmware_version[] = "2015.11.10.6";
 
 AccelStepper *steppers[num_motors];
 
 char current_buffer[65];
+
+#define DEBUG
 
 //--------------------------------------------------------------------------------------------
 void setup() 
@@ -44,19 +48,26 @@ void setup()
   Serial.println();
 
   current_buffer[0] = 0;
+  is_command_running = 0;
 }
 //--------------------------------------------------------------------------------------------
 //Main loop
 void loop() {
   
-  if (Serial.available()) {
+  if (!is_command_running && (Serial.available() || current_buffer[0])) {
     int num_read = 0;
     char arduino_buffer[65];
 
     num_read = Serial.readBytes(arduino_buffer, 64); //Read up to 64 bytes
     arduino_buffer[num_read] = 0;// terminate the string
-    if (num_read){
+    if (arduino_buffer[0] || current_buffer[0]){
       strcat(current_buffer, arduino_buffer);
+      
+      #ifdef DEBUG
+      Serial.write("initial buffer is=");
+      Serial.write(current_buffer);
+      #endif
+      
       // parse from the beginning until I find a M, D, S or A
       int buffer_length = strlen(current_buffer);
       for (int i = 0; i < buffer_length; i++)
@@ -68,12 +79,27 @@ void loop() {
               char tmp_str[64];
               strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
               tmp_str[j - i - 1] = 0;
+
+              #ifdef DEBUG
+              Serial.write("current command is=");
+              Serial.write(tmp_str);
+              #endif
+              
               int motor_index, num_steps;
               sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
               move_motor(motor_index, num_steps);
+              is_command_running = 1;
+
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);
-              break;
+              
+              #ifdef DEBUG
+              Serial.write("buffer left=");
+              Serial.write(current_buffer);
+              Serial.println(strlen(current_buffer));
+              #endif
+              
+              break; //for i
           }
           else{// the string is not completed ... so I must wait more...
             break; // for i
@@ -104,11 +130,17 @@ void loop() {
   }
   
 // run motors
+  bool is_one_motor_running = false;
   for (int m = 0; m < num_motors; m++)
-    if (steppers[m]->distanceToGo())
+    if (steppers[m]->distanceToGo()){
       steppers[m]->run();
-    else
-      steppers[m]->setCurrentPosition(0);
+      is_one_motor_running = true;
+    }
+    else{
+      steppers[m]->setCurrentPosition(0);  
+    }
+  if (!is_one_motor_running)
+    is_command_running = 0;
 }
 //--------------------------------------------------------------------------------------------
 void move_motor(int motor_index, int num_steps)
