@@ -11,9 +11,11 @@ and it must be copied in the "libraries" folder of Arduino.
 
 There are 4 commands that can be sent to the firmware (from Serial port):
 
-Mx y# -- Moves motor x with y steps. If y is negative the motor runs in the opposite direction.
+Mx y# -- Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.
 
 Dx# -- Disables motor x.
+
+Lx# -- Locks motor x.
 
 Sx y# -- Sets speed of motor x to y.
 
@@ -29,3 +31,5 @@ M0 100#
 D0#
 
 This will move the motor number 0 with 100 steps and then will disable it.
+
+Multiple commands can be sent once and they will be executed one by one: M0 100#D0#
