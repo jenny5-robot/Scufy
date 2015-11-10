@@ -12,7 +12,7 @@ int default_motor_acceleration = 800; //steps/second/second to accelerate
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.10.6";
+char firmware_version[] = "2015.11.10.7";
 
 AccelStepper *steppers[num_motors];
 
@@ -33,13 +33,14 @@ void setup()
   reset_pins();
 
   Serial.begin(9600); //Open Serial connection
-  Serial.print("jenny 5 firmaware version: ");
+  Serial.print("Jenny 5 firmware version: ");
   Serial.print(firmware_version);
   Serial.println();
   //Print function list for user selection5
   Serial.println("Commands are:");
-  Serial.println("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction.");
+  Serial.println("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.");
   Serial.println("Dx#  // Disables motor x.");
+  Serial.println("Lx#  // Lock motor x.");
   Serial.println("Sx y# // Sets speed of motor x to y");
   Serial.println("Ax y# // Sets acceleration of motor x to y");
   Serial.println("Motor index can be between 0 and num_motors - 1");
@@ -106,11 +107,11 @@ void loop() {
           }
         }
         else
-        if (current_buffer[i] == 'D'){// Disables motor command.
-          // find the terminal character #
-          int j = i + 1;
-          for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
-          if (j < buffer_length){
+          if (current_buffer[i] == 'D'){// Disables motor
+            // find the terminal character #
+            int j = i + 1;
+            for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
+            if (j < buffer_length){
               char tmp_str[64];
               strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
               tmp_str[j - i - 1] = 0;
@@ -120,12 +121,31 @@ void loop() {
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);
               break;
+            }
+            else{// the string is not completed ... so I must wait more...
+              break; // for i
+            }
           }
-          else{// the string is not completed ... so I must wait more...
-            break; // for i
+        else
+          if (current_buffer[i] == 'L'){// locks motor
+            // find the terminal character #
+            int j = i + 1;
+            for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
+            if (j < buffer_length){
+              char tmp_str[64];
+              strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
+              tmp_str[j - i - 1] = 0;
+              int motor_index;
+              sscanf(tmp_str, "%d", &motor_index);
+              lock_motor(motor_index);
+              // remove the current executed command
+              strcpy(current_buffer, current_buffer + j + 1);
+              break;
+            }
+            else{// the string is not completed ... so I must wait more...
+              break; // for i
+            }
           }
-        }
-        
     }
   }
   
@@ -166,6 +186,11 @@ void set_motor_acceleration(int motor_index, int motor_acceleration)
 void disable_motor(int motor_index)
 {
   digitalWrite(enable_pins[motor_index], HIGH); // disable motor
+}
+//--------------------------------------------------------------------------------------------
+void lock_motor(int motor_index)
+{
+  digitalWrite(enable_pins[motor_index], LOW); // disable motor
 }
 //--------------------------------------------------------------------------------------------
 //Reset pins to default states
