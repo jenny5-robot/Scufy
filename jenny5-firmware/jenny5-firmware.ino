@@ -12,7 +12,7 @@ int default_motor_acceleration = 100; //steps/second/second to accelerate
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.11.0";
+char firmware_version[] = "2015.11.11.3";
 
 AccelStepper *steppers[num_motors];
 
@@ -43,8 +43,7 @@ void setup()
   Serial.println("Lx#  // Lock motor x.");
   Serial.println("Sx y# // Sets speed of motor x to y");
   Serial.println("Ax y# // Sets acceleration of motor x to y");
-  Serial.println("Motor index can be between 0 and num_motors - 1");
-  Serial.println("Each command is terminated with #.");
+  Serial.println("Motor index is between 0 and num_motors - 1");
   
   Serial.println();
 
@@ -67,6 +66,7 @@ void loop() {
       #ifdef DEBUG
         Serial.write("initial buffer is=");
         Serial.write(current_buffer);
+        Serial.println();
       #endif
       
       // parse from the beginning until I find a M, D, S or A
@@ -84,6 +84,7 @@ void loop() {
               #ifdef DEBUG
                 Serial.write("current command is=");
                 Serial.write(tmp_str);
+                Serial.println();
               #endif
 
               if (current_buffer[i] == 'M' || current_buffer[i] == 'm'){// moves motor
@@ -113,7 +114,8 @@ void loop() {
               #ifdef DEBUG
                 Serial.write("buffer left=");
                 Serial.write(current_buffer);
-                Serial.println(strlen(current_buffer));
+                Serial.write("\n----------------\n");
+                //Serial.println(strlen(current_buffer)); // buffer length
               #endif
               
               break; //for i
@@ -142,10 +144,7 @@ void loop() {
 void move_motor(int motor_index, int num_steps)
 {
   digitalWrite(enable_pins[motor_index], LOW); // turn motor on
-  //Serial.println("Moving motor1 forward at default step mode.");
   steppers[motor_index]->moveTo(num_steps); //move num_steps
-  //Serial.println("Enter new option");
-  Serial.println();
 }
 //--------------------------------------------------------------------------------------------
 void set_motor_speed(int motor_index, int motor_speed)
