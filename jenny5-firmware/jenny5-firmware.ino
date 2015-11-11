@@ -12,7 +12,7 @@ int default_motor_acceleration = 100; //steps/second/second to accelerate
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.10.8";
+char firmware_version[] = "2015.11.11.0";
 
 AccelStepper *steppers[num_motors];
 
@@ -65,8 +65,8 @@ void loop() {
       strcat(current_buffer, arduino_buffer);
       
       #ifdef DEBUG
-      Serial.write("initial buffer is=");
-      Serial.write(current_buffer);
+        Serial.write("initial buffer is=");
+        Serial.write(current_buffer);
       #endif
       
       // parse from the beginning until I find a M, D, S or A
@@ -82,8 +82,8 @@ void loop() {
               tmp_str[j - i - 1] = 0;
 
               #ifdef DEBUG
-              Serial.write("current command is=");
-              Serial.write(tmp_str);
+                Serial.write("current command is=");
+                Serial.write(tmp_str);
               #endif
               
               int motor_index, num_steps;
@@ -92,12 +92,12 @@ void loop() {
               is_command_running = 1;
 
               // remove the current executed command
-              strcpy(current_buffer, current_buffer + j + 1);
+              strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good
               
               #ifdef DEBUG
-              Serial.write("buffer left=");
-              Serial.write(current_buffer);
-              Serial.println(strlen(current_buffer));
+                Serial.write("buffer left=");
+                Serial.write(current_buffer);
+                Serial.println(strlen(current_buffer));
               #endif
               
               break; //for i
