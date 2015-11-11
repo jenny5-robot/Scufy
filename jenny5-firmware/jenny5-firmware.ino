@@ -72,7 +72,7 @@ void loop() {
       // parse from the beginning until I find a M, D, S or A
       int buffer_length = strlen(current_buffer);
       for (int i = 0; i < buffer_length; i++)
-        if (current_buffer[i] == 'M'){// move motor
+        if (current_buffer[i] >= 'A' && current_buffer[i] <= 'Z' || current_buffer[i] >= 'a' && current_buffer[i] <= 'z'){// a command
           // find the terminal character #
           int j = i + 1;
           for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
@@ -85,12 +85,28 @@ void loop() {
                 Serial.write("current command is=");
                 Serial.write(tmp_str);
               #endif
-              
-              int motor_index, num_steps;
-              sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
-              move_motor(motor_index, num_steps);
-              is_command_running = 1;
 
+              if (current_buffer[i] == 'M' || current_buffer[i] == 'm'){// moves motor
+                int motor_index, num_steps;
+                sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
+                move_motor(motor_index, num_steps);
+                is_command_running = 1;
+              }
+              else
+                if (current_buffer[i] == 'D' || current_buffer[i] == 'd'){// disables motor
+                  int motor_index;
+                  sscanf(tmp_str, "%d", &motor_index);
+                  disable_motor(motor_index);
+                }
+                else
+                  if (current_buffer[i] == 'L' || current_buffer[i] == 'l'){// locks motor
+                    int motor_index;
+                    sscanf(tmp_str, "%d", &motor_index);
+                    lock_motor(motor_index);
+                  }
+                  else{
+                    // unknowm command
+                  }
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good
               
@@ -106,46 +122,6 @@ void loop() {
             break; // for i
           }
         }
-        else
-          if (current_buffer[i] == 'D'){// Disables motor
-            // find the terminal character #
-            int j = i + 1;
-            for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
-            if (j < buffer_length){
-              char tmp_str[64];
-              strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
-              tmp_str[j - i - 1] = 0;
-              int motor_index;
-              sscanf(tmp_str, "%d", &motor_index);
-              disable_motor(motor_index);
-              // remove the current executed command
-              strcpy(current_buffer, current_buffer + j + 1);
-              break;
-            }
-            else{// the string is not completed ... so I must wait more...
-              break; // for i
-            }
-          }
-        else
-          if (current_buffer[i] == 'L'){// locks motor
-            // find the terminal character #
-            int j = i + 1;
-            for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
-            if (j < buffer_length){
-              char tmp_str[64];
-              strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
-              tmp_str[j - i - 1] = 0;
-              int motor_index;
-              sscanf(tmp_str, "%d", &motor_index);
-              lock_motor(motor_index);
-              // remove the current executed command
-              strcpy(current_buffer, current_buffer + j + 1);
-              break;
-            }
-            else{// the string is not completed ... so I must wait more...
-              break; // for i
-            }
-          }
     }
   }
   
