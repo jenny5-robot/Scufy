@@ -8,11 +8,11 @@ int step_pins[num_motors] = {3,6,9,12};
 int enable_pins[4] = {4,7,10,13};
 
 int default_motor_speed = 200; //maximum steps per second 
-int default_motor_acceleration = 800; //steps/second/second to accelerate
+int default_motor_acceleration = 100; //steps/second/second to accelerate
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.10.7";
+char firmware_version[] = "2015.11.10.8";
 
 AccelStepper *steppers[num_motors];
 
@@ -190,7 +190,7 @@ void disable_motor(int motor_index)
 //--------------------------------------------------------------------------------------------
 void lock_motor(int motor_index)
 {
-  digitalWrite(enable_pins[motor_index], LOW); // disable motor
+  digitalWrite(enable_pins[motor_index], LOW); // enable motor
 }
 //--------------------------------------------------------------------------------------------
 //Reset pins to default states
