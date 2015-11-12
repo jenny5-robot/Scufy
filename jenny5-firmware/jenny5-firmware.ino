@@ -103,9 +103,21 @@ void loop() {
                       ++i;
                     }
                   }
-                  else{
-                    // unknowm command
+                else
+                  if (current_buffer[i] == 'S' || current_buffer[i] == 's'){// motor speed
+                    int motor_index, motor_speed;
+                    sscanf(tmp_str, "%d%d", &motor_index, &motor_speed);
+                    mc.set_motor_speed(motor_index, motor_speed);
+                    is_command_running = 1;
                   }
+                else
+                  if (current_buffer[i] == 'A' || current_buffer[i] == 'a'){// motor acceleration
+                    int motor_index, motor_acceleration;
+                    sscanf(tmp_str, "%d%d", &motor_index, &motor_acceleration);
+                    mc.set_motor_acceleration(motor_index, motor_acceleration);
+                    is_command_running = 1;
+                  }
+                    
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good
               
