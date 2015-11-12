@@ -1,20 +1,10 @@
-#include <AccelStepper.h>
+#include "motor_control.h"
 
-#define num_motors 4
-
-//Declare pin functions on Arduino
-int dir_pins[num_motors] = {2,5,8,11};
-int step_pins[num_motors] = {3,6,9,12};
-int enable_pins[4] = {4,7,10,13};
-
-int default_motor_speed = 200; //maximum steps per second 
-int default_motor_acceleration = 100; //steps/second/second to accelerate
+motor_control mc;
 
 char is_command_running;
 
 char firmware_version[] = "2015.11.11.4";
-
-AccelStepper *steppers[num_motors];
 
 char current_buffer[65];
 
@@ -23,14 +13,7 @@ char current_buffer[65];
 //--------------------------------------------------------------------------------------------
 void setup() 
 {
-  for (int m = 0; m < num_motors; m++){
-    steppers[m] = new AccelStepper(AccelStepper::DRIVER, step_pins[m], dir_pins[m]);
-    steppers[m]->setMaxSpeed(default_motor_speed);
-    steppers[m]->setSpeed(default_motor_speed);
-    steppers[m]->setAcceleration(default_motor_acceleration);
-  }
-
-  reset_pins();
+  mc.reset_pins();
 
   Serial.begin(9600); //Open Serial connection
   
@@ -91,20 +74,20 @@ void loop() {
               if (current_buffer[i] == 'M' || current_buffer[i] == 'm'){// moves motor
                 int motor_index, num_steps;
                 sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
-                move_motor(motor_index, num_steps);
+                mc.move_motor(motor_index, num_steps);
                 is_command_running = 1;
               }
               else
                 if (current_buffer[i] == 'D' || current_buffer[i] == 'd'){// disables motor
                   int motor_index;
                   sscanf(tmp_str, "%d", &motor_index);
-                  disable_motor(motor_index);
+                  mc.disable_motor(motor_index);
                 }
                 else
                   if (current_buffer[i] == 'L' || current_buffer[i] == 'l'){// locks motor
                     int motor_index;
                     sscanf(tmp_str, "%d", &motor_index);
-                    lock_motor(motor_index);
+                    mc.lock_motor(motor_index);
                   }
                   else{
                     // unknowm command
@@ -131,53 +114,14 @@ void loop() {
 // run motors
   bool is_one_motor_running = false;
   for (int m = 0; m < num_motors; m++)
-    if (steppers[m]->distanceToGo()){
-      steppers[m]->run();
+    if (mc.steppers[m]->distanceToGo()){
+      mc.steppers[m]->run();
       is_one_motor_running = true;
     }
     else{
-      steppers[m]->setCurrentPosition(0);
+      mc.steppers[m]->setCurrentPosition(0);
     }
   if (!is_one_motor_running)
     is_command_running = 0;
 }
-//--------------------------------------------------------------------------------------------
-void move_motor(int motor_index, int num_steps)
-{
-  digitalWrite(enable_pins[motor_index], LOW); // turn motor on
-  steppers[motor_index]->moveTo(num_steps); //move num_steps
-}
-//--------------------------------------------------------------------------------------------
-void set_motor_speed(int motor_index, int motor_speed)
-{
-    steppers[motor_index]->setMaxSpeed(motor_speed);
-    steppers[motor_index]->setSpeed(motor_speed);
-}
-//--------------------------------------------------------------------------------------------
-void set_motor_acceleration(int motor_index, int motor_acceleration)
-{
-    steppers[motor_index]->setAcceleration(motor_acceleration);
-}
-//--------------------------------------------------------------------------------------------
-void disable_motor(int motor_index)
-{
-  digitalWrite(enable_pins[motor_index], HIGH); // disable motor
-}
-//--------------------------------------------------------------------------------------------
-void lock_motor(int motor_index)
-{
-  digitalWrite(enable_pins[motor_index], LOW); // enable motor
-}
-//--------------------------------------------------------------------------------------------
-//Reset pins to default states
-void reset_pins()
-{
-  for (int m = 0; m < num_motors; m++){
-    digitalWrite(step_pins[m], LOW);
-    digitalWrite(dir_pins[m], LOW);
-    digitalWrite(enable_pins[m], HIGH); // all motors are disabled now
-  }
-}
-//--------------------------------------------------------------------------------------------
-
 
