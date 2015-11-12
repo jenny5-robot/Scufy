@@ -6,7 +6,7 @@ motor_control mc;
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.11.4";
+char firmware_version[] = "2015.11.12.0";
 
 char current_buffer[65];
 
