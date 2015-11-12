@@ -25,24 +25,3 @@ long Ultrasonic::Ranging()
   distacne_cm = duration /29 / 2 ;
   return distacne_cm;
 }
-
-// Test program.
-// Ultrasonic ultrasonic(53,52);
-
-// void setup() {
-//   Serial.begin(9600);
-//   Serial.print("HC-SR4 testing..");
-// delay(1000);
-
-// }
-
-// void loop()
-// {
-//   //lcd.clear();
-
-
-//   Serial.print(ultrasonic.Ranging());
-//   Serial.print(" cm.\n");
-
-//   delay(100);
-// }

@@ -1,5 +1,7 @@
+#include "Ultrasonic.h"
 #include "motor_control.h"
 
+Ultrasonic ultrasonic(53,52);
 motor_control mc;
 
 char is_command_running;
@@ -27,6 +29,7 @@ void setup()
   Serial.println("Lx#  // Lock motor x.");
   Serial.println("Sx y# // Sets speed of motor x to y");
   Serial.println("Ax y# // Sets acceleration of motor x to y");
+  Serial.println("Ux# // Meassures distance");
   Serial.println("Motor index is between 0 and num_motors - 1");
   
   Serial.println();
@@ -88,6 +91,17 @@ void loop() {
                     int motor_index;
                     sscanf(tmp_str, "%d", &motor_index);
                     mc.lock_motor(motor_index);
+                  }
+                else
+                  if (current_buffer[i] == 'U' || current_buffer[i] == 'u'){// ultrasonic
+                    int i = 0;
+                    while (i != 3)
+                    {
+                      Serial.print(ultrasonic.Ranging());
+                      Serial.print(" cm.\n");
+                      delay(1000);
+                      ++i;
+                    }
                   }
                   else{
                     // unknowm command
