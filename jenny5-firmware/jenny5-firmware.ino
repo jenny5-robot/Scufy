@@ -12,7 +12,7 @@ int default_motor_acceleration = 100; //steps/second/second to accelerate
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.11.3";
+char firmware_version[] = "2015.11.11.4";
 
 AccelStepper *steppers[num_motors];
 
@@ -33,6 +33,7 @@ void setup()
   reset_pins();
 
   Serial.begin(9600); //Open Serial connection
+  
   Serial.print("Jenny 5 firmware version: ");
   Serial.print(firmware_version);
   Serial.println();
@@ -47,7 +48,7 @@ void setup()
   
   Serial.println();
 
-  current_buffer[0] = 0;
+  current_buffer[0] = 0;//'\0';
   is_command_running = 0;
 }
 //--------------------------------------------------------------------------------------------
@@ -69,7 +70,7 @@ void loop() {
         Serial.println();
       #endif
       
-      // parse from the beginning until I find a M, D, S or A
+      // parse from the beginning until I find a M, D, L, S, A, P, B, U
       int buffer_length = strlen(current_buffer);
       for (int i = 0; i < buffer_length; i++)
         if (current_buffer[i] >= 'A' && current_buffer[i] <= 'Z' || current_buffer[i] >= 'a' && current_buffer[i] <= 'z'){// a command
@@ -135,7 +136,7 @@ void loop() {
       is_one_motor_running = true;
     }
     else{
-      steppers[m]->setCurrentPosition(0);  
+      steppers[m]->setCurrentPosition(0);
     }
   if (!is_one_motor_running)
     is_command_running = 0;
