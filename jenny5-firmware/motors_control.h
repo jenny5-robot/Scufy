@@ -1,33 +1,34 @@
 #include "arduino.h"
 #include "AccelStepper.h"
 
-#define num_motors 4
-
 class t_motors_control
 {
 public:
 	//Declare pin functions on Arduino
-	int dir_pins[num_motors];
-	int step_pins[num_motors];
-	int enable_pins[4];
+  
+	byte *dir_pins;
+	byte *step_pins;
+	byte *enable_pins;
 
 	int default_motor_speed; //maximum steps per second 
 	int default_motor_acceleration; //steps/second/second to accelerate
-	
-	AccelStepper *steppers[num_motors];
+
+  byte num_motors;
+  
+	AccelStepper **steppers;
 	
 public:
-	t_motors_control();
+	t_motors_control(byte _num_motors);
 	
-	void move_motor(int motor_index, int num_steps);
+	void move_motor(byte motor_index, int num_steps);
 	
-	void set_motor_speed(int motor_index, int motor_speed);
+	void set_motor_speed(byte motor_index, int motor_speed);
 	
-	void set_motor_acceleration(int motor_index, int motor_acceleration);
+	void set_motor_acceleration(byte motor_index, int motor_acceleration);
 	
-	void disable_motor(int motor_index);
+	void disable_motor(byte motor_index);
 	
-	void lock_motor(int motor_index);
+	void lock_motor(byte motor_index);
 	
 	//Reset pins to default states
 	void reset_pins();
