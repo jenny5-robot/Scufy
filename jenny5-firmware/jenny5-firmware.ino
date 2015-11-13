@@ -2,7 +2,7 @@
 #include "Ultrasonic.h"
 
 Ultrasonic ultrasonic(53,52);
-t_motors_control motor_control;
+t_motors_control motors_control(4);
 
 char is_command_running;
 
@@ -15,7 +15,7 @@ char current_buffer[65];
 //--------------------------------------------------------------------------------------------
 void setup() 
 {
-  motor_control.reset_pins();
+  motors_control.reset_pins();
 
   Serial.begin(9600); //Open Serial connection
   
@@ -34,7 +34,7 @@ void setup()
   
   Serial.println();
 
-  current_buffer[0] = 0;//'\0';
+  current_buffer[0] = 0;
   is_command_running = 0;
 }
 //--------------------------------------------------------------------------------------------
@@ -77,45 +77,36 @@ void loop() {
               if (current_buffer[i] == 'M' || current_buffer[i] == 'm'){// moves motor
                 int motor_index, num_steps;
                 sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
-                motor_control.move_motor(motor_index, num_steps);
+                motors_control.move_motor(motor_index, num_steps);
                 is_command_running = 1;
               }
               else
                 if (current_buffer[i] == 'D' || current_buffer[i] == 'd'){// disables motor
                   int motor_index;
                   sscanf(tmp_str, "%d", &motor_index);
-                  motor_control.disable_motor(motor_index);
+                  motors_control.disable_motor(motor_index);
                 }
                 else
                   if (current_buffer[i] == 'L' || current_buffer[i] == 'l'){// locks motor
                     int motor_index;
                     sscanf(tmp_str, "%d", &motor_index);
-                    motor_control.lock_motor(motor_index);
+                    motors_control.lock_motor(motor_index);
                   }
                 else
                   if (current_buffer[i] == 'U' || current_buffer[i] == 'u'){// ultrasonic
-                    int i = 0;
-                    while (i != 3)
-                    {
                       Serial.print(ultrasonic.Ranging());
-                      //Serial.print("");
-                      //delay(1000);
-                      ++i;
-                    }
                   }
                 else
                   if (current_buffer[i] == 'S' || current_buffer[i] == 's'){// motor speed
                     int motor_index, motor_speed;
                     sscanf(tmp_str, "%d%d", &motor_index, &motor_speed);
-                    motor_control.set_motor_speed(motor_index, motor_speed);
-                    is_command_running = 1;
+                    motors_control.set_motor_speed(motor_index, motor_speed);
                   }
                 else
                   if (current_buffer[i] == 'A' || current_buffer[i] == 'a'){// motor acceleration
                     int motor_index, motor_acceleration;
                     sscanf(tmp_str, "%d%d", &motor_index, &motor_acceleration);
-                    motor_control.set_motor_acceleration(motor_index, motor_acceleration);
-                    is_command_running = 1;
+                    motors_control.set_motor_acceleration(motor_index, motor_acceleration);
                   }
                     
               // remove the current executed command
@@ -139,13 +130,13 @@ void loop() {
   
 // run motors
   bool is_one_motor_running = false;
-  for (int m = 0; m < num_motors; m++)
-    if (motor_control.steppers[m]->distanceToGo()){
-      motor_control.steppers[m]->run();
+  for (int m = 0; m < motors_control.num_motors; m++)
+    if (motors_control.steppers[m]->distanceToGo()){
+      motors_control.steppers[m]->run();
       is_one_motor_running = true;
     }
     else{
-      motor_control.steppers[m]->setCurrentPosition(0);
+      motors_control.steppers[m]->setCurrentPosition(0);
     }
   if (!is_one_motor_running)
     is_command_running = 0;
