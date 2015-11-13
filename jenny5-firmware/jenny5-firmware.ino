@@ -6,7 +6,7 @@ motor_control mc;
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.12.0";
+char firmware_version[] = "2015.11.12.1";
 
 char current_buffer[65];
 
@@ -27,9 +27,9 @@ void setup()
   Serial.println("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.");
   Serial.println("Dx#  // Disables motor x.");
   Serial.println("Lx#  // Lock motor x.");
-  Serial.println("Sx y# // Sets speed of motor x to y");
-  Serial.println("Ax y# // Sets acceleration of motor x to y");
-  Serial.println("Ux# // Meassures distance");
+  Serial.println("Sx y# // Sets speed of motor x to y.");
+  Serial.println("Ax y# // Sets acceleration of motor x to y.");
+  Serial.println("Ux# // Gets the distance as measured by ultrasonic sensor x.");
   Serial.println("Motor index is between 0 and num_motors - 1");
   
   Serial.println();
@@ -98,8 +98,8 @@ void loop() {
                     while (i != 3)
                     {
                       Serial.print(ultrasonic.Ranging());
-                      Serial.print(" cm.\n");
-                      delay(1000);
+                      //Serial.print("");
+                      //delay(1000);
                       ++i;
                     }
                   }
