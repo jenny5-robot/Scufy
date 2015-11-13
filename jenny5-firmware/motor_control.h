@@ -1,5 +1,5 @@
-#include <AccelStepper.h>
-#include <Arduino.h>
+#include "arduino.h"
+#include "AccelStepper.h"
 
 #define num_motors 4
 
