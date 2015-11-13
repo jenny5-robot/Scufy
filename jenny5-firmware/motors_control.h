@@ -3,7 +3,7 @@
 
 #define num_motors 4
 
-class motor_control
+class t_motors_control
 {
 public:
 	//Declare pin functions on Arduino
@@ -17,7 +17,7 @@ public:
 	AccelStepper *steppers[num_motors];
 	
 public:
-	motor_control();
+	t_motors_control();
 	
 	void move_motor(int motor_index, int num_steps);
 	

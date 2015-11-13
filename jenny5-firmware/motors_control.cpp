@@ -1,6 +1,6 @@
-#include "motor_control.h"
-
-motor_control::motor_control()
+#include "motors_control.h"
+//-------------------------------------------------------------------------------
+t_motors_control::t_motors_control()
 {
 	dir_pins[0] = 2;
 	dir_pins[1] = 5;
@@ -28,36 +28,36 @@ motor_control::motor_control()
 		steppers[m]->setAcceleration(default_motor_acceleration);
 	}
 }
-
-void motor_control::move_motor(int motor_index, int num_steps)
+//-------------------------------------------------------------------------------
+void t_motors_control::move_motor(int motor_index, int num_steps)
 {
   digitalWrite(enable_pins[motor_index], LOW); // turn motor on
   steppers[motor_index]->moveTo(num_steps); //move num_steps
 }
-
-void motor_control::set_motor_speed(int motor_index, int motor_speed)
+//-------------------------------------------------------------------------------
+void t_motors_control::set_motor_speed(int motor_index, int motor_speed)
 {
 	steppers[motor_index]->setMaxSpeed(motor_speed);
 	steppers[motor_index]->setSpeed(motor_speed);
 }
-
-void motor_control::set_motor_acceleration(int motor_index, int motor_acceleration)
+//-------------------------------------------------------------------------------
+void t_motors_control::set_motor_acceleration(int motor_index, int motor_acceleration)
 {
 	steppers[motor_index]->setAcceleration(motor_acceleration);
 }
-
-void motor_control::disable_motor(int motor_index)
+//-------------------------------------------------------------------------------
+void t_motors_control::disable_motor(int motor_index)
 {
   digitalWrite(enable_pins[motor_index], HIGH); // disable motor
 }
-
-void motor_control::lock_motor(int motor_index)
+//-------------------------------------------------------------------------------
+void t_motors_control::lock_motor(int motor_index)
 {
   digitalWrite(enable_pins[motor_index], LOW); // enable motor
 }
-
+//-------------------------------------------------------------------------------
 //Reset pins to default states
-void motor_control::reset_pins()
+void t_motors_control::reset_pins()
 {
   for (int m = 0; m < num_motors; m++){
 	digitalWrite(step_pins[m], LOW);
