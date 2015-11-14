@@ -1,7 +1,7 @@
 # jenny5-firmware
 Arduino firmware for controlling the Jenny 5 robot
 
-The firmware can control 4 motors (there is a constant defined in the program for this purpose). This limitation si due to the fact that the robot is controlled by multiple Arduino Nano boards and each board has only 14 digital pins from each 2 are for Serial communication and each motor requires 3 pins (dir, step and enable).
+The firmware can control multiple stepper and DC motors and can read data from various sensors (ultrasound, buttons, rotary encoder). If it is uploaded on a Arduino Nano, it can control up to 4 stepper motors. This limitation si due to the fact that the robot is controlled by multiple Arduino Nano boards and each board has only 14 digital pins from each 2 are for Serial communication and each motor requires 3 pins (dir, step and enable).
 
 Jenny 5 firmware uses AccelStepper library for controlling the stepper motors. This library is available from:
 
@@ -23,9 +23,13 @@ Sx y# -- Sets speed of motor x to y.
 
 Ax y# -- Sets acceleration of motor x to y.
 
-Ux# -- gets the distance 
+Ux# -- Gets the distance from an ultrasound sensor.
 
-motor index is between 0 and 3.
+Bx# -- Gets the state from a button.
+
+Px# -- Gets the position of a potentiometer.
+
+motor index is between 0 and number of declared motors - 1.
 Each command is terminated with #.
 
 Example:
