@@ -1,5 +1,6 @@
 #include "motors_control.h"
 #include "Ultrasonic.h"
+#include "PotentiometersController.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
 
