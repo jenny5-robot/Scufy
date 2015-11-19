@@ -8,7 +8,7 @@ t_motors_control::t_motors_control(byte _num_motors, byte *dir_pins, byte *step_
   step_pins = new byte[num_motors];
   enable_pins = new byte[num_motors];
   
-  for (int i = 0; i < _num_motors; ++i)
+  for (byte i = 0; i < _num_motors; ++i)
   {
     m_dir_pins[i] = dir_pins[i];
     m_step_pins[i] = step_pins[i];
