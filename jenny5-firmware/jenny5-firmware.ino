@@ -1,8 +1,11 @@
 #include "motors_control.h"
 #include "Ultrasonic.h"
 
+byte potentiometers_pins[4] = {0, 1, 2, 3};
+
 Ultrasonic ultrasonic(53,52);
 t_motors_control motors_control(4);
+PotentiometersController potentiometers_control(potentiometers_pins, 4);
 
 char is_command_running;
 
@@ -93,10 +96,6 @@ void loop() {
                     motors_control.lock_motor(motor_index);
                   }
                 else
-                  if (current_buffer[i] == 'U' || current_buffer[i] == 'u'){// ultrasonic
-                      Serial.print(ultrasonic.Ranging());
-                  }
-                else
                   if (current_buffer[i] == 'S' || current_buffer[i] == 's'){// motor speed
                     int motor_index, motor_speed;
                     sscanf(tmp_str, "%d%d", &motor_index, &motor_speed);
@@ -108,6 +107,19 @@ void loop() {
                     sscanf(tmp_str, "%d%d", &motor_index, &motor_acceleration);
                     motors_control.set_motor_acceleration(motor_index, motor_acceleration);
                   }
+                else
+                  if (current_buffer[i] == 'U' || current_buffer[i] == 'u'){// ultrasonic
+                    int sensor_index;
+                    sscanf(tmp_str, "%d", &sensor_index);
+                      Serial.print(ultrasonic.Ranging());
+                  }
+                else
+                  if (current_buffer[i] == 'P' || current_buffer[i] == 'p'){// ultrasonic
+                    int sensor_index;
+                    sscanf(tmp_str, "%d", &sensor_index);
+                      Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
+                  }
+               
                     
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good
