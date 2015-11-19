@@ -1,26 +1,19 @@
 #include "motors_control.h"
 //-------------------------------------------------------------------------------
-t_motors_control::t_motors_control(byte _num_motors)
+t_motors_control::t_motors_control(byte _num_motors, byte *dir_pins, byte *step_pins, byte *enable_pins)
 {
   num_motors = _num_motors;
   
   dir_pins = new byte[num_motors];
-  dir_pins[0] = 2;
-	dir_pins[1] = 5;
-	dir_pins[2] = 8;
-	dir_pins[3] = 11;
-
   step_pins = new byte[num_motors];
-	step_pins[0] = 3;
-	step_pins[1] = 6;
-	step_pins[2] = 9;
-	step_pins[3] = 12;
-
   enable_pins = new byte[num_motors];
-	enable_pins[0] = 4;
-	enable_pins[1] = 7;
-	enable_pins[2] = 10;
-	enable_pins[3] = 13;
+  
+  for (int i = 0; i < _num_motots; ++i)
+  {
+    m_dir_pins[i] = dir_pins[i];
+    m_step_pins[i] = step_pins[i];
+    m_enable_pins[i] = enable_pins[i];
+  }
 	
 	default_motor_speed = 200;
 	default_motor_acceleration = 100;

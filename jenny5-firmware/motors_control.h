@@ -5,10 +5,9 @@ class t_motors_control
 {
 public:
 	//Declare pin functions on Arduino
-  
-	byte *dir_pins;
-	byte *step_pins;
-	byte *enable_pins;
+	byte *m_dir_pins;
+	byte *m_step_pins;
+	byte *m_enable_pins;
 
 	int default_motor_speed; //maximum steps per second 
 	int default_motor_acceleration; //steps/second/second to accelerate

@@ -6,7 +6,6 @@
 
 t_button_controller::t_button_controller(byte _num_buttons, byte* button_pin)
 {
-	//num_buttons = _num_buttons;
 	button_pins = new byte[_num_buttons];
 	
 	for (int i = 0; i < _num_buttons; i++)
