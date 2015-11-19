@@ -37,10 +37,10 @@
 #include "Arduino.h"
 #endif
 
-class potentiometer {
+class Potentiometer {
 	public:
-		potentiometer(byte potPin);
-		potentiometer(byte potPin, uint16_t sectors);
+		Potentiometer(byte potPin);
+		Potentiometer(byte potPin, uint16_t sectors);
 		uint16_t getValue();
 		uint16_t getSector();
 		void setSectors(uint16_t sectors);

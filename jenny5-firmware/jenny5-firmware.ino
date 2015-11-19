@@ -2,7 +2,7 @@
 #include "potentiometers_controller.h"
 #include "motors_control.h"
 #include "button_controller.h"
-#include "ultrasonic.h"
+#include "Ultrasonic.h"
 
 byte motors_dir_pins[] = {2, 5, 8, 11};
 byte motors_step_pins[] = {3, 6, 9, 12};
@@ -11,7 +11,7 @@ byte potentiometers_pins[] = {0, 1, 2, 3};
 byte ultrasonic_trig_pins[] = {48, 50};
 byte ultrasonic_echo_pins[] = {49, 51};
 
-ultrasonic ultrasonic(53,52); //this is only for test purpose. should be deleted since ultrasonic controller is is now available
+Ultrasonic ultrasonic(53,52); //this is only for test purpose. should be deleted since ultrasonic controller is is now available
 
 t_motors_control motors_control(4, motors_dir_pins, motors_step_pins, motors_enable_pins);
 t_potentiometers_controller potentiometers_control(4, potentiometers_pins);

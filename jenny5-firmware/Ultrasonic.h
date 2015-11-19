@@ -3,7 +3,7 @@
 
 #include "Arduino.h"
 
-class ultrasonic
+class Ultrasonic
 {
   private:
     int Trig_pin;
@@ -11,7 +11,7 @@ class ultrasonic
     long  duration, distacne_cm;
 
   public:
-    ultrasonic (int _TP, int _EP);
+    Ultrasonic (int _TP, int _EP);
     long Timing();
     long Ranging();
 };

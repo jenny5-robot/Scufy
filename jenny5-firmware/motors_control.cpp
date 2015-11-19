@@ -8,7 +8,7 @@ t_motors_control::t_motors_control(byte _num_motors, byte *dir_pins, byte *step_
   step_pins = new byte[num_motors];
   enable_pins = new byte[num_motors];
   
-  for (int i = 0; i < _num_motots; ++i)
+  for (int i = 0; i < _num_motors; ++i)
   {
     m_dir_pins[i] = dir_pins[i];
     m_step_pins[i] = step_pins[i];
@@ -30,7 +30,7 @@ t_motors_control::t_motors_control(byte _num_motors, byte *dir_pins, byte *step_
 //-------------------------------------------------------------------------------
 void t_motors_control::move_motor(byte motor_index, int num_steps)
 {
-  digitalWrite(enable_pins[motor_index], LOW); // turn motor on
+  digitalWrite(m_enable_pins[motor_index], LOW); // turn motor on
   steppers[motor_index]->moveTo(num_steps); //move num_steps
 }
 //-------------------------------------------------------------------------------
@@ -47,20 +47,20 @@ void t_motors_control::set_motor_acceleration(byte motor_index, int motor_accele
 //-------------------------------------------------------------------------------
 void t_motors_control::disable_motor(byte motor_index)
 {
-  digitalWrite(enable_pins[motor_index], HIGH); // disable motor
+  digitalWrite(m_enable_pins[motor_index], HIGH); // disable motor
 }
 //-------------------------------------------------------------------------------
 void t_motors_control::lock_motor(byte motor_index)
 {
-  digitalWrite(enable_pins[motor_index], LOW); // enable motor
+  digitalWrite(m_enable_pins[motor_index], LOW); // enable motor
 }
 //-------------------------------------------------------------------------------
 //Reset pins to default states
 void t_motors_control::reset_pins()
 {
   for (byte m = 0; m < num_motors; m++){
-	  digitalWrite(step_pins[m], LOW);
-	  digitalWrite(dir_pins[m], LOW);
-	  digitalWrite(enable_pins[m], HIGH); // all motors are disabled now
+	  digitalWrite(m_step_pins[m], LOW);
+	  digitalWrite(m_dir_pins[m], LOW);
+	  digitalWrite(m_enable_pins[m], HIGH); // all motors are disabled now
   }
 }

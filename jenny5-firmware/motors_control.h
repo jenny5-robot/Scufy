@@ -17,7 +17,7 @@ public:
 	AccelStepper **steppers;
 	
 public:
-	t_motors_control(byte _num_motors);
+	t_motors_control(byte _num_motors, byte *dir_pins, byte *step_pins, byte *enable_pins);
 	
 	void move_motor(byte motor_index, int num_steps);
 	

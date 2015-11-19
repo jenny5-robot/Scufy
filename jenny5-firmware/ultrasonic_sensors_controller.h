@@ -1,13 +1,13 @@
 #ifndef T_ULTRASONIC_SENSORS_CONTROLLER_H
 #define T_ULTRASONIC_SENSORS_CONTROLLER_H
 
-#include "arduino.h"
-#include "ultrasonic.h"
+#include "Arduino.h"
+#include "Ultrasonic.h"
 
 class t_ultrasonic_sensors_controller
 {
 public:
-	ultrasonic **sensors;
+	Ultrasonic **sensors;
 
 	byte num_sensors;
 
