@@ -1,4 +1,4 @@
-#include "arduino.h"
+#include "Arduino.h"
 #include "AccelStepper.h"
 
 class t_motors_control
