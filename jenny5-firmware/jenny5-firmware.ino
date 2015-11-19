@@ -35,7 +35,7 @@ void setup()
   Serial.print("Jenny 5 firmware version: ");
   Serial.print(firmware_version);
   Serial.println();
-  //Print function list for user selection5
+  Print function list for user selection5
   Serial.println("Commands are:");
   Serial.println("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.");
   Serial.println("Dx#  // Disables motor x.");
