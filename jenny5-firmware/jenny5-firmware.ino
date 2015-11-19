@@ -1,5 +1,6 @@
 #include "motors_control.h"
 #include "Ultrasonic.h"
+#include "PotentiometersController.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
 
@@ -9,7 +10,7 @@ PotentiometersController potentiometers_control(potentiometers_pins, 4);
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.12.2";// year.month.day.version
+char firmware_version[] = "2015.11.19.0";// year.month.day.version
 
 char current_buffer[65];
 
