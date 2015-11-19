@@ -1,7 +1,10 @@
+#ifndef MOTORS_CONTROLLER_H_
+#define MOTORS_CONTROLLER_H_
+
 #include "Arduino.h"
 #include "AccelStepper.h"
 
-class t_motors_control
+class t_motors_controller
 {
 public:
 	//Declare pin functions on Arduino
@@ -17,7 +20,7 @@ public:
 	AccelStepper **steppers;
 	
 public:
-	t_motors_control(byte _num_motors, byte *dir_pins, byte *step_pins, byte *enable_pins);
+	t_motors_controller(byte _num_motors, byte *dir_pins, byte *step_pins, byte *enable_pins);
 	
 	void move_motor(byte motor_index, int num_steps);
 	
@@ -32,3 +35,5 @@ public:
 	//Reset pins to default states
 	void reset_pins();
 };
+
+#endif

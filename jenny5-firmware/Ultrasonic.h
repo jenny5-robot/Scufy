@@ -1,5 +1,5 @@
-#ifndef ULTRASONIC_H
-#define ULTRASONIC_H
+#ifndef ULTRASONIC_H_
+#define ULTRASONIC_H_
 
 #include "Arduino.h"
 
@@ -16,4 +16,4 @@ class Ultrasonic
     long Ranging();
 };
 
-#endif //ULTRASONIC_H
+#endif //ULTRASONIC_H_

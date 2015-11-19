@@ -1,6 +1,6 @@
 #include "ultrasonic_sensors_controller.h"
 #include "potentiometers_controller.h"
-#include "motors_control.h"
+#include "motors_controller.h"
 #include "button_controller.h"
 #include "Ultrasonic.h"
 
@@ -13,7 +13,7 @@ byte ultrasonic_echo_pins[] = {49, 51};
 
 Ultrasonic ultrasonic(53,52); //this is only for test purpose. should be deleted since ultrasonic controller is is now available
 
-t_motors_control motors_control(4, motors_dir_pins, motors_step_pins, motors_enable_pins);
+t_motors_controller motors_control(4, motors_dir_pins, motors_step_pins, motors_enable_pins);
 t_potentiometers_controller potentiometers_control(4, potentiometers_pins);
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller(2, ultrasonic_trig_pins, ultrasonic_echo_pins);
 
@@ -35,7 +35,7 @@ void setup()
   Serial.print("Jenny 5 firmware version: ");
   Serial.print(firmware_version);
   Serial.println();
-  Print function list for user selection5
+//  Print function list for user selection5
   Serial.println("Commands are:");
   Serial.println("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.");
   Serial.println("Dx#  // Disables motor x.");

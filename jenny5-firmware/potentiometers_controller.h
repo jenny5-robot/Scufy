@@ -1,5 +1,5 @@
-#ifndef POTENTIOMETER_H_
-#define POTENTIOMETER_H_
+#ifndef POTENTIOMETER_CONTROLLER_H_
+#define POTENTIOMETER_CONTROLLER_H_
 
 #include "Potentiometer.h"
 

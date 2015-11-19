@@ -1,5 +1,5 @@
-#ifndef T_ULTRASONIC_SENSORS_CONTROLLER_H
-#define T_ULTRASONIC_SENSORS_CONTROLLER_H
+#ifndef ULTRASONIC_SENSORS_CONTROLLER_H
+#define ULTRASONIC_SENSORS_CONTROLLER_H
 
 #include "Arduino.h"
 #include "Ultrasonic.h"
@@ -17,4 +17,4 @@ public:
 	long getDistanceForSensor (byte sensor_index);
 };
 
-#endif //T_ULTRASONIC_SENSORS_CONTROLLER_H
+#endif //ULTRASONIC_SENSORS_CONTROLLER_H

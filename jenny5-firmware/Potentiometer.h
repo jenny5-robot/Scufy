@@ -27,8 +27,8 @@
 ||
 */
 
-#ifndef Potentiometer_H
-#define Potentiometer_H
+#ifndef POTENTIOMETER_H_
+#define POTENTIOMETER_H_
 
 // Added to fix Arduino 1.0 compile issues 12/11/11 - TVHeadedRobots
 #if defined(ARDUINO) && ARDUINO < 100
@@ -37,7 +37,8 @@
 #include "Arduino.h"
 #endif
 
-class Potentiometer {
+class Potentiometer 
+{
 	public:
 		Potentiometer(byte potPin);
 		Potentiometer(byte potPin, uint16_t sectors);
