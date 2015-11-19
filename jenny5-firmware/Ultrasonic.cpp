@@ -1,11 +1,11 @@
 #include "Ultrasonic.h"
 
-Ultrasonic::Ultrasonic(int TP, int EP)
+Ultrasonic::Ultrasonic(int _TP, int _EP)
 {
-   pinMode(TP,OUTPUT);
-   pinMode(EP,INPUT);
-   Trig_pin=TP;
-   Echo_pin=EP;
+   pinMode(_TP,OUTPUT);
+   pinMode(_EP,INPUT);
+   Trig_pin=_TP;
+   Echo_pin=_EP;
 }
 
 long Ultrasonic::Timing()
