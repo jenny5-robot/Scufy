@@ -1,6 +1,6 @@
-#include "Ultrasonic.h"
+#include "ultrasonic.h"
 
-Ultrasonic::Ultrasonic(int _TP, int _EP)
+ultrasonic::ultrasonic(int _TP, int _EP)
 {
    pinMode(_TP,OUTPUT);
    pinMode(_EP,INPUT);
@@ -8,7 +8,7 @@ Ultrasonic::Ultrasonic(int _TP, int _EP)
    Echo_pin=_EP;
 }
 
-long Ultrasonic::Timing()
+long ultrasonic::Timing()
 {
   digitalWrite(Trig_pin, LOW);
   delayMicroseconds(2);
@@ -19,7 +19,7 @@ long Ultrasonic::Timing()
   return duration;
 }
 
-long Ultrasonic::Ranging()
+long ultrasonic::Ranging()
 {
   Timing();
   distacne_cm = duration / 29 / 2 ;

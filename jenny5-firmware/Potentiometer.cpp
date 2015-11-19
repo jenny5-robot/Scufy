@@ -27,27 +27,27 @@
 ||
 */
 
-#include "Potentiometer.h"
+#include "potentiometer.h"
 
-Potentiometer::Potentiometer(byte potPin){
+potentiometer::potentiometer(byte potPin){
 	pin=potPin;
 	setSectors(6);
 }
 
-Potentiometer::Potentiometer(byte potPin, uint16_t sectors){
+potentiometer::potentiometer(byte potPin, uint16_t sectors){
 	pin=potPin;
 	setSectors(sectors);
 }
 
-uint16_t Potentiometer::getValue(){
+uint16_t potentiometer::getValue(){
 	return analogRead(pin);
 }
 
-uint16_t Potentiometer::getSector(){
+uint16_t potentiometer::getSector(){
 	return analogRead(pin)/(1024/sectors);
 }
 
-void Potentiometer::setSectors(uint16_t newSectors){
+void potentiometer::setSectors(uint16_t newSectors){
 	if (newSectors<1024 && newSectors>0){
 		sectors=newSectors;
 	}else if (newSectors<0){
