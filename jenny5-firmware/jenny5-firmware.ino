@@ -1,12 +1,17 @@
+#include "ultrasonic_sensors_controller.h"
+#include "potentiometers_controller.h"
 #include "motors_control.h"
-#include "Ultrasonic.h"
-#include "PotentiometersController.h"
+#include "button_controller.h"
+#include "ultrasonic.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
+byte ultrasonic_trig_pins[2] = {48, 50};
+byte ultrasonic_echo_pins[2] = {49, 51};
 
-Ultrasonic ultrasonic(53,52);
+ultrasonic ultrasonic(53,52);
 t_motors_control motors_control(4);
-PotentiometersController potentiometers_control(potentiometers_pins, 4);
+t_potentiometers_controller potentiometers_control (4, potentiometers_pins);
+t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_trig_pins, ultrasonic_echo_pins);
 
 char is_command_running;
 
