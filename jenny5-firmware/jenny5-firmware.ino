@@ -14,7 +14,7 @@ t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_tri
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.20.0";// year.month.day.version
+char firmware_version[] = "2015.11.20.1";// year.month.day.version
 
 char current_buffer[65];
 
@@ -45,6 +45,56 @@ void setup()
   current_buffer[0] = 0;
   is_command_running = 0;
 }
+
+//--------------------------------------------------------------------------------------------
+void parse_and_execute_commands(char* tmp_str)
+{
+ // int i = 0;
+  
+              if (tmp_str[0] == 'M' || tmp_str[0] == 'm'){// moves motor
+                int motor_index, num_steps;
+                sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
+                motors_control.move_motor(motor_index, num_steps);
+                is_command_running = 1;
+              }
+              else
+                if (tmp_str[0] == 'D' || tmp_str[0] == 'd'){// disables motor
+                  int motor_index;
+                  sscanf(tmp_str, "%d", &motor_index);
+                  motors_control.disable_motor(motor_index);
+                }
+                else
+                  if (tmp_str[0] == 'L' || tmp_str[0] == 'l'){// locks motor
+                    int motor_index;
+                    sscanf(tmp_str, "%d", &motor_index);
+                    motors_control.lock_motor(motor_index);
+                  }
+                else
+                  if (tmp_str[0] == 'S' || tmp_str[0] == 's'){// motor speed
+                    int motor_index, motor_speed;
+                    sscanf(tmp_str, "%d%d", &motor_index, &motor_speed);
+                    motors_control.set_motor_speed(motor_index, motor_speed);
+                  }
+                else
+                  if (tmp_str[0] == 'A' || tmp_str[0] == 'a'){// motor acceleration
+                    int motor_index, motor_acceleration;
+                    sscanf(tmp_str, "%d%d", &motor_index, &motor_acceleration);
+                    motors_control.set_motor_acceleration(motor_index, motor_acceleration);
+                  }
+                else
+                  if (tmp_str[0] == 'U' || tmp_str[0] == 'u'){// ultrasonic
+                    int sensor_index;
+                    sscanf(tmp_str, "%d", &sensor_index);
+                      Serial.print(ultrasonic.Ranging());
+                  }
+                else
+                  if (tmp_str[0] == 'P' || tmp_str[0] == 'p'){// ultrasonic
+                    int sensor_index;
+                    sscanf(tmp_str, "%d", &sensor_index);
+                      Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
+                  }
+  
+}
 //--------------------------------------------------------------------------------------------
 //Main loop
 void loop() {
@@ -73,7 +123,7 @@ void loop() {
           for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
           if (j < buffer_length){
               char tmp_str[64];
-              strncpy(tmp_str, current_buffer + i + 1, j - i - 1);
+              strncpy(tmp_str, current_buffer + i, j - i);
               tmp_str[j - i - 1] = 0;
 
               #ifdef DEBUG
@@ -82,48 +132,6 @@ void loop() {
                 Serial.println();
               #endif
 
-              if (current_buffer[i] == 'M' || current_buffer[i] == 'm'){// moves motor
-                int motor_index, num_steps;
-                sscanf(tmp_str, "%d%d", &motor_index, &num_steps);
-                motors_control.move_motor(motor_index, num_steps);
-                is_command_running = 1;
-              }
-              else
-                if (current_buffer[i] == 'D' || current_buffer[i] == 'd'){// disables motor
-                  int motor_index;
-                  sscanf(tmp_str, "%d", &motor_index);
-                  motors_control.disable_motor(motor_index);
-                }
-                else
-                  if (current_buffer[i] == 'L' || current_buffer[i] == 'l'){// locks motor
-                    int motor_index;
-                    sscanf(tmp_str, "%d", &motor_index);
-                    motors_control.lock_motor(motor_index);
-                  }
-                else
-                  if (current_buffer[i] == 'S' || current_buffer[i] == 's'){// motor speed
-                    int motor_index, motor_speed;
-                    sscanf(tmp_str, "%d%d", &motor_index, &motor_speed);
-                    motors_control.set_motor_speed(motor_index, motor_speed);
-                  }
-                else
-                  if (current_buffer[i] == 'A' || current_buffer[i] == 'a'){// motor acceleration
-                    int motor_index, motor_acceleration;
-                    sscanf(tmp_str, "%d%d", &motor_index, &motor_acceleration);
-                    motors_control.set_motor_acceleration(motor_index, motor_acceleration);
-                  }
-                else
-                  if (current_buffer[i] == 'U' || current_buffer[i] == 'u'){// ultrasonic
-                    int sensor_index;
-                    sscanf(tmp_str, "%d", &sensor_index);
-                      Serial.print(ultrasonic.Ranging());
-                  }
-                else
-                  if (current_buffer[i] == 'P' || current_buffer[i] == 'p'){// ultrasonic
-                    int sensor_index;
-                    sscanf(tmp_str, "%d", &sensor_index);
-                      Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
-                  }
                
                     
               // remove the current executed command
