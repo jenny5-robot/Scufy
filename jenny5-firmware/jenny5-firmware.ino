@@ -2,7 +2,6 @@
 #include "potentiometers_controller.h"
 #include "motors_control.h"
 #include "button_controller.h"
-#include "ultrasonic.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
 byte ultrasonic_trig_pins[2] = {48, 50};
