@@ -15,7 +15,7 @@ t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_tri
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.19.0";// year.month.day.version
+char firmware_version[] = "2015.11.20.0";// year.month.day.version
 
 char current_buffer[65];
 
