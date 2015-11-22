@@ -14,7 +14,7 @@ t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_tri
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.20.2";// year.month.day.version
+char firmware_version[] = "2015.11.22.0";// year.month.day.version
 
 char current_buffer[65];
 
@@ -37,7 +37,9 @@ void setup()
   Serial.println("Lx#  // Lock motor x.");
   Serial.println("Sx y# // Sets speed of motor x to y.");
   Serial.println("Ax y# // Sets acceleration of motor x to y.");
-  Serial.println("Ux# // Gets the distance as measured by ultrasonic sensor x.");
+  Serial.println("Ux# // Gets the distance as measured by the ultrasonic sensor x.");
+  Serial.println("Bx# // Gets the status of the button x.");
+  Serial.println("Px# // Gets the position of the potentiometer x.");
   Serial.println("Motor index is between 0 and num_motors - 1");
   
   Serial.println();
