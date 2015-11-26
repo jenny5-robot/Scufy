@@ -4,12 +4,13 @@
 #include "button_controller.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
+t_limit_pair potentiometer_limits[4] = {{500, 1000}, {0, 1023}, {200, 600}, {300, 600}};
+
 byte ultrasonic_trig_pins[2] = {48, 50};
 byte ultrasonic_echo_pins[2] = {49, 51};
 
-ultrasonic ultrasonic(53,52);
 t_motors_control motors_control(4);
-t_potentiometers_controller potentiometers_control (4, potentiometers_pins);
+t_potentiometers_controller potentiometers_control (4, potentiometers_pins, potentiometer_limits);
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_trig_pins, ultrasonic_echo_pins);
 
 char is_command_running;
@@ -46,6 +47,8 @@ void setup()
 
   current_buffer[0] = 0;
   is_command_running = 0;
+
+  //motors_control.add_sensor(0, senTypePotentiometer, 0);
 }
 
 //--------------------------------------------------------------------------------------------
@@ -169,13 +172,50 @@ void loop() {
 // run motors
   bool is_one_motor_running = false;
   for (int m = 0; m < motors_control.num_motors; m++)
-    if (motors_control.steppers[m]->distanceToGo()){
-      motors_control.steppers[m]->run();
-      is_one_motor_running = true;
+  {
+    bool limit_reached = false;
+
+    if (motors_control.steppers[m]->distanceToGo())
+    {
+      for (byte j = 0 ; j < motors_control.motor_sensor_count[m] ; ++j)
+      {
+        byte sensor_index = motors_control.sensor_data[m][j].index;
+        t_sensor_type type = motors_control.sensor_data[m][j].sensor_type;
+
+        if (senTypePotentiometer == type)
+        {
+            if (0 == potentiometers_control.isWithinLimits(sensor_index))
+            {
+              limit_reached = true;
+            }
+        }
+        else if (senTypeUltrasound == type)
+        {
+          // deal with ultrasound sensor
+        }
+      }
+
+      //Serial.write("limit_reached:");
+      //Serial.write(limit_reached);
+      //Serial.println();
+
+      if (false == limit_reached)
+      {
+        motors_control.steppers[m]->run();
+        is_one_motor_running = true;
+      }
+      else
+      {
+        motors_control.steppers[m]->setCurrentPosition(0);
+      }
+
     }
     else{
       motors_control.steppers[m]->setCurrentPosition(0);
     }
+  }
+
+    
   if (!is_one_motor_running)
     is_command_running = 0;
 }
