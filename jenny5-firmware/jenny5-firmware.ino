@@ -40,6 +40,10 @@ void setup()
   Serial.println("Ux# // Gets the distance as measured by the ultrasonic sensor x.");
   Serial.println("Bx# // Gets the status of the button x.");
   Serial.println("Px# // Gets the position of the potentiometer x.");
+  Serial.println("Ix# // Gets the status of infrared sensor x.");
+  Serial.println("PL# // sets the min (lower) position for potentiometer x.");
+  Serial.println("PU# // sets the max (upper) position for potentiometer x.");
+  
   Serial.println("Motor index is between 0 and num_motors - 1");
   
   Serial.println();
@@ -101,6 +105,13 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
             Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
+            i++;
+          }
+        else
+          if (tmp_str[i] == 'I' || tmp_str[i] == 'i'){// infrared
+            int sensor_index;
+            sscanf(tmp_str + i + 1, "%d", &sensor_index);
+            //Serial.print(infrareds_control.get_infrared_value(sensor_index));
             i++;
           }
     }
