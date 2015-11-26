@@ -1,7 +1,7 @@
 #ifndef POTENTIOMETER_H_
 #define POTENTIOMETER_H_
 
-#include "potentiometer.h"
+#include "Potentiometer.h"
 
 class t_potentiometers_controller
 {

@@ -27,7 +27,7 @@
 ||
 */
 
-#include "potentiometer.h"
+#include "Potentiometer.h"
 
 potentiometer::potentiometer(byte potPin){
 	pin=potPin;
