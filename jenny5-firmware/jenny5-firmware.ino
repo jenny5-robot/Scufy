@@ -1,3 +1,6 @@
+//NON FUNCTIONAL
+#include <avr/pgmspace.h>
+
 #include "ultrasonic_sensors_controller.h"
 #include "potentiometers_controller.h"
 #include "motors_control.h"
@@ -28,31 +31,31 @@ void setup()
 
   Serial.begin(9600); //Open Serial connection
   
-  Serial.print("Jenny 5 firmware version: ");
+  Serial.print(F("Jenny 5 firmware version: "));
   Serial.print(firmware_version);
   Serial.println();
   //Print function list for user selection5
-  Serial.println("Commands are:");
-  Serial.println("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.");
-  Serial.println("Dx#  // Disables motor x.");
-  Serial.println("Lx#  // Lock motor x.");
-  Serial.println("Sx y# // Sets speed of motor x to y.");
-  Serial.println("Ax y# // Sets acceleration of motor x to y.");
-  Serial.println("Ux# // Gets the distance as measured by the ultrasonic sensor x.");
-  Serial.println("Bx# // Gets the status of the button x.");
-  Serial.println("Px# // Gets the position of the potentiometer x.");
-  Serial.println("Ix# // Gets the status of infrared sensor x.");
-  Serial.println("PL# // sets the min (lower) position for potentiometer x.");
-  Serial.println("PU# // sets the max (upper) position for potentiometer x.");
+  Serial.println(F("Commands are:"));
+  Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement."));
+  Serial.println(F("Dx#  // Disables motor x."));
+  Serial.println(F("Lx#  // Lock motor x."));
+  Serial.println(F("Sx y# // Sets speed of motor x to y."));
+  Serial.println(F("Ax y# // Sets acceleration of motor x to y."));
+  Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x."));
+  Serial.println(F("Bx# // Gets the status of the button x."));
+  Serial.println(F("Px# // Gets the position of the potentiometer x."));
+  Serial.println(F("Ix# // Gets the status of infrared sensor x."));
+  Serial.println(F("PL# // sets the min (lower) position for potentiometer x."));
+  Serial.println(F("PU# // sets the max (upper) position for potentiometer x."));
   
-  Serial.println("Motor index is between 0 and num_motors - 1");
+  Serial.println(F("Motor index is between 0 and num_motors - 1"));
   
   Serial.println();
 
   current_buffer[0] = 0;
   is_command_running = 0;
 
-  //motors_control.add_sensor(0, senTypePotentiometer, 0);
+  motors_control.add_sensor(0, senTypePotentiometer, 0); // THIS IS ONLY FOR TEST PURPOSE
 }
 
 //--------------------------------------------------------------------------------------------

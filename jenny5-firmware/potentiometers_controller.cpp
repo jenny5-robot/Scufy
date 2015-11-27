@@ -3,7 +3,7 @@
 
 t_potentiometers_controller::t_potentiometers_controller(byte num_potentiometers, byte *potentiometer_pins, t_limit_pair *limits)
 {
-	limits = new t_limit_pair[num_potentiometers];
+	this->limits = new t_limit_pair[num_potentiometers];
 	pins = new byte[num_potentiometers];
 
 	for (byte i = 0; i < num_potentiometers; ++i)
