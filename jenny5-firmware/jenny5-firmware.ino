@@ -1,4 +1,3 @@
-//NON FUNCTIONAL
 #include <avr/pgmspace.h>
 
 #include "ultrasonic_sensors_controller.h"
