@@ -26,10 +26,7 @@ t_motors_control::t_motors_control(byte _num_motors)
 	default_motor_acceleration = 100;
 
   steppers = new AccelStepper*[num_motors];
-  sensor_data = new t_sensor_data*[num_motors];
-
-  motor_sensor_count = new byte[num_motors];
-  memset(motor_sensor_count, 0, sizeof(byte) * num_motors);
+  sensors = new t_sensor_array[num_motors];
 
 	for (byte m = 0; m < num_motors; m++)
 	{
@@ -37,11 +34,6 @@ t_motors_control::t_motors_control(byte _num_motors)
 		steppers[m]->setMaxSpeed(default_motor_speed);
 		steppers[m]->setSpeed(default_motor_speed);
 		steppers[m]->setAcceleration(default_motor_acceleration);
-
-
-
-		sensor_data[m] = new t_sensor_data[MAX_SENSORS_PER_MOTOR];
-		memset(sensor_data[0], 0, sizeof(t_sensor_data) * MAX_SENSORS_PER_MOTOR);
 	}
 }
 //-------------------------------------------------------------------------------
@@ -60,6 +52,13 @@ void t_motors_control::set_motor_speed(byte motor_index, int motor_speed)
 void t_motors_control::set_motor_acceleration(byte motor_index, int motor_acceleration)
 {
 	steppers[motor_index]->setAcceleration(motor_acceleration);
+}
+//-------------------------------------------------------------------------------
+void t_motors_control::set_motor_speed_and_acceleration(byte motor_index, int motor_speed, int motor_acceleration)
+{
+  steppers[motor_index]->setMaxSpeed(motor_speed);
+  steppers[motor_index]->setSpeed(motor_speed);
+  steppers[motor_index]->setAcceleration(motor_acceleration);
 }
 //-------------------------------------------------------------------------------
 void t_motors_control::disable_motor(byte motor_index)
@@ -81,39 +80,54 @@ void t_motors_control::reset_pins()
 	  digitalWrite(enable_pins[m], HIGH); // all motors are disabled now
   }
 }
-
-
-void t_motors_control::add_sensor(byte motor_index, t_sensor_type sensor_type, byte sensor_index)
+//-------------------------------------------------------------------------------
+void t_motors_control::add_sensor(byte motor_index, byte sensor_type, byte sensor_index)
 {
-	if (MAX_SENSORS_PER_MOTOR - 1 == this->motor_sensor_count[motor_index])
-	{
-		// if we reached the sensor count per motor limit, exit
-		// maybe return an error code?
-		return;
-	}
-
-	this->sensor_data[motor_index][++motor_sensor_count[motor_index]].sensor_type = sensor_type;
-	this->sensor_data[motor_index][motor_sensor_count[motor_index]].index = sensor_index;
+	sensors[motor_index].sensors_array[sensors[motor_index].count].sensor_type = sensor_type;
+	sensors[motor_index].sensors_array[sensors[motor_index].count].index = sensor_index;
+  sensors[motor_index].count++;
 }
-
-void t_motors_control::remove_sensor(byte motor_index, t_sensor_type sensor_type, byte sensor_index)
-{
-	for (byte i = 0 ; i < motor_sensor_count[motor_index] ; ++i)
-	{
-		if (sensor_data[motor_index][i].sensor_type == sensor_type &&
-			sensor_data[motor_index][i].index == sensor_index)
-		{
-			--motor_sensor_count[motor_index];
-			if (i < MAX_SENSORS_PER_MOTOR - 1)
-			{
-				memcpy(&sensor_data[motor_index][i], &sensor_data[motor_index][i + 1], MAX_SENSORS_PER_MOTOR - i - 1);	
-				sensor_data[motor_index][MAX_SENSORS_PER_MOTOR - 1].sensor_type = senTypeNone;
-			}
-		}
-	}
-}
-
+//-------------------------------------------------------------------------------
+/*
 void t_motors_control::remove_all_sensors(byte motor_index)
 {
 	memset(sensor_data[motor_index], 0, MAX_SENSORS_PER_MOTOR * sizeof(t_sensor_data));
 }
+*/
+//-------------------------------------------------------------------------------
+void t_motors_control::set_num_attached_sensors(byte motor_index, byte num_sensors)
+{
+  if (sensors[motor_index].count != num_sensors){
+    // clear memory if the array has a different size
+    if (sensors[motor_index].sensors_array){
+      delete[] sensors[motor_index].sensors_array;
+      sensors[motor_index].sensors_array = NULL;
+    }
+
+    if (num_sensors > 0){
+      sensors[motor_index].sensors_array = new t_sensor_info[num_sensors]; // allocate memory for them
+    }
+  }
+  sensors[motor_index].count = 0; // actual number of sensors
+}
+//-------------------------------------------------------------------------------
+/*
+void t_motors_control::remove_sensor(byte motor_index, t_sensor_type sensor_type, byte sensor_index)
+{
+  for (byte i = 0 ; i < motor_sensor_count[motor_index] ; ++i)
+  {
+    if (sensor_data[motor_index][i].sensor_type == sensor_type &&
+      sensor_data[motor_index][i].index == sensor_index)
+    {
+      --motor_sensor_count[motor_index];
+      if (i < MAX_SENSORS_PER_MOTOR - 1)
+      {
+        memcpy(&sensor_data[motor_index][i], &sensor_data[motor_index][i + 1], MAX_SENSORS_PER_MOTOR - i - 1);  
+        sensor_data[motor_index][MAX_SENSORS_PER_MOTOR - 1].sensor_type = senTypeNone;
+      }
+    }
+  }
+}
+*/
+//-------------------------------------------------------------------------------
+

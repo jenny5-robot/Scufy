@@ -1,19 +1,35 @@
 #include "Arduino.h"
 #include "AccelStepper.h"
 
-#define MAX_SENSORS_PER_MOTOR 6
+//#define MAX_SENSORS_PER_MOTOR 6
 
-enum t_sensor_type {
-	senTypeNone = 0,
-	senTypePotentiometer = 1,
-	senTypeUltrasound = 2,
-};
 
-struct t_sensor_data {
-	t_sensor_type 	sensor_type;
+//---------------------------------------------------
+struct t_sensor_info {
+	byte 	sensor_type;
 	byte			index;
 };
+//---------------------------------------------------
+class t_sensor_array{
+  public:
+  t_sensor_info *sensors_array;
+  byte count;
 
+  t_sensor_array(void)
+  {
+    sensors_array = NULL;
+    count = 0;
+  }
+  ~t_sensor_array(void)
+  {
+    if (sensors_array){
+      delete[] sensors_array;
+      sensors_array = NULL;
+    }
+    count = 0;
+  }
+};
+//---------------------------------------------------
 class t_motors_control
 {
 public:
@@ -26,10 +42,9 @@ public:
 	int default_motor_speed; //maximum steps per second 
 	int default_motor_acceleration; //steps/second/second to accelerate
 
-  	byte 			num_motors;
+  byte 			num_motors;
   
-  	byte			*motor_sensor_count;
-  	t_sensor_data	**sensor_data;
+  t_sensor_array	*sensors;
 	AccelStepper 	**steppers;
 	
 public:
@@ -40,15 +55,20 @@ public:
 	void set_motor_speed(byte motor_index, int motor_speed);
 	
 	void set_motor_acceleration(byte motor_index, int motor_acceleration);
+
+  void set_motor_speed_and_acceleration(byte motor_index, int motor_speed, int motor_acceleration);
 	
 	void disable_motor(byte motor_index);
 	
 	void lock_motor(byte motor_index);
 
-	void add_sensor(byte motor_index, t_sensor_type sensor_type, byte sensor_index);
-	void remove_sensor(byte motor_index, t_sensor_type, byte sensor_index);
-	void remove_all_sensors(byte motor_index);
+  void set_num_attached_sensors(byte motor_index, byte num_sensors);
+
+	void add_sensor(byte motor_index, byte sensor_type, byte sensor_index);
+	//void remove_sensor(byte motor_index, t_sensor_type, byte sensor_index);
+	//void remove_all_sensors(byte motor_index);
 	
 	//Reset pins to default states
 	void reset_pins();
 };
+//---------------------------------------------------

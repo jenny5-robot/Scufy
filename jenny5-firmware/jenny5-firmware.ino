@@ -4,6 +4,7 @@
 #include "potentiometers_controller.h"
 #include "motors_control.h"
 #include "button_controller.h"
+#include "jenny5_types.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
 t_limit_pair potentiometer_limits[4] = {{500, 1000}, {0, 1023}, {200, 600}, {300, 600}};
@@ -17,7 +18,7 @@ t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_tri
 
 char is_command_running;
 
-char firmware_version[] = "2015.11.22.0";// year.month.day.version
+char firmware_version[] = "2015.12.09.0";// year.month.day.version
 
 char current_buffer[65];
 
@@ -38,14 +39,14 @@ void setup()
   Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement."));
   Serial.println(F("Dx#  // Disables motor x."));
   Serial.println(F("Lx#  // Lock motor x."));
-  Serial.println(F("Sx y# // Sets speed of motor x to y."));
-  Serial.println(F("Ax y# // Sets acceleration of motor x to y."));
+  Serial.println(F("Sx s a# // Sets speed of motor x to s and the acceleration to a."));
+  Serial.println(F("Ax n Py Bz ... # // Attach to motor x a list of n sensors (like Potentiometer y, Button z etc)."));
   Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x."));
   Serial.println(F("Bx# // Gets the status of the button x."));
   Serial.println(F("Px# // Gets the position of the potentiometer x."));
   Serial.println(F("Ix# // Gets the status of infrared sensor x."));
-  Serial.println(F("PL# // sets the min (lower) position for potentiometer x."));
-  Serial.println(F("PU# // sets the max (upper) position for potentiometer x."));
+//  Serial.println(F("PL# // sets the min (lower) position for potentiometer x."));
+//  Serial.println(F("PU# // sets the max (upper) position for potentiometer x."));
   
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
   
@@ -54,7 +55,7 @@ void setup()
   current_buffer[0] = 0;
   is_command_running = 0;
 
-  motors_control.add_sensor(0, senTypePotentiometer, 0); // THIS IS ONLY FOR TEST PURPOSE
+  //motors_control.add_sensor(0, senTypePotentiometer, 0); // THIS IS ONLY FOR TEST PURPOSE
 }
 
 //--------------------------------------------------------------------------------------------
@@ -85,17 +86,27 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             i++;
           }
         else
-          if (tmp_str[i] == 'S' || tmp_str[i] == 's'){// motor speed
-            int motor_index, motor_speed;
-            sscanf(tmp_str + i + 1, "%d%d", &motor_index, &motor_speed);
-            motors_control.set_motor_speed(motor_index, motor_speed);
+          if (tmp_str[i] == 'S' || tmp_str[i] == 's'){// motor speed and acceleration
+            int motor_index, motor_speed, motor_acceleration;
+            sscanf(tmp_str + i + 1, "%d%d%d", &motor_index, &motor_speed, &motor_acceleration);
+            motors_control.set_motor_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
             i += 3;
           }
         else
-          if (tmp_str[i] == 'A' || tmp_str[i] == 'a'){// motor acceleration
-            int motor_index, motor_acceleration;
-            sscanf(tmp_str + i + 1, "%d%d", &motor_index, &motor_acceleration);
-            motors_control.set_motor_acceleration(motor_index, motor_acceleration);
+          if (tmp_str[i] == 'A' || tmp_str[i] == 'a'){// attach sensors to motors
+            int motor_index, num_sensors;
+            sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_sensors);
+            motors_control.set_num_attached_sensors(motor_index, num_sensors);
+            // now I have to add sensors one by one
+            int j = i + 3;
+            while (j < str_length){
+              if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){
+                int sensor_index;
+                sscanf(tmp_str + j + 1, "%d", &sensor_index);
+                motors_control.add_sensor(motor_index, POTENTIOMETER, sensor_index);
+              }
+              j++;
+            }
             i += 3;
           }
         else
@@ -190,19 +201,19 @@ void loop() {
 
     if (motors_control.steppers[m]->distanceToGo())
     {
-      for (byte j = 0 ; j < motors_control.motor_sensor_count[m] ; ++j)
+      for (byte j = 0 ; j < motors_control.sensors[m].count ; ++j)
       {
-        byte sensor_index = motors_control.sensor_data[m][j].index;
-        t_sensor_type type = motors_control.sensor_data[m][j].sensor_type;
+        byte sensor_index = motors_control.sensors[m].sensors_array[j].index;
+        byte type = motors_control.sensors[m].sensors_array[j].sensor_type;
 
-        if (senTypePotentiometer == type)
+        if (POTENTIOMETER == type)
         {
             if (0 == potentiometers_control.isWithinLimits(sensor_index))
             {
               limit_reached = true;
             }
         }
-        else if (senTypeUltrasound == type)
+        else if (ULTRASOUND == type)
         {
           // deal with ultrasound sensor
         }
