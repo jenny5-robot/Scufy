@@ -19,9 +19,9 @@ Dx# -- Disables motor x.
 
 Lx# -- Locks motor x.
 
-Sx y# -- Sets speed of motor x to y.
+Sx y z# -- Sets speed of motor x to y and the acceleration to z.
 
-Ax y# -- Sets acceleration of motor x to y.
+Ax n Uy Pz# -- Appends n sensors to motor x (like Ultrasound y and Potentiometer z).
 
 Ux# -- Gets the distance from an ultrasound sensor.
 
