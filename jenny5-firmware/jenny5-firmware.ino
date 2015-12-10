@@ -7,7 +7,7 @@
 #include "jenny5_types.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
-t_limit_pair potentiometer_limits[4] = {{500, 1000}, {0, 1023}, {200, 600}, {300, 600}};
+t_limit_pair potentiometer_limits[4] = {{500, 1000}, {500, 1023}, {200, 600}, {300, 600}};
 
 byte ultrasonic_trig_pins[2] = {48, 50};
 byte ultrasonic_echo_pins[2] = {49, 51};
@@ -45,6 +45,7 @@ void setup()
   Serial.println(F("Bx# // Gets the status of the button x."));
   Serial.println(F("Px# // Gets the position of the potentiometer x."));
   Serial.println(F("Ix# // Gets the status of infrared sensor x."));
+  Serial.println(F("G# // Prints for each motor: [sensor index, sensor type, sensor value, is whithin limits]"));
 //  Serial.println(F("PL# // sets the min (lower) position for potentiometer x."));
 //  Serial.println(F("PU# // sets the max (upper) position for potentiometer x."));
   
@@ -100,7 +101,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             // now I have to add sensors one by one
             int j = i + 3;
             while (j < str_length){
-              if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){
+              if (tmp_str[j] == 'P' || tmp_str[j] == 'p'){
                 int sensor_index;
                 sscanf(tmp_str + j + 1, "%d", &sensor_index);
                 motors_control.add_sensor(motor_index, POTENTIOMETER, sensor_index);
@@ -130,15 +131,38 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             //Serial.print(infrareds_control.get_infrared_value(sensor_index));
             i++;
           }
+        else
+          if (tmp_str[i] == 'G' || tmp_str[i] == 'g'){// for debugging purpose
+            int index;
+            for(index = 0; index < motors_control.num_motors; index++) {
+              Serial.print("Motor: ");
+              Serial.println(index);
+              for (byte j = 0 ; j < motors_control.sensors[index].count ; ++j) {
+                byte sensor_index = motors_control.sensors[index].sensors_array[j].index;
+                byte type = motors_control.sensors[index].sensors_array[j].sensor_type;
+                Serial.print("Sensor index: ");
+                Serial.print(sensor_index);
+                Serial.print(", Type: ");
+                
+                if (POTENTIOMETER == type)
+                  Serial.print("potentiometer, Value: ");
+                  Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
+                  Serial.print(", Is whitin limits: ");
+                  Serial.println(potentiometers_control.isWithinLimits(sensor_index));
+                }
+            }
+            i++;
+        }
     }
     else
       i++;
   }
 }
+
 //--------------------------------------------------------------------------------------------
 //Main loop
 void loop() {
-  
+
   if (!is_command_running && (Serial.available() || current_buffer[0])) {
     int num_read = 0;
     char arduino_buffer[65];
