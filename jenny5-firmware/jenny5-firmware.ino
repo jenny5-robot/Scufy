@@ -18,7 +18,7 @@ t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_tri
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.09.0";// year.month.day.version
+char firmware_version[] = "2015.12.19.1";// year.month.day.built number
 
 char current_buffer[65];
 
@@ -64,7 +64,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
 {
   byte i = 0;
   while (i < str_length){
-    if (current_buffer[i] >= 'A' && current_buffer[i] <= 'Z' || current_buffer[i] >= 'a' && current_buffer[i] <= 'z'){
+    if (tmp_str[i] >= 'A' && tmp_str[i] <= 'Z' || tmp_str[i] >= 'a' && tmp_str[i] <= 'z'){
       if (tmp_str[i] == 'M' || tmp_str[i] == 'm'){// moves motor
         int motor_index, num_steps;
         sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_steps);
@@ -191,6 +191,7 @@ void loop() {
               tmp_str[j - i] = 0;
 
               #ifdef DEBUG
+                
                 Serial.write("current command is=");
                 Serial.write(tmp_str);
                 Serial.println();
@@ -199,7 +200,7 @@ void loop() {
               parse_and_execute_commands(tmp_str, j - i);
                     
               // remove the current executed command
-              strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good
+              strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good due to overlaps
               
               #ifdef DEBUG
                 Serial.write("buffer left=");
