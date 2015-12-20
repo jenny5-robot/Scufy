@@ -18,7 +18,7 @@ t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_tri
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.19.1";// year.month.day.built number
+char firmware_version[] = "2015.12.20.0";// year.month.day.built number
 
 char current_buffer[65];
 
@@ -186,18 +186,19 @@ void loop() {
           int j = i + 1;
           for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
           if (j < buffer_length){
-              char tmp_str[64];
-              strncpy(tmp_str, current_buffer + i, j - i);
-              tmp_str[j - i] = 0;
 
               #ifdef DEBUG
-                
+                char tmp_str[64];
+                strncpy(tmp_str, current_buffer + i, j - i);
+                tmp_str[j - i] = 0;
                 Serial.write("current command is=");
                 Serial.write(tmp_str);
                 Serial.println();
               #endif
 
-              parse_and_execute_commands(tmp_str, j - i);
+             //parse_and_execute_commands(tmp_str, j - i);
+             parse_and_execute_commands(current_buffer + i, j - i);
+             
                     
               // remove the current executed command
               strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good due to overlaps
@@ -211,7 +212,7 @@ void loop() {
               
               break; //for i
           }
-          else{// the string is not completed ... so I must wait more...
+          else{// the string is not completed ... so I must wait for more...
             break; // for i
           }
         }
