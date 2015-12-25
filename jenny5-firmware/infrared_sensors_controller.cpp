@@ -8,7 +8,15 @@ t_infrared_sensors_controller::t_infrared_sensors_controller(byte _numberOfSenso
     sensors[i] = new infrared(_analogPinNumber[i], _minValid[i], _maxValid[i]);  
 }
 
-byte t_infrared_sensors_controller::getDistanceFromSensor(byte _sensorIndex, int startValue, int endValue)
+t_infrared_sensors_controller::t_infrared_sensors_controller(byte _numberOfSensors, byte *_analogPinNumber)
+{
+  numberOfSensors = _numberOfSensors;
+  sensors = new infrared*[numberOfSensors];
+  for (byte i = 0; i < numberOfSensors; i++)
+    sensors[i] = new infrared(_analogPinNumber[i], 0, 100);  
+}
+
+byte t_infrared_sensors_controller::is_within_range(byte _sensorIndex, int startValue, int endValue)
 {
 	if (sensors[_sensorIndex]->sensorValue >= startValue && sensors[_sensorIndex]->sensorValue <= endValue)
 		return 1;
@@ -16,7 +24,7 @@ byte t_infrared_sensors_controller::getDistanceFromSensor(byte _sensorIndex, int
 		return 0;
 }
 
-int t_infrared_sensors_controller::getSensorValue(byte _sensorIndex) {
+int t_infrared_sensors_controller::get_distance(byte _sensorIndex) {
   return sensors[_sensorIndex]->sensorValue;
 }
 

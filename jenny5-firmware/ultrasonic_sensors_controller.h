@@ -7,7 +7,7 @@
 class t_ultrasonic_sensors_controller
 {
 public:
-	ultrasonic **sensors;
+	t_ultrasonic **sensors;
 
 	byte num_sensors;
 

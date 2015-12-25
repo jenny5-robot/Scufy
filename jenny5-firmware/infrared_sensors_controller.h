@@ -12,9 +12,10 @@ class t_infrared_sensors_controller
 	
 	public:
 		t_infrared_sensors_controller(byte _numberOfSensors, byte *_analogPinNumber, int *_minValid, int *_maxValid);
-		byte getDistanceFromSensor(byte _sensorIndex, int startValue, int endValue);
+   t_infrared_sensors_controller(byte _numberOfSensors, byte *_analogPinNumber);
+		byte is_within_range(byte _sensorIndex, int startValue, int endValue);
 		void updateSensor(byte _sensorIndex);
-    int getSensorValue(byte _sensorIndex);
+    int get_distance(byte _sensorIndex);
 };
 
 #endif //T_INFRARED_SENSORS_CONTROLLER_H
