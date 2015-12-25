@@ -5,6 +5,7 @@
 #include "motors_control.h"
 #include "button_controller.h"
 #include "jenny5_types.h"
+#include "infrared_sensors_controller.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
 t_limit_pair potentiometer_limits[4] = {{500, 1000}, {500, 1023}, {200, 600}, {300, 600}};
@@ -12,13 +13,16 @@ t_limit_pair potentiometer_limits[4] = {{500, 1000}, {500, 1023}, {200, 600}, {3
 byte ultrasonic_trig_pins[2] = {48, 50};
 byte ultrasonic_echo_pins[2] = {49, 51};
 
+byte infrared_pins[2] = {52, 53};
+
 t_motors_control motors_control(4);
 t_potentiometers_controller potentiometers_control (4, potentiometers_pins, potentiometer_limits);
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_trig_pins, ultrasonic_echo_pins);
+t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.20.0";// year.month.day.built number
+char firmware_version[] = "2015.12.25.1";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -54,9 +58,6 @@ void setup()
   Serial.println();
 
   current_buffer[0] = 0;
-  is_command_running = 0;
-
-  //motors_control.add_sensor(0, senTypePotentiometer, 0); // THIS IS ONLY FOR TEST PURPOSE
 }
 
 //--------------------------------------------------------------------------------------------
@@ -69,6 +70,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
         int motor_index, num_steps;
         sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_steps);
         motors_control.move_motor(motor_index, num_steps);
+        motors_control.set_motor_running(motor_index, 1);
         is_command_running = 1;
         i += 3;
       }
@@ -114,21 +116,27 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
           if (tmp_str[i] == 'U' || tmp_str[i] == 'u'){// ultrasonic
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
+            Serial.write('U');
             Serial.print(ultrasonic_sensors_controller.getDistanceForSensor(sensor_index));
+            Serial.write('#');
             i++;
           }
         else
           if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
+            Serial.write('P');
             Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
+            Serial.write('#');
             i++;
           }
         else
           if (tmp_str[i] == 'I' || tmp_str[i] == 'i'){// infrared
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            //Serial.print(infrareds_control.get_infrared_value(sensor_index));
+            Serial.write('I');
+            Serial.print(infrared_sensors_control.get_distance(sensor_index));
+            Serial.write('#');
             i++;
           }
         else
@@ -158,19 +166,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
       i++;
   }
 }
-
 //--------------------------------------------------------------------------------------------
 //Main loop
 void loop() {
 
-  if (!is_command_running && (Serial.available() || current_buffer[0])) {
+  if (Serial.available() || current_buffer[0]) {
     int num_read = 0;
-    char arduino_buffer[65];
+    char serial_buffer[65];
 
-    num_read = Serial.readBytes(arduino_buffer, 64); //Read up to 64 bytes
-    arduino_buffer[num_read] = 0;// terminate the string
-    if (arduino_buffer[0] || current_buffer[0]){
-      strcat(current_buffer, arduino_buffer);
+    num_read = Serial.readBytes(serial_buffer, 64); //Read up to 64 bytes
+    serial_buffer[num_read] = 0;// terminate the string
+    if (serial_buffer[0] || current_buffer[0]){
+      strcat(current_buffer, serial_buffer);
       
       #ifdef DEBUG
         Serial.write("initial buffer is=");
@@ -235,9 +242,7 @@ void loop() {
         if (POTENTIOMETER == type)
         {
             if (0 == potentiometers_control.isWithinLimits(sensor_index))
-            {
               limit_reached = true;
-            }
         }
         else if (ULTRASOUND == type)
         {
@@ -245,28 +250,29 @@ void loop() {
         }
       }
 
-      //Serial.write("limit_reached:");
-      //Serial.write(limit_reached);
-      //Serial.println();
-
-      if (false == limit_reached)
+      if (!limit_reached)
       {
         motors_control.steppers[m]->run();
         is_one_motor_running = true;
       }
-      else
-      {
+      else{
         motors_control.steppers[m]->setCurrentPosition(0);
+        motors_control.set_motor_running(m, 0);
+        Serial.write("M");
+        Serial.print(m);
+        Serial.write('#');
       }
-
     }
     else{
       motors_control.steppers[m]->setCurrentPosition(0);
+// the motor has just finished the move, so we output that event
+      if (motors_control.is_motor_running(m)){
+        motors_control.set_motor_running(m, 0);
+        Serial.write("M");
+        Serial.print(m);
+        Serial.write('#');
+      }
     }
   }
-
-    
-  if (!is_one_motor_running)
-    is_command_running = 0;
 }
 
