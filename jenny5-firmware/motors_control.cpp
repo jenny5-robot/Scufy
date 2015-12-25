@@ -28,12 +28,15 @@ t_motors_control::t_motors_control(byte _num_motors)
   steppers = new AccelStepper*[num_motors];
   sensors = new t_sensor_array[num_motors];
 
+  motors_running = new byte[num_motors];
+
 	for (byte m = 0; m < num_motors; m++)
 	{
 		steppers[m] = new AccelStepper(AccelStepper::DRIVER, step_pins[m], dir_pins[m]);
 		steppers[m]->setMaxSpeed(default_motor_speed);
 		steppers[m]->setSpeed(default_motor_speed);
 		steppers[m]->setAcceleration(default_motor_acceleration);
+    motors_running[m] = 0;
 	}
 }
 //-------------------------------------------------------------------------------
@@ -111,23 +114,13 @@ void t_motors_control::set_num_attached_sensors(byte motor_index, byte num_senso
   sensors[motor_index].count = 0; // actual number of sensors
 }
 //-------------------------------------------------------------------------------
-/*
-void t_motors_control::remove_sensor(byte motor_index, t_sensor_type sensor_type, byte sensor_index)
+void t_motors_control::set_motor_running(byte motor_index, byte is_running)
 {
-  for (byte i = 0 ; i < motor_sensor_count[motor_index] ; ++i)
-  {
-    if (sensor_data[motor_index][i].sensor_type == sensor_type &&
-      sensor_data[motor_index][i].index == sensor_index)
-    {
-      --motor_sensor_count[motor_index];
-      if (i < MAX_SENSORS_PER_MOTOR - 1)
-      {
-        memcpy(&sensor_data[motor_index][i], &sensor_data[motor_index][i + 1], MAX_SENSORS_PER_MOTOR - i - 1);  
-        sensor_data[motor_index][MAX_SENSORS_PER_MOTOR - 1].sensor_type = senTypeNone;
-      }
-    }
-  }
+  motors_running[motor_index] = is_running;
 }
-*/
 //-------------------------------------------------------------------------------
-
+byte t_motors_control::is_motor_running(byte motor_index)
+{
+  return motors_running[motor_index];
+}
+//-------------------------------------------------------------------------------

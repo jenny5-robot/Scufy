@@ -46,6 +46,7 @@ public:
   
   t_sensor_array	*sensors;
 	AccelStepper 	**steppers;
+ byte *motors_running;
 	
 public:
 	t_motors_control(byte _num_motors);
@@ -65,10 +66,11 @@ public:
   void set_num_attached_sensors(byte motor_index, byte num_sensors);
 
 	void add_sensor(byte motor_index, byte sensor_type, byte sensor_index);
-	//void remove_sensor(byte motor_index, t_sensor_type, byte sensor_index);
-	//void remove_all_sensors(byte motor_index);
-	
-	//Reset pins to default states
+
+  void set_motor_running(byte motor_index, byte is_running);
+  byte is_motor_running(byte motor_index);
+
 	void reset_pins();
+  bool run(void);
 };
 //---------------------------------------------------
