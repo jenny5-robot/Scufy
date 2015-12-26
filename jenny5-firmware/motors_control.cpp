@@ -28,6 +28,9 @@ t_motors_control::t_motors_control(byte _num_motors)
   steppers = new AccelStepper*[num_motors];
   sensors = new t_sensor_array[num_motors];
 
+  motor_acceleration = new int[num_motors];
+  motor_speed = new int[num_motors];
+
   motors_running = new byte[num_motors];
 
 	for (byte m = 0; m < num_motors; m++)
@@ -36,6 +39,8 @@ t_motors_control::t_motors_control(byte _num_motors)
 		steppers[m]->setMaxSpeed(default_motor_speed);
 		steppers[m]->setSpeed(default_motor_speed);
 		steppers[m]->setAcceleration(default_motor_acceleration);
+    motor_acceleration[m] = default_motor_acceleration;
+    motor_speed[m] = default_motor_speed;
     motors_running[m] = 0;
 	}
 }
@@ -46,22 +51,26 @@ void t_motors_control::move_motor(byte motor_index, int num_steps)
   steppers[motor_index]->moveTo(num_steps); //move num_steps
 }
 //-------------------------------------------------------------------------------
-void t_motors_control::set_motor_speed(byte motor_index, int motor_speed)
+void t_motors_control::set_motor_speed(byte motor_index, int _motor_speed)
 {
-	steppers[motor_index]->setMaxSpeed(motor_speed);
-	steppers[motor_index]->setSpeed(motor_speed);
+	steppers[motor_index]->setMaxSpeed(_motor_speed);
+	steppers[motor_index]->setSpeed(_motor_speed);
+  motor_speed[motor_index] = _motor_speed;
 }
 //-------------------------------------------------------------------------------
-void t_motors_control::set_motor_acceleration(byte motor_index, int motor_acceleration)
+void t_motors_control::set_motor_acceleration(byte motor_index, int _motor_acceleration)
 {
-	steppers[motor_index]->setAcceleration(motor_acceleration);
+	steppers[motor_index]->setAcceleration(_motor_acceleration);
+ motor_acceleration[motor_index] = _motor_acceleration;
 }
 //-------------------------------------------------------------------------------
-void t_motors_control::set_motor_speed_and_acceleration(byte motor_index, int motor_speed, int motor_acceleration)
+void t_motors_control::set_motor_speed_and_acceleration(byte motor_index, int _motor_speed, int _motor_acceleration)
 {
-  steppers[motor_index]->setMaxSpeed(motor_speed);
-  steppers[motor_index]->setSpeed(motor_speed);
-  steppers[motor_index]->setAcceleration(motor_acceleration);
+  steppers[motor_index]->setMaxSpeed(_motor_speed);
+  steppers[motor_index]->setSpeed(_motor_speed);
+  steppers[motor_index]->setAcceleration(_motor_acceleration);
+  motor_acceleration[motor_index] = _motor_acceleration;
+  motor_speed[motor_index] = _motor_speed;
 }
 //-------------------------------------------------------------------------------
 void t_motors_control::disable_motor(byte motor_index)
@@ -86,17 +95,10 @@ void t_motors_control::reset_pins()
 //-------------------------------------------------------------------------------
 void t_motors_control::add_sensor(byte motor_index, byte sensor_type, byte sensor_index)
 {
-	sensors[motor_index].sensors_array[sensors[motor_index].count].sensor_type = sensor_type;
+	sensors[motor_index].sensors_array[sensors[motor_index].count].type = sensor_type;
 	sensors[motor_index].sensors_array[sensors[motor_index].count].index = sensor_index;
   sensors[motor_index].count++;
 }
-//-------------------------------------------------------------------------------
-/*
-void t_motors_control::remove_all_sensors(byte motor_index)
-{
-	memset(sensor_data[motor_index], 0, MAX_SENSORS_PER_MOTOR * sizeof(t_sensor_data));
-}
-*/
 //-------------------------------------------------------------------------------
 void t_motors_control::set_num_attached_sensors(byte motor_index, byte num_sensors)
 {
@@ -122,5 +124,17 @@ void t_motors_control::set_motor_running(byte motor_index, byte is_running)
 byte t_motors_control::is_motor_running(byte motor_index)
 {
   return motors_running[motor_index];
+}
+//-------------------------------------------------------------------------------
+void t_motors_control::get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index)
+{
+  *sensor_type = sensors[motor_index].sensors_array[sensor_index_in_motor_list].type;
+  *sensor_index = sensors[motor_index].sensors_array[sensor_index_in_motor_list].index;
+}
+//-------------------------------------------------------------------------------
+void t_motors_control::get_motor_speed_and_acceleration(byte motor_index, int *_motor_speed, int *_motor_acceleration)
+{
+  *_motor_acceleration = motor_acceleration[motor_index];
+  *_motor_speed = motor_speed[motor_index];
 }
 //-------------------------------------------------------------------------------

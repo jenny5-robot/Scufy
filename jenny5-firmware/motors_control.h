@@ -6,7 +6,7 @@
 
 //---------------------------------------------------
 struct t_sensor_info {
-	byte 	sensor_type;
+	byte 	type;
 	byte			index;
 };
 //---------------------------------------------------
@@ -46,7 +46,10 @@ public:
   
   t_sensor_array	*sensors;
 	AccelStepper 	**steppers;
- byte *motors_running;
+  byte *motors_running;
+
+  int *motor_speed;
+  int *motor_acceleration;
 	
 public:
 	t_motors_control(byte _num_motors);
@@ -58,14 +61,18 @@ public:
 	void set_motor_acceleration(byte motor_index, int motor_acceleration);
 
   void set_motor_speed_and_acceleration(byte motor_index, int motor_speed, int motor_acceleration);
+  void get_motor_speed_and_acceleration(byte motor_index, int *motor_speed, int *motor_acceleration);
 	
 	void disable_motor(byte motor_index);
 	
 	void lock_motor(byte motor_index);
 
   void set_num_attached_sensors(byte motor_index, byte num_sensors);
+  void get_num_attached_sensors(byte motor_index, byte *num_sensors);
 
 	void add_sensor(byte motor_index, byte sensor_type, byte sensor_index);
+
+  void get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index);
 
   void set_motor_running(byte motor_index, byte is_running);
   byte is_motor_running(byte motor_index);
