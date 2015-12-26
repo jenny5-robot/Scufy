@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.26.2";// year.month.day.build number
+char firmware_version[] = "2015.12.26.3";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -33,16 +33,21 @@ void setup()
 {
   motors_control.reset_pins();
 
+current_buffer[0] = 0;
+
   Serial.begin(9600); //Open Serial connection
   
-  Serial.print(F("Jenny 5 firmware version: "));
-  Serial.print(firmware_version);
-  Serial.println();
-  
-  Serial.println(F("Commands are:"));
+  Serial.write("Jenny 5 firmware version: ");
+  Serial.write(firmware_version);
+  Serial.write('\n');
+  Serial.write("##");// initialization is over; must check for ## string
+
+  /*
+  Serial.write("Commands are:");
+  Serial.println(F("T# // test connection. Returns T#."));
   Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs Mx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
   Serial.println(F("Dx#  // Disables motor x."));
-  Serial.println(F("Lx#  // Lock motor x."));
+  Serial.println(F("Lx#  // Lock motor x. Outputs Dx#"));
   Serial.println(F("SMx s a# // Sets speed of motor x to s and the acceleration to a."));
   Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start."));
   Serial.println(F("Ax n Py Bz ... # // Attach to motor x a list of n sensors (like Potentiometer y, Button z etc)."));
@@ -57,8 +62,8 @@ void setup()
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
   
   Serial.println();
-
-  current_buffer[0] = 0;
+*/
+  
 }
 
 //--------------------------------------------------------------------------------------------
@@ -66,7 +71,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
 {
   byte i = 0;
   while (i < str_length){
+    // can be more than 1 command in a string, so I have to check again for a letter
     if (tmp_str[i] >= 'A' && tmp_str[i] <= 'Z' || tmp_str[i] >= 'a' && tmp_str[i] <= 'z'){
+      
       if (tmp_str[i] == 'M' || tmp_str[i] == 'm'){// moves motor
         int motor_index, num_steps;
         sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_steps);
@@ -186,27 +193,31 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
               }
               else{
                           // for all motors, unformated data
-            int index;
-            for(index = 0; index < motors_control.num_motors; index++) {
-              Serial.print("Motor: ");
-              Serial.println(index);
-              for (byte j = 0 ; j < motors_control.sensors[index].count ; ++j) {
-                byte sensor_index = motors_control.sensors[index].sensors_array[j].index;
-                byte type = motors_control.sensors[index].sensors_array[j].type;
-                Serial.print("Sensor index: ");
-                Serial.print(sensor_index);
-                Serial.print(", Type: ");
+                int index;
+                for(index = 0; index < motors_control.num_motors; index++) {
+                  Serial.write("Motor: ");
+                  Serial.println(index);
+                  for (byte j = 0 ; j < motors_control.sensors[index].count ; ++j) {
+                    byte sensor_index = motors_control.sensors[index].sensors_array[j].index;
+                    byte type = motors_control.sensors[index].sensors_array[j].type;
+                    Serial.write("Sensor index: ");
+                    Serial.print(sensor_index);
+                    Serial.write(", Type: ");
                 
-                if (POTENTIOMETER == type)
-                  Serial.print("potentiometer, Value: ");
-                  Serial.print(potentiometers_control.get_position(sensor_index));
-                  Serial.print(", Is whitin limits: ");
-                  Serial.println(potentiometers_control.isWithinLimits(sensor_index));
+                    if (POTENTIOMETER == type)
+                      Serial.write("potentiometer, Value: ");
+                      Serial.print(potentiometers_control.get_position(sensor_index));
+                      Serial.write(", Is whitin limits: ");
+                      Serial.println(potentiometers_control.isWithinLimits(sensor_index));
+                    }
                 }
-            }
-            i++;
-                        }
+                i++;
+              }
         }
+        else
+         if (tmp_str[i] == 'T' || tmp_str[i] == 't'){// test connection
+           Serial.write("T#");
+         }
     }
     else
       i++;
@@ -231,7 +242,7 @@ void loop() {
         Serial.println();
       #endif
       
-      // parse from the beginning until I find a M, D, L, S, A, P, B, U
+      // parse from the beginning until I find a M, D, L, S, A, P, B, U, G, T
       int buffer_length = strlen(current_buffer);
       for (int i = 0; i < buffer_length; i++)
         if (current_buffer[i] >= 'A' && current_buffer[i] <= 'Z' || current_buffer[i] >= 'a' && current_buffer[i] <= 'z'){// a command
