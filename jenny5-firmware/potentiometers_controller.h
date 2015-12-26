@@ -7,6 +7,7 @@ struct t_limit_pair
 {
 	int low;
 	int high;
+  int _home; // where it should be when we start
 };
 
 class t_potentiometers_controller
@@ -19,9 +20,9 @@ private:
 
 public:
 	t_potentiometers_controller(byte num_potentiometers, byte *potentiometer_pins, t_limit_pair *limits);
-	int getPotentiometerValue(byte potentiometer_index);
-	void setPotentiometerLimit(byte index, int low, int high);
-	void getPotentiometerLimit(byte index, t_limit_pair *limits);
+	int get_position(byte potentiometer_index);
+	void set_limits(byte index, int low, int high, int _home);
+	void get_limits(byte index, int *low, int *high, int *_home);
 	int isWithinLimits(byte potentiometer_index);
 };
 
