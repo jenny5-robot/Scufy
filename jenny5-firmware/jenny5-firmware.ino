@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.26.0";// year.month.day.build number
+char firmware_version[] = "2015.12.26.1";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -40,18 +40,18 @@ void setup()
   Serial.println();
   
   Serial.println(F("Commands are:"));
-  Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement."));
+  Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs Mx# when motor rotation is over."));
   Serial.println(F("Dx#  // Disables motor x."));
   Serial.println(F("Lx#  // Lock motor x."));
   Serial.println(F("SMx s a# // Sets speed of motor x to s and the acceleration to a."));
   Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and Max are the limits where it can move and home is from where we start."));
   Serial.println(F("Ax n Py Bz ... # // Attach to motor x a list of n sensors (like Potentiometer y, Button z etc)."));
-  Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x."));
-  Serial.println(F("Bx# // Gets the status of the button x."));
-  Serial.println(F("Px# // Gets the position of the potentiometer x."));
-  Serial.println(F("Ix# // Gets the value of infrared sensor x."));
-  Serial.println(F("GMx# // Gets the parameters for motor x: speed acceleration num_sensors sensor index1, sensor type1 sensor index1, sensor type1"));
-  Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home"));
+  Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x. Outputs Ux d#."));
+  Serial.println(F("Bx# // Gets the status of the button x. Outputs Bx s#"));
+  Serial.println(F("Px# // Gets the position of the potentiometer x. Outputs Px p#"));
+  Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
+  Serial.println(F("GMx# // Gets the parameters for motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs MPx s a 1 0 0#"));
+  Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs Px l u h#"));
 
   
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
@@ -127,6 +127,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
             Serial.write('U');
+            Serial.print(sensor_index);
+            Serial.write(' ');
             Serial.print(ultrasonic_sensors_controller.getDistanceForSensor(sensor_index));
             Serial.write('#');
             i++;
@@ -137,6 +139,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
             Serial.write('P');
+            Serial.print(sensor_index);
+            Serial.write(' ');
             Serial.print(potentiometers_control.get_position(sensor_index));
             Serial.write('#');
             i++;
@@ -146,13 +150,15 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
             Serial.write('I');
+            Serial.print(sensor_index);
+            Serial.write(' ');
             Serial.print(infrared_sensors_control.get_distance(sensor_index));
             Serial.write('#');
             i++;
           }
         else
           if (tmp_str[i] == 'G' || tmp_str[i] == 'g'){// for debugging purpose
-                        if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){ // get motor speed and acceleration
+            if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){ // get motor speed and acceleration
               int motor_index, motor_speed, motor_acceleration;
               sscanf(tmp_str + i + 2, "%d", &motor_index);
               motors_control.get_motor_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
@@ -162,24 +168,23 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
               Serial.print(motor_speed); 
               Serial.write(' ');
               Serial.print(motor_acceleration); 
-                        }
-                        else
-                        if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){ // get potentiometer min max home
+            }
+            else
+              if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){ // get potentiometer min max home
                 int pot_index, pot_min, pot_max, pot_home;
                 sscanf(tmp_str + i + 2, "%d", &pot_index);
                 potentiometers_control.get_limits(pot_index, &pot_min, &pot_max, &pot_home);
-                              Serial.write("PP"); // potentiometer parameters
-              Serial.print(pot_index); 
-              Serial.write(' ');
-              Serial.print(pot_min);
-              Serial.write(' ');
-              Serial.print(pot_max);
-              Serial.write(' ');
-              Serial.print(pot_home);
-              Serial.write('#'); 
-                        }
-                        else
-                        {
+                Serial.write("PP"); // potentiometer parameters
+                Serial.print(pot_index); 
+                Serial.write(' ');
+                Serial.print(pot_min);
+                Serial.write(' ');
+                Serial.print(pot_max);
+                Serial.write(' ');
+                Serial.print(pot_home);
+                Serial.write('#'); 
+              }
+              else{
                           // for all motors, unformated data
             int index;
             for(index = 0; index < motors_control.num_motors; index++) {
