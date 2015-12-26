@@ -8,7 +8,7 @@
 #include "infrared_sensors_controller.h"
 
 byte potentiometers_pins[4] = {0, 1, 2, 3};
-t_limit_pair potentiometer_limits[4] = {{500, 1000}, {500, 1023}, {200, 600}, {300, 600}};
+t_limit_pair potentiometer_limits[4] = {{500, 1000, 500}, {500, 1023, 500}, {200, 600, 400}, {300, 600, 500}};
 
 byte ultrasonic_trig_pins[2] = {48, 50};
 byte ultrasonic_echo_pins[2] = {49, 51};
