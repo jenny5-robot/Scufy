@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.25.1";// year.month.day.build number
+char firmware_version[] = "2015.12.26.0";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -38,20 +38,21 @@ void setup()
   Serial.print(F("Jenny 5 firmware version: "));
   Serial.print(firmware_version);
   Serial.println();
-  //Print function list for user selection5
+  
   Serial.println(F("Commands are:"));
   Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement."));
   Serial.println(F("Dx#  // Disables motor x."));
   Serial.println(F("Lx#  // Lock motor x."));
-  Serial.println(F("Sx s a# // Sets speed of motor x to s and the acceleration to a."));
+  Serial.println(F("SMx s a# // Sets speed of motor x to s and the acceleration to a."));
+  Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and Max are the limits where it can move and home is from where we start."));
   Serial.println(F("Ax n Py Bz ... # // Attach to motor x a list of n sensors (like Potentiometer y, Button z etc)."));
   Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x."));
   Serial.println(F("Bx# // Gets the status of the button x."));
   Serial.println(F("Px# // Gets the position of the potentiometer x."));
-  Serial.println(F("Ix# // Gets the status of infrared sensor x."));
-  Serial.println(F("G# // Prints for each motor: [sensor index, sensor type, sensor value, is whithin limits]"));
-//  Serial.println(F("PL# // sets the min (lower) position for potentiometer x."));
-//  Serial.println(F("PU# // sets the max (upper) position for potentiometer x."));
+  Serial.println(F("Ix# // Gets the value of infrared sensor x."));
+  Serial.println(F("GMx# // Gets the parameters for motor x: speed acceleration num_sensors sensor index1, sensor type1 sensor index1, sensor type1"));
+  Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home"));
+
   
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
   
@@ -89,11 +90,20 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             i++;
           }
         else
-          if (tmp_str[i] == 'S' || tmp_str[i] == 's'){// motor speed and acceleration
-            int motor_index, motor_speed, motor_acceleration;
-            sscanf(tmp_str + i + 1, "%d%d%d", &motor_index, &motor_speed, &motor_acceleration);
-            motors_control.set_motor_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
-            i += 3;
+          if (tmp_str[i] == 'S' || tmp_str[i] == 's'){ // sets something
+            if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){ // motor speed and acceleration
+              int motor_index, motor_speed, motor_acceleration;
+              sscanf(tmp_str + i + 2, "%d%d%d", &motor_index, &motor_speed, &motor_acceleration);
+              motors_control.set_motor_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
+              i += 5;
+            }
+            else
+              if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){ // potentiometer min max home
+                int pot_index, pot_min, pot_max, pot_home;
+                sscanf(tmp_str + i + 2, "%d%d%d%d", &pot_index, &pot_min, &pot_max, &pot_home);
+                potentiometers_control.set_limits(pot_index, pot_min, pot_max, pot_home);
+                i += 7;
+            }
           }
         else
           if (tmp_str[i] == 'A' || tmp_str[i] == 'a'){// attach sensors to motors
@@ -123,10 +133,11 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
           }
         else
           if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer
+            
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
             Serial.write('P');
-            Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
+            Serial.print(potentiometers_control.get_position(sensor_index));
             Serial.write('#');
             i++;
           }
@@ -141,25 +152,55 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
           }
         else
           if (tmp_str[i] == 'G' || tmp_str[i] == 'g'){// for debugging purpose
+                        if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){ // get motor speed and acceleration
+              int motor_index, motor_speed, motor_acceleration;
+              sscanf(tmp_str + i + 2, "%d", &motor_index);
+              motors_control.get_motor_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
+              Serial.write("MP");// motor parameters
+              Serial.print(motor_index); 
+              Serial.write(' ');
+              Serial.print(motor_speed); 
+              Serial.write(' ');
+              Serial.print(motor_acceleration); 
+                        }
+                        else
+                        if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){ // get potentiometer min max home
+                int pot_index, pot_min, pot_max, pot_home;
+                sscanf(tmp_str + i + 2, "%d", &pot_index);
+                potentiometers_control.get_limits(pot_index, &pot_min, &pot_max, &pot_home);
+                              Serial.write("PP"); // potentiometer parameters
+              Serial.print(pot_index); 
+              Serial.write(' ');
+              Serial.print(pot_min);
+              Serial.write(' ');
+              Serial.print(pot_max);
+              Serial.write(' ');
+              Serial.print(pot_home);
+              Serial.write('#'); 
+                        }
+                        else
+                        {
+                          // for all motors, unformated data
             int index;
             for(index = 0; index < motors_control.num_motors; index++) {
               Serial.print("Motor: ");
               Serial.println(index);
               for (byte j = 0 ; j < motors_control.sensors[index].count ; ++j) {
                 byte sensor_index = motors_control.sensors[index].sensors_array[j].index;
-                byte type = motors_control.sensors[index].sensors_array[j].sensor_type;
+                byte type = motors_control.sensors[index].sensors_array[j].type;
                 Serial.print("Sensor index: ");
                 Serial.print(sensor_index);
                 Serial.print(", Type: ");
                 
                 if (POTENTIOMETER == type)
                   Serial.print("potentiometer, Value: ");
-                  Serial.print(potentiometers_control.getPotentiometerValue(sensor_index));
+                  Serial.print(potentiometers_control.get_position(sensor_index));
                   Serial.print(", Is whitin limits: ");
                   Serial.println(potentiometers_control.isWithinLimits(sensor_index));
                 }
             }
             i++;
+                        }
         }
     }
     else
@@ -237,7 +278,7 @@ void loop() {
       for (byte j = 0 ; j < motors_control.sensors[m].count ; ++j)
       {
         byte sensor_index = motors_control.sensors[m].sensors_array[j].index;
-        byte type = motors_control.sensors[m].sensors_array[j].sensor_type;
+        byte type = motors_control.sensors[m].sensors_array[j].type;
 
         if (POTENTIOMETER == type)
         {
