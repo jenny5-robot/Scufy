@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.26.1";// year.month.day.build number
+char firmware_version[] = "2015.12.26.2";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -40,11 +40,11 @@ void setup()
   Serial.println();
   
   Serial.println(F("Commands are:"));
-  Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs Mx# when motor rotation is over."));
+  Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs Mx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
   Serial.println(F("Dx#  // Disables motor x."));
   Serial.println(F("Lx#  // Lock motor x."));
   Serial.println(F("SMx s a# // Sets speed of motor x to s and the acceleration to a."));
-  Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and Max are the limits where it can move and home is from where we start."));
+  Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start."));
   Serial.println(F("Ax n Py Bz ... # // Attach to motor x a list of n sensors (like Potentiometer y, Button z etc)."));
   Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x. Outputs Ux d#."));
   Serial.println(F("Bx# // Gets the status of the button x. Outputs Bx s#"));
@@ -302,11 +302,13 @@ void loop() {
         is_one_motor_running = true;
       }
       else{
-        motors_control.steppers[m]->setCurrentPosition(0);
-        motors_control.set_motor_running(m, 0);
         Serial.write("M");
         Serial.print(m);
+        Serial.write(' ');
+        Serial.print(motors_control.steppers[m]->distanceToGo());
         Serial.write('#');
+        motors_control.steppers[m]->setCurrentPosition(0);
+        motors_control.set_motor_running(m, 0);
       }
     }
     else{
@@ -316,7 +318,7 @@ void loop() {
         motors_control.set_motor_running(m, 0);
         Serial.write("M");
         Serial.print(m);
-        Serial.write('#');
+        Serial.write(" 0#");
       }
     }
   }
