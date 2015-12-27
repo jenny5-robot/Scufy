@@ -22,11 +22,11 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.27.1";// year.month.day.build number
+char firmware_version[] = "2015.12.27.2";// year.month.day.build number
 
 char current_buffer[65];
 
-#define DEBUG
+//#define DEBUG
 
 //--------------------------------------------------------------------------------------------
 void setup() 
@@ -201,6 +201,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
               else{
                           // for all motors, unformated data
                 int index;
+                Serial.write("G ");
                 for(index = 0; index < motors_control.num_motors; index++) {
                   Serial.write("Motor: ");
                   Serial.println(index);
@@ -218,6 +219,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
                       Serial.println(potentiometers_control.isWithinLimits(sensor_index));
                     }
                 }
+                Serial.write("#");
                 i++;
               }
         }
