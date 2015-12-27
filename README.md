@@ -9,7 +9,9 @@ http://www.airspayce.com/mikem/arduino/AccelStepper/
 
 It is copied in the current folder.
 
-There are several commands that can be sent to the firmware (from Serial port):
+There are several commands that can be sent to the firmware (from Serial port). Each command terminates with #.
+
+T# -- test connection. Outputs T#.
 
 Mx y# -- Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.
 
@@ -27,13 +29,13 @@ Bx# -- Gets the state from a button. Outputs Bx s#.
 
 Px# -- Gets the position of a potentiometer.  Outputs Px p#.
 
-Ix# // Gets the value of infrared sensor x. Outputs Ix v#.
+Ix# -- Gets the value of infrared sensor x. Outputs Ix v#.
 
-GMx# // Gets the parameters for motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs MPx s a 1 0 0#.
+GMx# -- Gets the parameters for motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs MPx s a 1 0 0#.
 
-GPx# // Gets the parameters for potentiometer x: min max home. Outputs Px l u h#.
+GPx# -- Gets the parameters for potentiometer x: min max home. Outputs Px l u h#.
 
-G# // Debug string - unformated.
+G# -- Debug string - unformated.
   
 motor index is between 0 and number of declared motors - 1.
 Each command is terminated with #.
