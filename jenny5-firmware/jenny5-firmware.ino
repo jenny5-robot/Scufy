@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.27.0";// year.month.day.build number
+char firmware_version[] = "2015.12.27.1";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -57,6 +57,7 @@ current_buffer[0] = 0;
   Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
   Serial.println(F("GMx# // Gets the parameters for motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs MPx s a 1 0 0#"));
   Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs Px l u h#"));
+  Serial.println(F("G# // Debug string - unformated"));
 
   
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
@@ -88,7 +89,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
           sscanf(tmp_str + i + 1, "%d", &motor_index);
           motors_control.disable_motor(motor_index);
           Serial.write("D");
-          Serial.print(m);
+          Serial.print(motor_index);
           Serial.write('#');
           i++;
         }
@@ -98,7 +99,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             sscanf(tmp_str + i + 1, "%d", &motor_index);
             motors_control.lock_motor(motor_index);
             Serial.write("L");
-            Serial.print(m);
+            Serial.print(motor_index);
             Serial.write('#');
             i++;
           }
