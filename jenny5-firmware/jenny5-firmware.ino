@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.26.3";// year.month.day.build number
+char firmware_version[] = "2015.12.27.0";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -40,14 +40,14 @@ current_buffer[0] = 0;
   Serial.write("Jenny 5 firmware version: ");
   Serial.write(firmware_version);
   Serial.write('\n');
-  Serial.write("##");// initialization is over; must check for ## string
+  Serial.write("#");// initialization is over; must check for # string
 
   /*
   Serial.write("Commands are:");
   Serial.println(F("T# // test connection. Returns T#."));
   Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs Mx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
-  Serial.println(F("Dx#  // Disables motor x."));
-  Serial.println(F("Lx#  // Lock motor x. Outputs Dx#"));
+  Serial.println(F("Dx#  // Disables motor x. Outputs Dx# when done."));
+  Serial.println(F("Lx#  // Lock motor x. Outputs Lx# when done."));
   Serial.println(F("SMx s a# // Sets speed of motor x to s and the acceleration to a."));
   Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start."));
   Serial.println(F("Ax n Py Bz ... # // Attach to motor x a list of n sensors (like Potentiometer y, Button z etc)."));
@@ -87,6 +87,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
           int motor_index;
           sscanf(tmp_str + i + 1, "%d", &motor_index);
           motors_control.disable_motor(motor_index);
+          Serial.write("D");
+          Serial.print(m);
+          Serial.write('#');
           i++;
         }
         else
@@ -94,6 +97,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             int motor_index;
             sscanf(tmp_str + i + 1, "%d", &motor_index);
             motors_control.lock_motor(motor_index);
+            Serial.write("L");
+            Serial.print(m);
+            Serial.write('#');
             i++;
           }
         else
@@ -334,4 +340,4 @@ void loop() {
     }
   }
 }
-
+//------------------------------------------------------------------------------
