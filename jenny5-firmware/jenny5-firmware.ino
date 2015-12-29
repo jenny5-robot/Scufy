@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.27.2";// year.month.day.build number
+char firmware_version[] = "2015.12.29.0";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -46,6 +46,7 @@ current_buffer[0] = 0;
   Serial.write("Commands are:");
   Serial.println(F("T# // test connection. Returns T#."));
   Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs Mx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
+  Serial.println(F("Hx# // Moves motor x to home position. The first sensor in the list of sensors must be the potentiometer which establish the home position. The motor does nothing if no potentiometer is attached."));
   Serial.println(F("Dx#  // Disables motor x. Outputs Dx# when done."));
   Serial.println(F("Lx#  // Lock motor x. Outputs Lx# when done."));
   Serial.println(F("SMx s a# // Sets speed of motor x to s and the acceleration to a."));
@@ -84,6 +85,39 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
         i += 3;
       }
       else
+          if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer            
+            int sensor_index;
+            sscanf(tmp_str + i + 1, "%d", &sensor_index);
+            Serial.write('P');
+            Serial.print(sensor_index);
+            Serial.write(' ');
+            Serial.print(potentiometers_control.get_position(sensor_index));
+            Serial.write('#');
+            i++;
+          }
+        else
+          if (tmp_str[i] == 'U' || tmp_str[i] == 'u'){// ultrasonic
+            int sensor_index;
+            sscanf(tmp_str + i + 1, "%d", &sensor_index);
+            Serial.write('U');
+            Serial.print(sensor_index);
+            Serial.write(' ');
+            Serial.print(ultrasonic_sensors_controller.getDistanceForSensor(sensor_index));
+            Serial.write('#');
+            i++;
+          }
+        else
+          if (tmp_str[i] == 'I' || tmp_str[i] == 'i'){// infrared
+            int sensor_index;
+            sscanf(tmp_str + i + 1, "%d", &sensor_index);
+            Serial.write('I');
+            Serial.print(sensor_index);
+            Serial.write(' ');
+            Serial.print(infrared_sensors_control.get_distance(sensor_index));
+            Serial.write('#');
+            i++;
+          }
+        else
         if (tmp_str[i] == 'D' || tmp_str[i] == 'd'){// disables motor
           int motor_index;
           sscanf(tmp_str + i + 1, "%d", &motor_index);
@@ -104,6 +138,12 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             i++;
           }
         else
+          if (tmp_str[i] == 'H' || tmp_str[i] == 'h'){// locks motor
+            int motor_index;
+            sscanf(tmp_str + i + 1, "%d", &motor_index);
+            motors_control.go_home(motor_index);
+          }
+          else
           if (tmp_str[i] == 'S' || tmp_str[i] == 's'){ // sets something
             if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){ // motor speed and acceleration
               int motor_index, motor_speed, motor_acceleration;
@@ -135,40 +175,6 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
               j++;
             }
             i += 3;
-          }
-        else
-          if (tmp_str[i] == 'U' || tmp_str[i] == 'u'){// ultrasonic
-            int sensor_index;
-            sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            Serial.write('U');
-            Serial.print(sensor_index);
-            Serial.write(' ');
-            Serial.print(ultrasonic_sensors_controller.getDistanceForSensor(sensor_index));
-            Serial.write('#');
-            i++;
-          }
-        else
-          if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer
-            
-            int sensor_index;
-            sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            Serial.write('P');
-            Serial.print(sensor_index);
-            Serial.write(' ');
-            Serial.print(potentiometers_control.get_position(sensor_index));
-            Serial.write('#');
-            i++;
-          }
-        else
-          if (tmp_str[i] == 'I' || tmp_str[i] == 'i'){// infrared
-            int sensor_index;
-            sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            Serial.write('I');
-            Serial.print(sensor_index);
-            Serial.write(' ');
-            Serial.print(infrared_sensors_control.get_distance(sensor_index));
-            Serial.write('#');
-            i++;
           }
         else
           if (tmp_str[i] == 'G' || tmp_str[i] == 'g'){// for debugging purpose

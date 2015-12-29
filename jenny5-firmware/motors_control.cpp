@@ -138,3 +138,9 @@ void t_motors_control::get_motor_speed_and_acceleration(byte motor_index, int *_
   *_motor_speed = motor_speed[motor_index];
 }
 //-------------------------------------------------------------------------------
+void t_motors_control::go_home(byte motor_index)
+{
+  // to do...
+}
+//-------------------------------------------------------------------------------
+
