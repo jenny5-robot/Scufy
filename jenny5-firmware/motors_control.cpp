@@ -22,8 +22,8 @@ t_motors_control::t_motors_control(byte _num_motors)
 	enable_pins[2] = 10;
 	enable_pins[3] = 13;
 	
-	default_motor_speed = 200;
-	default_motor_acceleration = 100;
+	default_motor_speed = 1000;
+	default_motor_acceleration = 1000;
 
   steppers = new AccelStepper*[num_motors];
   sensors = new t_sensor_array[num_motors];
@@ -48,7 +48,7 @@ t_motors_control::t_motors_control(byte _num_motors)
 void t_motors_control::move_motor(byte motor_index, int num_steps)
 {
   digitalWrite(enable_pins[motor_index], LOW); // turn motor on
-  steppers[motor_index]->moveTo(num_steps); //move num_steps
+  steppers[motor_index]->move(num_steps); //move num_steps
 }
 //-------------------------------------------------------------------------------
 void t_motors_control::set_motor_speed(byte motor_index, int _motor_speed)
@@ -75,7 +75,8 @@ void t_motors_control::set_motor_speed_and_acceleration(byte motor_index, int _m
 //-------------------------------------------------------------------------------
 void t_motors_control::disable_motor(byte motor_index)
 {
-  digitalWrite(enable_pins[motor_index], HIGH); // disable motor
+  //digitalWrite(enable_pins[motor_index], HIGH); // disable motor
+  steppers[motor_index]->stop();
 }
 //-------------------------------------------------------------------------------
 void t_motors_control::lock_motor(byte motor_index)
