@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2016.01.15.2";// year.month.day.build number
+char firmware_version[] = "2016.01.15.3";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -37,7 +37,7 @@ void setup()
 
 current_buffer[0] = 0;
 
-  Serial.begin(9600); //Open Serial connection
+  Serial.begin(250000); //Open Serial connection
   
   Serial.write("Jenny 5 firmware version: ");
   Serial.write(firmware_version);
