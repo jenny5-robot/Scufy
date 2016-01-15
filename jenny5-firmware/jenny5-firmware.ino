@@ -22,11 +22,13 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2015.12.29.0";// year.month.day.build number
+char firmware_version[] = "2016.01.15.2";// year.month.day.build number
 
 char current_buffer[65];
 
 //#define DEBUG
+
+unsigned long time;
 
 //--------------------------------------------------------------------------------------------
 void setup() 
@@ -42,7 +44,7 @@ current_buffer[0] = 0;
   Serial.write('\n');
   Serial.write("#");// initialization is over; must check for # string
 
-  /*
+  #ifdef DEBUG
   Serial.write("Commands are:");
   Serial.println(F("T# // test connection. Returns T#."));
   Serial.println(F("Mx y# // Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs Mx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
@@ -64,7 +66,7 @@ current_buffer[0] = 0;
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
   
   Serial.println();
-*/
+#endif
   
 }
 
@@ -138,7 +140,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             i++;
           }
         else
-          if (tmp_str[i] == 'H' || tmp_str[i] == 'h'){// locks motor
+          if (tmp_str[i] == 'H' || tmp_str[i] == 'h'){// go home
             int motor_index;
             sscanf(tmp_str + i + 1, "%d", &motor_index);
             motors_control.go_home(motor_index);
@@ -239,66 +241,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
   }
 }
 //--------------------------------------------------------------------------------------------
-//Main loop
-void loop() {
-
-  if (Serial.available() || current_buffer[0]) {
-    int num_read = 0;
-    char serial_buffer[65];
-
-    num_read = Serial.readBytes(serial_buffer, 64); //Read up to 64 bytes
-    serial_buffer[num_read] = 0;// terminate the string
-    if (serial_buffer[0] || current_buffer[0]){
-      strcat(current_buffer, serial_buffer);
-      
-      #ifdef DEBUG
-        Serial.write("initial buffer is=");
-        Serial.write(current_buffer);
-        Serial.println();
-      #endif
-      
-      // parse from the beginning until I find a M, D, L, S, A, P, B, U, G, T
-      int buffer_length = strlen(current_buffer);
-      for (int i = 0; i < buffer_length; i++)
-        if (current_buffer[i] >= 'A' && current_buffer[i] <= 'Z' || current_buffer[i] >= 'a' && current_buffer[i] <= 'z'){// a command
-          // find the terminal character #
-          int j = i + 1;
-          for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
-          if (j < buffer_length){
-
-              #ifdef DEBUG
-                char tmp_str[64];
-                strncpy(tmp_str, current_buffer + i, j - i);
-                tmp_str[j - i] = 0;
-                Serial.write("current command is=");
-                Serial.write(tmp_str);
-                Serial.println();
-              #endif
-
-             //parse_and_execute_commands(tmp_str, j - i);
-             parse_and_execute_commands(current_buffer + i, j - i);
-             
-                    
-              // remove the current executed command
-              strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good due to overlaps
-              
-              #ifdef DEBUG
-                Serial.write("buffer left=");
-                Serial.write(current_buffer);
-                Serial.write("\n----------------\n");
-                //Serial.println(strlen(current_buffer)); // buffer length
-              #endif
-              
-              break; //for i
-          }
-          else{// the string is not completed ... so I must wait for more...
-            break; // for i
-          }
-        }
-    }
-  }
-  
-// run motors
+void run_motors()
+{
+  // run motors
   bool is_one_motor_running = false;
   for (int m = 0; m < motors_control.num_motors; m++)
   {
@@ -342,11 +287,77 @@ void loop() {
 // the motor has just finished the move, so we output that event
       if (motors_control.is_motor_running(m)){
         motors_control.set_motor_running(m, 0);
+
         Serial.write("M");
         Serial.print(m);
         Serial.write(" 0#");
-      }
+
     }
   }
+  }
+}
+//--------------------------------------------------------------------------------------------
+//Main loop
+void loop() {
+
+  if (Serial.available() || current_buffer[0]) {
+    int num_read = 0;
+    char serial_buffer[65];
+  
+    //num_read = Serial.readBytes(serial_buffer, 64); //Read up to 64 bytes
+    
+    serial_buffer[0] = Serial.read();
+    num_read = 1;
+    serial_buffer[num_read] = 0;// terminate the string
+    if (serial_buffer[0] || current_buffer[0]){
+      strcat(current_buffer, serial_buffer);
+      
+      #ifdef DEBUG
+        Serial.write("initial buffer is=");
+        Serial.write(current_buffer);
+        Serial.println();
+      #endif
+      
+      // parse from the beginning until I find a M, D, L, S, A, P, B, U, G, T
+      int buffer_length = strlen(current_buffer);
+      for (int i = 0; i < buffer_length; i++)
+        if (current_buffer[i] >= 'A' && current_buffer[i] <= 'Z' || current_buffer[i] >= 'a' && current_buffer[i] <= 'z'){// a command
+          // find the terminal character #
+          int j = i + 1;
+          for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
+          if (j < buffer_length){
+
+              #ifdef DEBUG
+                char tmp_str[64];
+                strncpy(tmp_str, current_buffer + i, j - i);
+                tmp_str[j - i] = 0;
+                Serial.write("current command is=");
+                Serial.write(tmp_str);
+                Serial.println();
+              #endif
+
+             //parse_and_execute_commands(tmp_str, j - i);
+             parse_and_execute_commands(current_buffer + i, j - i);
+             
+                    
+              // remove the current executed command
+              strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good due to overlaps
+              
+              #ifdef DEBUG
+                Serial.write("buffer left=");
+                Serial.write(current_buffer);
+                Serial.write("\n----------------\n");
+                //Serial.println(strlen(current_buffer)); // buffer length
+              #endif
+
+            break; //for i
+          }
+          else{// the string is not completed ... so I must wait for more...
+            break; // for i
+          }
+        }
+    }
+  }
+  run_motors();
 }
 //------------------------------------------------------------------------------
