@@ -1,4 +1,5 @@
 #include "motors_control.h"
+#include "jenny5_types.h"
 //-------------------------------------------------------------------------------
 t_motors_control::t_motors_control(byte _num_motors)
 {
@@ -137,6 +138,61 @@ void t_motors_control::get_motor_speed_and_acceleration(byte motor_index, int *_
 {
   *_motor_acceleration = motor_acceleration[motor_index];
   *_motor_speed = motor_speed[motor_index];
+}
+//-------------------------------------------------------------------------------
+void t_motors_control::run_motors(t_potentiometers_controller &potentiometers_control)
+{
+  // run motors
+  bool is_one_motor_running = false;
+  for (int m = 0; m < num_motors; m++)
+  {
+    bool limit_reached = false;
+
+    if (steppers[m]->distanceToGo())
+    {
+      for (byte j = 0 ; j < sensors[m].count ; ++j)
+      {
+        byte sensor_index = sensors[m].sensors_array[j].index;
+        byte type = sensors[m].sensors_array[j].type;
+
+        if (POTENTIOMETER == type)
+        {
+            if (0 == potentiometers_control.isWithinLimits(sensor_index))
+              limit_reached = true;
+        }
+        else if (ULTRASOUND == type)
+        {
+          // deal with ultrasound sensor
+        }
+      }
+
+      if (!limit_reached)
+      {
+        steppers[m]->run();
+        is_one_motor_running = true;
+      }
+      else{
+        Serial.write("M");
+        Serial.print(m);
+        Serial.write(' ');
+        Serial.print(steppers[m]->distanceToGo());
+        Serial.write('#');
+        steppers[m]->setCurrentPosition(0);
+        set_motor_running(m, 0);
+      }
+    }
+    else{
+      steppers[m]->setCurrentPosition(0);
+// the motor has just finished the move, so we output that event
+      if (is_motor_running(m)){
+        set_motor_running(m, 0);
+
+        Serial.write("M");
+        Serial.print(m);
+        Serial.write(" 0#");
+    }
+  }
+  }
 }
 //-------------------------------------------------------------------------------
 void t_motors_control::go_home(byte motor_index)

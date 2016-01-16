@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "AccelStepper.h"
+#include "potentiometers_controller.h"
 
 //#define MAX_SENSORS_PER_MOTOR 6
 
@@ -80,5 +81,6 @@ public:
 
 	void reset_pins();
   bool run(void);
+  void run_motors(t_potentiometers_controller &potentiometers_control);
 };
 //---------------------------------------------------

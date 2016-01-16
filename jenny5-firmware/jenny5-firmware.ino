@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2016.01.15.3";// year.month.day.build number
+char firmware_version[] = "2016.01.16.0";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -241,64 +241,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
   }
 }
 //--------------------------------------------------------------------------------------------
-void run_motors()
-{
-  // run motors
-  bool is_one_motor_running = false;
-  for (int m = 0; m < motors_control.num_motors; m++)
-  {
-    bool limit_reached = false;
-
-    if (motors_control.steppers[m]->distanceToGo())
-    {
-      for (byte j = 0 ; j < motors_control.sensors[m].count ; ++j)
-      {
-        byte sensor_index = motors_control.sensors[m].sensors_array[j].index;
-        byte type = motors_control.sensors[m].sensors_array[j].type;
-
-        if (POTENTIOMETER == type)
-        {
-            if (0 == potentiometers_control.isWithinLimits(sensor_index))
-              limit_reached = true;
-        }
-        else if (ULTRASOUND == type)
-        {
-          // deal with ultrasound sensor
-        }
-      }
-
-      if (!limit_reached)
-      {
-        motors_control.steppers[m]->run();
-        is_one_motor_running = true;
-      }
-      else{
-        Serial.write("M");
-        Serial.print(m);
-        Serial.write(' ');
-        Serial.print(motors_control.steppers[m]->distanceToGo());
-        Serial.write('#');
-        motors_control.steppers[m]->setCurrentPosition(0);
-        motors_control.set_motor_running(m, 0);
-      }
-    }
-    else{
-      motors_control.steppers[m]->setCurrentPosition(0);
-// the motor has just finished the move, so we output that event
-      if (motors_control.is_motor_running(m)){
-        motors_control.set_motor_running(m, 0);
-
-        Serial.write("M");
-        Serial.print(m);
-        Serial.write(" 0#");
-
-    }
-  }
-  }
-}
-//--------------------------------------------------------------------------------------------
 //Main loop
-void loop() {
+void loop() 
+{
 
   if (Serial.available() || current_buffer[0]) {
     int num_read = 0;
@@ -358,6 +303,6 @@ void loop() {
         }
     }
   }
-  run_motors();
+  motors_control.run_motors(potentiometers_control);
 }
 //------------------------------------------------------------------------------
