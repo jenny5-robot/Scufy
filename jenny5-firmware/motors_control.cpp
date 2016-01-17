@@ -76,8 +76,8 @@ void t_motors_control::set_motor_speed_and_acceleration(byte motor_index, int _m
 //-------------------------------------------------------------------------------
 void t_motors_control::disable_motor(byte motor_index)
 {
-  //digitalWrite(enable_pins[motor_index], HIGH); // disable motor
-  steppers[motor_index]->stop();
+  digitalWrite(enable_pins[motor_index], HIGH); // disable motor
+  //steppers[motor_index]->stop();
 }
 //-------------------------------------------------------------------------------
 void t_motors_control::lock_motor(byte motor_index)
@@ -140,10 +140,12 @@ void t_motors_control::get_motor_speed_and_acceleration(byte motor_index, int *_
   *_motor_speed = motor_speed[motor_index];
 }
 //-------------------------------------------------------------------------------
-void t_motors_control::run_motors(t_potentiometers_controller &potentiometers_control)
+void t_motors_control::run_motors(t_potentiometers_controller &potentiometers_control, char* serial_out)
 {
+  serial_out[0] = 0;
   // run motors
-  bool is_one_motor_running = false;
+  
+  //bool is_one_motor_running = false;
   for (int m = 0; m < num_motors; m++)
   {
     bool limit_reached = false;
@@ -169,7 +171,7 @@ void t_motors_control::run_motors(t_potentiometers_controller &potentiometers_co
       if (!limit_reached)
       {
         steppers[m]->run();
-        is_one_motor_running = true;
+      //  is_one_motor_running = true;
       }
       else{
         Serial.write("M");

@@ -81,6 +81,6 @@ public:
 
 	void reset_pins();
   bool run(void);
-  void run_motors(t_potentiometers_controller &potentiometers_control);
+  void run_motors(t_potentiometers_controller &potentiometers_control, char* serial_out);
 };
 //---------------------------------------------------
