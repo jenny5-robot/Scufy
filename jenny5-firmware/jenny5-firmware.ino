@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2016.01.16.0";// year.month.day.build number
+char firmware_version[] = "2016.01.17.0";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -84,7 +84,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
         motors_control.move_motor(motor_index, num_steps);
         motors_control.set_motor_running(motor_index, 1);
         is_command_running = 1;
-        i += 3;
+        i += 4;
       }
       else
           if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer            
@@ -95,7 +95,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             Serial.write(' ');
             Serial.print(potentiometers_control.get_position(sensor_index));
             Serial.write('#');
-            i++;
+            i += 2;
           }
         else
           if (tmp_str[i] == 'U' || tmp_str[i] == 'u'){// ultrasonic
@@ -106,7 +106,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             Serial.write(' ');
             Serial.print(ultrasonic_sensors_controller.getDistanceForSensor(sensor_index));
             Serial.write('#');
-            i++;
+            i += 2;
           }
         else
           if (tmp_str[i] == 'I' || tmp_str[i] == 'i'){// infrared
@@ -117,7 +117,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             Serial.write(' ');
             Serial.print(infrared_sensors_control.get_distance(sensor_index));
             Serial.write('#');
-            i++;
+            i += 2;
           }
         else
         if (tmp_str[i] == 'D' || tmp_str[i] == 'd'){// disables motor
@@ -127,7 +127,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
           Serial.write("D");
           Serial.print(motor_index);
           Serial.write('#');
-          i++;
+          i += 2;
         }
         else
           if (tmp_str[i] == 'L' || tmp_str[i] == 'l'){// locks motor
@@ -137,7 +137,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             Serial.write("L");
             Serial.print(motor_index);
             Serial.write('#');
-            i++;
+            i += 2;
           }
         else
           if (tmp_str[i] == 'H' || tmp_str[i] == 'h'){// go home
@@ -167,16 +167,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
             sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_sensors);
             motors_control.set_num_attached_sensors(motor_index, num_sensors);
             // now I have to add sensors one by one
-            int j = i + 3;
+            int j = i + 4;
+            i += 4;
             while (j < str_length){
               if (tmp_str[j] == 'P' || tmp_str[j] == 'p'){
                 int sensor_index;
                 sscanf(tmp_str + j + 1, "%d", &sensor_index);
                 motors_control.add_sensor(motor_index, POTENTIOMETER, sensor_index);
+                i += 2;
               }
               j++;
             }
-            i += 3;
+            i++;
           }
         else
           if (tmp_str[i] == 'G' || tmp_str[i] == 'g'){// for debugging purpose
@@ -190,6 +192,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
               Serial.print(motor_speed); 
               Serial.write(' ');
               Serial.print(motor_acceleration); 
+              i += 4;
             }
             else
               if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){ // get potentiometer min max home
@@ -205,6 +208,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
                 Serial.write(' ');
                 Serial.print(pot_home);
                 Serial.write('#'); 
+                i += 4;
               }
               else{
                           // for all motors, unformated data
@@ -228,7 +232,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length)
                     }
                 }
                 Serial.write("#");
-                i++;
+                i += 2;
               }
         }
         else
