@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2016.01.17.4";// year.month.day.build number
+char firmware_version[] = "2016.01.17.5";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -35,14 +35,9 @@ void setup()
 {
   motors_control.reset_pins();
 
-current_buffer[0] = 0;
+  current_buffer[0] = 0;
 
   Serial.begin(115200); //Open Serial connection
-  
-  Serial.write("Jenny 5 firmware version: ");
-  Serial.write(firmware_version);
-  Serial.write('\n');
-  Serial.write("#");// initialization is over; must check for # string
 
   #ifdef DEBUG
   Serial.write("Commands are:");
@@ -67,9 +62,12 @@ current_buffer[0] = 0;
   
   Serial.println();
 #endif
-  
-}
 
+  Serial.write("Jenny 5 firmware version: ");
+  Serial.write(firmware_version);
+  Serial.write('\n');
+  Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
+}
 //--------------------------------------------------------------------------------------------
 void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out)
 {
@@ -201,7 +199,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 //Main loop
 void loop() 
 {
-char serial_out[100];
+  char serial_out[100];
   if (Serial.available() || current_buffer[0]) {
     int num_read = 0;
     char serial_buffer[65];
@@ -267,6 +265,5 @@ char serial_out[100];
   motors_control.run_motors(potentiometers_control, serial_out);
   if (serial_out[0])
     Serial.write(serial_out);
-  
 }
 //------------------------------------------------------------------------------
