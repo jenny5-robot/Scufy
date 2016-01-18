@@ -22,7 +22,7 @@ t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2016.01.17.5";// year.month.day.build number
+char firmware_version[] = "2016.01.18.0";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -55,17 +55,13 @@ void setup()
   Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
   Serial.println(F("GMx# // Gets the parameters for motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs MPx s a 1 0 0#"));
   Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs Px l u h#"));
-  Serial.println(F("G# // Debug string - unformated"));
+  Serial.println(F("V# // Outputs version string. eg: 2016.01.17.0#"));
 
   
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
   
   Serial.println();
 #endif
-
-  Serial.write("Jenny 5 firmware version: ");
-  Serial.write(firmware_version);
-  Serial.write('\n');
   Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
 }
 //--------------------------------------------------------------------------------------------
@@ -190,6 +186,10 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
            sprintf(serial_out, "T#");
            i += 2;
          }
+         if (tmp_str[i] == 'V' || tmp_str[i] == 'v'){// test connection
+           sprintf(serial_out, "%s#", firmware_version);
+           i += 2;
+         }
     }
     else
       i++;
@@ -213,7 +213,8 @@ void loop()
     }
     serial_buffer[num_read] = 0;// terminate the string
     if (serial_buffer[0] || current_buffer[0]){
-      strcat(current_buffer, serial_buffer);
+      if (serial_buffer[0])
+        strcat(current_buffer, serial_buffer);
       
       #ifdef DEBUG
         Serial.write("initial buffer is=");
@@ -222,13 +223,13 @@ void loop()
       #endif
       
       // parse from the beginning until I find a M, D, L, S, A, P, B, U, G, T
-      int buffer_length = strlen(current_buffer);
-      for (int i = 0; i < buffer_length; i++)
+      int current_buffer_length = strlen(current_buffer);
+      for (int i = 0; i < current_buffer_length; i++)
         if ((current_buffer[i] >= 'A' && current_buffer[i] <= 'Z') || (current_buffer[i] >= 'a' && current_buffer[i] <= 'z')){// a command
           // find the terminal character #
-          int j = i + 1;
-          for (; j < buffer_length && current_buffer[j] != '#'; j++);// parse until I find the termination char
-          if (j < buffer_length){
+          int j = current_buffer_length - 1;
+          for (; j > i && current_buffer[j] != '#'; j--);// parse (from the end) until I find the termination char
+          if (j > i){
 
               #ifdef DEBUG
                 char tmp_str[64];
