@@ -1,27 +1,29 @@
 #include "Ultrasonic.h"
 
-t_ultrasonic::t_ultrasonic(int _TP, int _EP)
+//-------------------------------------------------------
+t_ultrasonic::t_ultrasonic(int trigger_pin, int echo_pin)
 {
-   pinMode(_TP, OUTPUT);
-   pinMode(_EP, INPUT);
-   Trig_pin=_TP;
-   Echo_pin=_EP;
+   pinMode(trigger_pin, OUTPUT);
+   pinMode(echo_pin, INPUT);
+   Trig_pin=trigger_pin;
+   Echo_pin=echo_pin;
 }
-
-long t_ultrasonic::Timing()
+//-------------------------------------------------------
+unsigned long t_ultrasonic::trigger(void)
 {
   digitalWrite(Trig_pin, LOW);
   delayMicroseconds(2);
   digitalWrite(Trig_pin, HIGH);
   delayMicroseconds(10);
   digitalWrite(Trig_pin, LOW);
-  duration = pulseIn(Echo_pin,HIGH);
+  unsigned long duration = pulseIn(Echo_pin, HIGH);
   return duration;
 }
-
-long t_ultrasonic::Ranging()
+//-------------------------------------------------------
+unsigned long t_ultrasonic::get_distance(void)
 {
-  Timing();
-  distance_cm = duration / 29 / 2 ;
+  unsigned long duration = trigger();
+  unsigned long distance_cm = duration / 29 / 2 ;
   return distance_cm;
 }
+//-------------------------------------------------------
