@@ -10,19 +10,19 @@
 byte potentiometers_pins[4] = {0, 1, 2, 3};
 t_limit_pair potentiometer_limits[4] = {{500, 1000, 500}, {500, 1023, 500}, {200, 600, 400}, {300, 600, 500}};
 
-byte ultrasonic_trig_pins[2] = {48, 50};
-byte ultrasonic_echo_pins[2] = {49, 51};
+byte ultrasonic_trig_pins[2] = {8, 50};
+byte ultrasonic_echo_pins[2] = {9, 51};
 
 byte infrared_pins[2] = {52, 53};
 
 t_motors_control motors_control(4);
 t_potentiometers_controller potentiometers_control (4, potentiometers_pins, potentiometer_limits);
-t_ultrasonic_sensors_controller ultrasonic_sensors_controller (2, ultrasonic_trig_pins, ultrasonic_echo_pins);
+t_ultrasonic_sensors_controller ultrasonic_sensors_controller (1, ultrasonic_trig_pins, ultrasonic_echo_pins);
 t_infrared_sensors_controller infrared_sensors_control(2, infrared_pins);
 
 char is_command_running;
 
-char firmware_version[] = "2016.01.18.0";// year.month.day.build number
+char firmware_version[] = "2016.01.19.2";// year.month.day.build number
 
 char current_buffer[65];
 
@@ -93,7 +93,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'U' || tmp_str[i] == 'u'){// ultrasonic
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            int sensor_value = ultrasonic_sensors_controller.getDistanceForSensor(sensor_index);
+            int sensor_value = ultrasonic_sensors_controller.get_distance(sensor_index);
             sprintf(serial_out, "U%d %d#", sensor_index, sensor_value);
             i += 2;
           }
