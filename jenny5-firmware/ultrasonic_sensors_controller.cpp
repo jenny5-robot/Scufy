@@ -1,5 +1,6 @@
 #include "ultrasonic_sensors_controller.h"
 
+//---------------------------------------------------------------------
 t_ultrasonic_sensors_controller::t_ultrasonic_sensors_controller (byte _num_u_sensors, byte *trig_pins, byte *echo_pins)
 {
 	num_sensors = _num_u_sensors;
@@ -9,14 +10,9 @@ t_ultrasonic_sensors_controller::t_ultrasonic_sensors_controller (byte _num_u_se
 		sensors [i] = new t_ultrasonic(trig_pins [i], echo_pins [i]);
 	}
 }
-
-long t_ultrasonic_sensors_controller::getDistanceForSensor (byte sensor_index)
+//---------------------------------------------------------------------
+long t_ultrasonic_sensors_controller::get_distance (byte sensor_index)
 {
-	int NUMAR_RULARI = 10;
-	long suma;
-
-	for (int i = 0; i < NUMAR_RULARI; i++)
-		suma += sensors [i]->Ranging();
-
-	return suma / 10;
+	return sensors[sensor_index]->get_distance();
 }
+//---------------------------------------------------------------------
