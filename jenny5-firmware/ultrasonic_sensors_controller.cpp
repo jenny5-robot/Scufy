@@ -13,6 +13,10 @@ t_ultrasonic_sensors_controller::t_ultrasonic_sensors_controller (byte _num_u_se
 //---------------------------------------------------------------------
 long t_ultrasonic_sensors_controller::get_distance (byte sensor_index)
 {
-	return sensors[sensor_index]->get_distance();
+  int distance = sensors[sensor_index]->get_distance();
+  if (distance > 250)
+    return 0;
+  else
+    return distance;
 }
 //---------------------------------------------------------------------
