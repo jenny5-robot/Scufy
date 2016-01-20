@@ -52,6 +52,12 @@ void t_motors_control::move_motor(byte motor_index, int num_steps)
   steppers[motor_index]->move(num_steps); //move num_steps
 }
 //-------------------------------------------------------------------------------
+void t_motors_control::move_motor_to(byte motor_index, int _position)
+{
+  digitalWrite(enable_pins[motor_index], LOW); // turn motor on
+  steppers[motor_index]->moveTo(_position); //move num_steps  
+}
+//-------------------------------------------------------------------------------
 void t_motors_control::set_motor_speed(byte motor_index, int _motor_speed)
 {
 	steppers[motor_index]->setMaxSpeed(_motor_speed);
@@ -174,26 +180,20 @@ void t_motors_control::run_motors(t_potentiometers_controller &potentiometers_co
       //  is_one_motor_running = true;
       }
       else{
-        Serial.write("M");
-        Serial.print(m);
-        Serial.write(' ');
-        Serial.print(steppers[m]->distanceToGo());
-        Serial.write('#');
-        steppers[m]->setCurrentPosition(0);
+        sprintf(serial_out, "M%d %ld#", m, steppers[m]->distanceToGo());
+     //   steppers[m]->setCurrentPosition(0);
         set_motor_running(m, 0);
       }
     }
     else{
-      steppers[m]->setCurrentPosition(0);
+     // steppers[m]->setCurrentPosition(0);
 // the motor has just finished the move, so we output that event
       if (is_motor_running(m)){
         set_motor_running(m, 0);
 
-        Serial.write("M");
-        Serial.print(m);
-        Serial.write(" 0#");
+        sprintf(serial_out, "M%d 0#", m);
+      }
     }
-  }
   }
 }
 //-------------------------------------------------------------------------------

@@ -56,6 +56,7 @@ public:
 	t_motors_control(byte _num_motors);
 	
 	void move_motor(byte motor_index, int num_steps);
+  void move_motor_to(byte motor_index, int _position);
 	
 	void set_motor_speed(byte motor_index, int motor_speed);
 	
