@@ -16,7 +16,7 @@ unsigned long t_ultrasonic::trigger(void)
   digitalWrite(Trig_pin, HIGH);
   delayMicroseconds(10);
   digitalWrite(Trig_pin, LOW);
-  unsigned long duration = pulseIn(Echo_pin, HIGH);
+  unsigned long duration = pulseIn(Echo_pin, HIGH, 20);// wait for no more than 20 miliseconds ... otherwise I block the program too much
   return duration;
 }
 //-------------------------------------------------------
