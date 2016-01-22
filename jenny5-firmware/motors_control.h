@@ -1,60 +1,30 @@
 #include "Arduino.h"
-#include "AccelStepper.h"
+#include "motor_controller.h"
 #include "potentiometers_controller.h"
 
 //#define MAX_SENSORS_PER_MOTOR 6
 
-
 //---------------------------------------------------
-struct t_sensor_info {
-	byte 	type;
-	byte			index;
-};
-//---------------------------------------------------
-class t_sensor_array{
-  public:
-  t_sensor_info *sensors_array;
-  byte count;
-
-  t_sensor_array(void)
-  {
-    sensors_array = NULL;
-    count = 0;
-  }
-  ~t_sensor_array(void)
-  {
-    if (sensors_array){
-      delete[] sensors_array;
-      sensors_array = NULL;
-    }
-    count = 0;
-  }
-};
-//---------------------------------------------------
-class t_motors_control
+class t_motors_controller
 {
 public:
 	//Declare pin functions on Arduino
-  
-	byte *dir_pins;
-	byte *step_pins;
-	byte *enable_pins;
+
+  t_motor_controller *motors;
+  byte num_motors;
 
 	int default_motor_speed; //maximum steps per second 
 	int default_motor_acceleration; //steps/second/second to accelerate
-
-  byte 			num_motors;
-  
-  t_sensor_array	*sensors;
-	AccelStepper 	**steppers;
-  byte *motors_running;
-
-  int *motor_speed;
-  int *motor_acceleration;
 	
 public:
-	t_motors_control(byte _num_motors);
-	
+	t_motors_controller(void);
+  ~t_motors_controller();
+
+  void set_motor_pins(byte motor_index, byte _step, byte _dir, byte _enable);
+
+  byte get_num_motors(void);
+  void set_num_motors(int value);
+  
 	void move_motor(byte motor_index, int num_steps);
   void move_motor_to(byte motor_index, int _position);
 	
@@ -79,9 +49,8 @@ public:
   void set_motor_running(byte motor_index, byte is_running);
   void go_home(byte motor_index);
   byte is_motor_running(byte motor_index);
+  byte is_motor_running(void);
 
-	void reset_pins();
-  bool run(void);
-  void run_motors(t_potentiometers_controller &potentiometers_control, char* serial_out);
+  void run_motors(t_potentiometers_controller *potentiometers_control, char* serial_out);
 };
 //---------------------------------------------------
