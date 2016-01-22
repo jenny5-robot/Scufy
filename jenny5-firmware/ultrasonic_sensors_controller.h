@@ -2,19 +2,26 @@
 #define T_ULTRASONIC_SENSORS_CONTROLLER_H
 
 #include "Arduino.h"
-#include "Ultrasonic.h"
-
+#include "ultrasonic.h"
+ 
 class t_ultrasonic_sensors_controller
 {
 public:
-	t_ultrasonic **sensors;
+	t_ultrasonic *sensors;
 
 	byte num_sensors;
 
 public:
-	t_ultrasonic_sensors_controller (byte _num_u_sensors, byte *trig_pins, byte *echo_pins);
-
-	long get_distance (byte sensor_index);
+	t_ultrasonic_sensors_controller ();
+ 
+  void set_num_sensors(byte new_num_sensors);
+  void set_sensor_pins(byte sensor_index, byte trig_pins, byte echo_pins);
+  void get_sensor_pins(byte sensor_index, byte *trig_pins, byte *echo_pins);
+  
+  byte get_num_sensors(void);
+	void trigger (byte sensor_index);
 };
+
+extern t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
 
 #endif //T_ULTRASONIC_SENSORS_CONTROLLER_H

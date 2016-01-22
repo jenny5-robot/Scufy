@@ -1,29 +1,35 @@
 #include "Ultrasonic.h"
 
 //-------------------------------------------------------
-t_ultrasonic::t_ultrasonic(int trigger_pin, int echo_pin)
+t_ultrasonic::t_ultrasonic(void)
 {
-   pinMode(trigger_pin, OUTPUT);
-   pinMode(echo_pin, INPUT);
-   Trig_pin=trigger_pin;
-   Echo_pin=echo_pin;
+  Trig_pin = 2;
+  Echo_pin = 3;
+
+  sonar = NULL;
 }
 //-------------------------------------------------------
-unsigned long t_ultrasonic::trigger(void)
+t_ultrasonic::~t_ultrasonic(void)
 {
-  digitalWrite(Trig_pin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(Trig_pin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(Trig_pin, LOW);
-  unsigned long duration = pulseIn(Echo_pin, HIGH, 20);// wait for no more than 20 miliseconds ... otherwise I block the program too much
-  return duration;
+  if (sonar){
+    delete[] sonar;  
+    sonar = NULL;
+  }
 }
 //-------------------------------------------------------
-unsigned long t_ultrasonic::get_distance(void)
+void t_ultrasonic::create_init(byte trigger_pin, byte echo_pin)
 {
-  unsigned long duration = trigger();
-  unsigned long distance_cm = duration / 29 / 2 ;
-  return distance_cm;
+   Trig_pin = trigger_pin;
+   Echo_pin = echo_pin;
+   if (sonar)
+     delete sonar;
+     
+   sonar = new NewPing(trigger_pin, echo_pin, 200);
+}
+//-------------------------------------------------------
+void t_ultrasonic::get_sensor_pins(byte *trig_pin, byte *echo_pin)
+{
+  *trig_pin = Trig_pin;
+  *echo_pin = Echo_pin;
 }
 //-------------------------------------------------------
