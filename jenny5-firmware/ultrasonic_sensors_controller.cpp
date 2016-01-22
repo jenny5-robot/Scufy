@@ -11,12 +11,10 @@ void echoCheck(void)
 {
   for (int i = 0; i < ultrasonic_sensors_controller.num_sensors; i++)
     if (ultrasonic_sensors_controller.sensors[i].sonar->check_timer()) { // This is how you check to see if the ping was received.
-      // Here's where you can add code.
-      Serial.write('U');
-      Serial.print(i);
-      Serial.write(' ');
-      Serial.print(ultrasonic_sensors_controller.sensors[i].sonar->ping_result / US_ROUNDTRIP_CM);
-      Serial.write('#');
+      int distance = ultrasonic_sensors_controller.sensors[i].sonar->ping_result / US_ROUNDTRIP_CM;
+      char tmp_str[30];
+      sprintf(tmp_str, "U%d %d#", i, distance);
+      Serial.write(tmp_str);
     }
 }
 //---------------------------------------------------------------------
