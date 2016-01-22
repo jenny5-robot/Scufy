@@ -1,41 +1,52 @@
 #include "potentiometers_controller.h"
 #include "Arduino.h"
 //--------------------------------------------------------------------
-t_potentiometers_controller::t_potentiometers_controller(byte num_potentiometers, byte *potentiometer_pins, t_limit_pair *limits)
+t_potentiometers_controller::t_potentiometers_controller(void)
 {
-	this->limits = new t_limit_pair[num_potentiometers];
-	pins = new byte[num_potentiometers];
-
-	for (byte i = 0; i < num_potentiometers; ++i)
-	{
-		pins[i] = potentiometer_pins[i];
-		this->limits[i] = limits[i];
-	}
+  num_sensors = 0;
+  sensors = NULL;
 }
 //--------------------------------------------------------------------
 int	t_potentiometers_controller::get_position(byte potentiometer_index)
 {
-	return (int)analogRead(this->pins[potentiometer_index]);
+	return sensors[potentiometer_index].get_position();
 }
 //--------------------------------------------------------------------
-void t_potentiometers_controller::set_limits(byte potentiometer_index, int low, int high, int _home)
+void t_potentiometers_controller::set_params(byte potentiometer_index, byte pin, int low, int high, int _home)
 {
-	limits[potentiometer_index].low = low;
-	limits[potentiometer_index].high = high;
-  limits[potentiometer_index]._home = _home;
+  sensors[potentiometer_index].set_params(pin, low, high, _home);
 }
 //--------------------------------------------------------------------
-void t_potentiometers_controller::get_limits(byte potentiometer_index, int *low, int *high, int *_home)
+void t_potentiometers_controller::get_params(byte potentiometer_index, byte *pin, int *low, int *high, int *_home)
 {
-	*low = this->limits[potentiometer_index].low;
-  *high = limits[potentiometer_index].high;
-  *_home = limits[potentiometer_index]._home;
+  sensors[potentiometer_index].get_params(pin, low, high, _home);
 }
 //--------------------------------------------------------------------
-int t_potentiometers_controller::isWithinLimits(byte potentiometer_index)
+int t_potentiometers_controller::is_within_limits(byte potentiometer_index)
 {
-	int val = get_position(potentiometer_index);
+	return sensors[potentiometer_index].is_within_limits();
+}
+//--------------------------------------------------------------------
+void t_potentiometers_controller::set_num_sensors(byte new_num_sensors)
+{
+  if (new_num_sensors != num_sensors){
+    num_sensors = new_num_sensors;
+    if (sensors)
+      delete[] sensors;
 
-	return limits[potentiometer_index].low <= val && val <= limits[potentiometer_index].high;
+    if (num_sensors > 0){    
+      sensors = new t_potentiometer_controller[num_sensors];
+      
+      for (byte m = 0; m < num_sensors; m++)
+        sensors[m].set_params(2, 2, 2, 2);
+    }
+    else
+      sensors = NULL;
+  } 
+}
+//--------------------------------------------------------------------
+byte t_potentiometers_controller::get_num_sensors(void)
+{
+  return num_sensors;
 }
 //--------------------------------------------------------------------

@@ -2,28 +2,26 @@
 #define POTENTIOMETERS_CONTROLLER_H_
 
 #include "Arduino.h"
+#include "potentiometer_controller.h"
 
-struct t_limit_pair
-{
-	int low;
-	int high;
-  int _home; // where it should be when we start
-};
 
 class t_potentiometers_controller
 {
 private:
-	//potentiometer 	**potentiometers;
-	int					count;
-	t_limit_pair		*limits;
-	byte				*pins;
+	byte					num_sensors;
+  t_potentiometer_controller *sensors;
 
 public:
-	t_potentiometers_controller(byte num_potentiometers, byte *potentiometer_pins, t_limit_pair *limits);
+	t_potentiometers_controller();
+	void create_init(byte potentiometer_pin, t_limit_pair &limits);
+ 
 	int get_position(byte potentiometer_index);
-	void set_limits(byte index, int low, int high, int _home);
-	void get_limits(byte index, int *low, int *high, int *_home);
-	int isWithinLimits(byte potentiometer_index);
+	void set_params(byte pot_index, byte pin, int low, int high, int _home);
+	void get_params(byte pot_index, byte *pin, int *low, int *high, int *_home);
+	int is_within_limits(byte potentiometer_index);
+
+  void set_num_sensors(byte new_num_sensors);
+  byte get_num_sensors(void);
 };
 
 #endif
