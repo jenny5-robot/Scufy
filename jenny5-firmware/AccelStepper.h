@@ -23,7 +23,7 @@
 /// The latest version of this documentation can be downloaded from 
 /// http://www.airspayce.com/mikem/arduino/AccelStepper
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/AccelStepper/AccelStepper-1.47.zip
+/// from http://www.airspayce.com/mikem/arduino/AccelStepper/AccelStepper-1.49.zip
 ///
 /// Example Arduino programs are included to show the main modes of use.
 ///
@@ -47,7 +47,9 @@
 ///
 /// This code uses speed calculations as described in 
 /// "Generate stepper-motor speed profiles in real time" by David Austin 
-/// http://fab.cba.mit.edu/classes/MIT/961.09/projects/i0/Stepper_Motor_Speed_Profile.pdf
+/// http://fab.cba.mit.edu/classes/MIT/961.09/projects/i0/Stepper_Motor_Speed_Profile.pdf or
+/// http://www.embedded.com/design/mcus-processors-and-socs/4006438/Generate-stepper-motor-speed-profiles-in-real-time or
+/// http://web.archive.org/web/20140705143928/http://fab.cba.mit.edu/classes/MIT/961.09/projects/i0/Stepper_Motor_Speed_Profile.pdf
 /// with the exception that AccelStepper uses steps per second rather than radians per second
 /// (because we dont know the step angle of the motor)
 /// An initial step interval is calculated for the first step, based on the desired acceleration
@@ -193,11 +195,22 @@
 /// \version 1.46  Fixed error in documentation for runToPosition().
 ///                Reinstated time calculations in runSpeed() since new version is reported 
 ///                not to work correctly under some circumstances. Reported by Oleg V Gavva.<br>
-
+/// \version 1.48  2015-08-25
+///                Added new class MultiStepper that can manage multiple AccelSteppers, 
+///                and cause them all to move
+///                to selected positions at such a (constant) speed that they all arrive at their
+///                target position at the same time. Suitable for X-Y flatbeds etc.<br>
+///                Added new method maxSpeed() to AccelStepper to return the currently configured maxSpeed.<br>
+/// \version 1.49  2016-01-02
+///                Testing with VID28 series instrument stepper motors and EasyDriver.
+///                OK, although with light pointers
+///                and slow speeds like 180 full steps per second the motor movement can be erratic, 
+///                probably due to some mechanical resonance. Best to accelerate through this speed.<br>
+///                Added isRunning().<br>
 ///
 /// \author  Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY: USE THE LISTS
 // Copyright (C) 2009-2013 Mike McCauley
-// $Id: AccelStepper.h,v 1.21 2014/10/31 06:05:30 mikem Exp mikem $
+// $Id: AccelStepper.h,v 1.24 2015/10/04 05:16:38 mikem Exp mikem $
 
 #ifndef AccelStepper_h
 #define AccelStepper_h
@@ -348,6 +361,11 @@ public:
     /// Result in non-linear accelerations and decelerations.
     void    setMaxSpeed(float speed);
 
+    /// returns the maximum speed configured for this stepper
+    /// that was previously set by setMaxSpeed();
+    /// \return The currently configured maximum speed
+    float   maxSpeed();
+
     /// Sets the acceleration/deceleration rate.
     /// \param[in] acceleration The desired acceleration in steps per second
     /// per second. Must be > 0.0. This is an expensive call since it requires a square 
@@ -450,6 +468,10 @@ public:
     /// \param[in] pin4Invert True for inverted pin4, false for non-inverted
     /// \param[in] enableInvert    True for inverted enable pin, false (default) for non-inverted
     void    setPinsInverted(bool pin1Invert, bool pin2Invert, bool pin3Invert, bool pin4Invert, bool enableInvert);
+
+    /// Checks to see if the motor is currently running to a target
+    /// \return true if the speed is not zero or not at the target position
+    bool    isRunning();
 
 protected:
 
@@ -617,7 +639,7 @@ private:
 /// which sets a new target position and then waits until the stepper has 
 /// achieved it. This is used for testing the handling of overshoots
 
-/// @example MultiStepper.pde
+/// @example MultipleSteppers.pde
 /// Shows how to multiple simultaneous steppers
 /// Runs one stepper forwards and backwards, accelerating and decelerating
 /// at the limits. Runs other steppers at the same time
