@@ -6,6 +6,7 @@
 #include "button_controller.h"
 #include "jenny5_types.h"
 #include "infrared_sensors_controller.h"
+//#include "MemoryFree.h"
 
 //byte potentiometers_pins[4] = {0, 1, 2, 3};
 //t_limit_pair potentiometer_limits[4] = {{500, 1000, 500}, {500, 1023, 500}, {200, 600, 400}, {300, 600, 500}};
@@ -25,15 +26,19 @@ char current_buffer[65];
 
 //#define DEBUG
 
-unsigned long time;
+//unsigned long time;
+
+bool first_start;
 
 //--------------------------------------------------------------------------------------------
 void setup() 
 {
-  strcpy(firmware_version, "2016.01.23.0");
+  first_start = 0;
+  strcpy(firmware_version, "2016.01.23.3");
   
-  motors_controller.set_num_motors(2);
-  ultrasonic_sensors_controller.set_num_sensors(1);
+  //motors_controller.set_num_motors(2);
+  
+ // ultrasonic_sensors_controller.set_num_sensors(1);
   
   //potentiometers_control = new t_potentiometers_controller(4, potentiometers_pins, potentiometer_limits);
   infrared_sensors_control = new t_infrared_sensors_controller (2, infrared_pins);
@@ -59,7 +64,7 @@ void setup()
   Serial.println(F("GMx# // Gets the parameters for motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs MPx s a 1 0 0#"));
   Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#"));
   Serial.println(F("GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#"));
-  Serial.println(F("CM n s1 d1 e1 s2 d2 e2# // Creates the motors controller and set some of its parameters. n is the number of motors, s, d, e are step, dir and enable pins. Outputs CM# when done."));
+  Serial.println(F("CM n d1 s1 e1 d2 s2 e2# // Creates the motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CM# when done."));
   
   Serial.println(F("V# // Outputs version string. eg: 2016.01.17.0#"));
 
@@ -81,10 +86,14 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
       
       if (tmp_str[i] == 'M' || tmp_str[i] == 'm'){// moves motor
         int motor_index, num_steps;
-        sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_steps);
-        motors_controller.move_motor(motor_index, num_steps);
-        is_command_running = 1;
-        i += 4;
+        int num_read = sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_steps);
+        if (num_read == 2){
+          motors_controller.move_motor(motor_index, num_steps);
+          is_command_running = 1;
+          i += 4;
+        }
+        else
+          i++;// error on incomplete string (does nothing)
       }
       else
           if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer            
@@ -210,18 +219,21 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
          else
            if (tmp_str[i] == 'C' || tmp_str[i] == 'c'){// create something
              if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){// create a list of motors
-               if (!motors_controller.is_motor_running()){
+               if (!motors_controller.is_motor_running()){           
                  int num_motors = 0;
-                 int num_consumed_total = 3;
+                 
                  int num_consumed = 0;
-                 sscanf(tmp_str + i + num_consumed, "%d%n", &num_motors, &num_consumed);
+                 sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
+                 
+                 int num_consumed_total = 3 + num_consumed;
                  motors_controller.set_num_motors(num_motors);
                  for (int k = 0; k < num_motors; k++){
                    int _step_pin, _dir_pin, _enable_pin;
-                   sscanf(tmp_str + i + num_consumed, "%d%d%d", &_step_pin, &_dir_pin, &_enable_pin);
-                   motors_controller.set_motor_pins(k, _step_pin, _dir_pin, _enable_pin);
+                   sscanf(tmp_str + i + num_consumed_total, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
+                   motors_controller.set_motor_pins(k, _dir_pin, _step_pin, _enable_pin);
                    num_consumed_total += num_consumed + 1;
                  }
+     
                  sprintf(serial_out, "CM#");
                  i += num_consumed_total;
                }
@@ -309,5 +321,10 @@ void loop()
   motors_controller.run_motors(&potentiometers_control, serial_out);
   if (serial_out[0])
     Serial.write(serial_out);
+
+ //   Serial.print("freeMemory()=");
+ // Serial.println(freeMemory());
+
+  //delay(1000);
 }
 //------------------------------------------------------------------------------

@@ -33,7 +33,7 @@ public:
   t_motor_controller(void);
   ~t_motor_controller(void);
   
-  void create_init(byte _step, byte _dir, byte _enable, int default_motor_speed, int default_motor_acceleration);
+  void create_init(byte _dir, byte _step, byte _enable, int default_motor_speed, int default_motor_acceleration);
   
   void move_motor(int num_steps);
   void move_motor_to(int _position);

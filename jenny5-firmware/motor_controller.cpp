@@ -21,10 +21,17 @@ t_motor_controller::t_motor_controller(void)
 t_motor_controller::~t_motor_controller(void)
 {
   if (stepper)
-    delete stepper;  
+    delete stepper;
+
+  if (sensors)
+    delete[] sensors;
+
+  sensors_count = 0;
+
+  motor_running = 0;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::create_init(byte _step, byte _dir, byte _enable, int default_motor_speed, int default_motor_acceleration)
+void t_motor_controller::create_init(byte _dir, byte _step, byte _enable, int default_motor_speed, int default_motor_acceleration)
 {
   dir_pin = _dir;
   step_pin = _step;
@@ -35,6 +42,13 @@ void t_motor_controller::create_init(byte _step, byte _dir, byte _enable, int de
 
   if (stepper)
     delete stepper;
+
+  if (sensors)
+    delete[] sensors;
+
+  sensors_count = 0;
+
+  motor_running = 0;
     
   stepper = new AccelStepper(AccelStepper::DRIVER, step_pin, dir_pin);
   stepper->setMaxSpeed(motor_speed);

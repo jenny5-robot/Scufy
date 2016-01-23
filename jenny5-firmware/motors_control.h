@@ -20,7 +20,7 @@ public:
 	t_motors_controller(void);
   ~t_motors_controller();
 
-  void set_motor_pins(byte motor_index, byte _step, byte _dir, byte _enable);
+  void set_motor_pins(byte motor_index, byte _dir, byte _step, byte _enable);
 
   byte get_num_motors(void);
   void set_num_motors(int value);

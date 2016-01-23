@@ -3,10 +3,10 @@
 //-------------------------------------------------------------------------------
 t_motors_controller::t_motors_controller(void)
 {
-  num_motors = 0;
   default_motor_speed = 200;
   default_motor_acceleration = 100;
 
+  num_motors = 0;
   motors = NULL;
 }
 //-------------------------------------------------------------------------------
@@ -31,7 +31,10 @@ void t_motors_controller::set_num_motors(int new_num_motors)
       delete[] motors;
 
     if (num_motors > 0){
-
+    
+      motors = new t_motor_controller[num_motors];
+      
+/*
       byte dir_pins[4];
       dir_pins[0] = 2;
       dir_pins[1] = 5;
@@ -49,21 +52,20 @@ void t_motors_controller::set_num_motors(int new_num_motors)
       enable_pins[1] = 7;
       enable_pins[2] = 10;
       enable_pins[3] = 13;
-      
-      motors = new t_motor_controller[num_motors];
-      
-      for (byte m = 0; m < num_motors; m++)
-        motors[m].create_init(step_pins[m], dir_pins[m], enable_pins[m], default_motor_speed, default_motor_acceleration); 
+        for (byte m = 0; m < num_motors; m++)
+        motors[m].create_init(dir_pins[m], step_pins[m], enable_pins[m], default_motor_speed, default_motor_acceleration); 
+        */
     }
     else
       motors = NULL;
   }
 }
 //-------------------------------------------------------------------------------
-void t_motors_controller::set_motor_pins(byte motor_index, byte _step, byte _dir, byte _enable)
+void t_motors_controller::set_motor_pins(byte motor_index, byte _dir, byte _step, byte _enable)
 {  
-  if (!motors[motor_index].is_motor_running())
-    motors[motor_index].create_init(_step, _dir, _enable, default_motor_speed, default_motor_acceleration);
+  if (!motors[motor_index].is_motor_running()){
+    motors[motor_index].create_init(_dir, _step, _enable, default_motor_speed, default_motor_acceleration);
+  }
 }
 //-------------------------------------------------------------------------------
 void t_motors_controller::move_motor(byte motor_index, int num_steps)
