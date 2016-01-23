@@ -371,6 +371,7 @@ public:
     /// per second. Must be > 0.0. This is an expensive call since it requires a square 
     /// root to be calculated. Dont call more ofthen than needed
     void    setAcceleration(float acceleration);
+    float    getAcceleration(void){return _acceleration;};
 
     /// Sets the desired constant speed for use with runSpeed().
     /// \param[in] speed The desired constant speed in steps per
