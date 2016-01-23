@@ -30,7 +30,7 @@ unsigned long time;
 //--------------------------------------------------------------------------------------------
 void setup() 
 {
-  strcpy(firmware_version, "2016.01.22.2");
+  strcpy(firmware_version, "2016.01.23.0");
   
   motors_controller.set_num_motors(2);
   ultrasonic_sensors_controller.set_num_sensors(1);
@@ -237,6 +237,12 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 void loop() 
 {
   char serial_out[100];
+
+// check to see if there are new results from ultrasonic sensor
+  ultrasonic_sensors_controller.update_results(serial_out);
+  if (serial_out[0])
+    Serial.write(serial_out);
+  
   if (Serial.available() || current_buffer[0]) {
     int num_read = 0;
     char serial_buffer[65];
