@@ -12,7 +12,7 @@ public:
 	byte num_sensors;
 
 public:
-	t_ultrasonic_sensors_controller ();
+	t_ultrasonic_sensors_controller (void);
  
   void set_num_sensors(byte new_num_sensors);
   void set_sensor_pins(byte sensor_index, byte trig_pins, byte echo_pins);
@@ -20,6 +20,8 @@ public:
   
   byte get_num_sensors(void);
 	void trigger (byte sensor_index);
+
+  void update_results(char *serial_out);
 };
 
 extern t_ultrasonic_sensors_controller ultrasonic_sensors_controller;

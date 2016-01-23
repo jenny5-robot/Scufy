@@ -12,16 +12,17 @@ void echoCheck(void)
   for (int i = 0; i < ultrasonic_sensors_controller.num_sensors; i++)
     if (ultrasonic_sensors_controller.sensors[i].sonar->check_timer()) { // This is how you check to see if the ping was received.
       int distance = ultrasonic_sensors_controller.sensors[i].sonar->ping_result / US_ROUNDTRIP_CM;
-      char tmp_str[30];
-      sprintf(tmp_str, "U%d %d#", i, distance);
-      Serial.write(tmp_str);
+      ultrasonic_sensors_controller.sensors[i].set_distance(distance);
+    //  char tmp_str[30];
+    //  sprintf(tmp_str, "U%d %d#", i, distance);
+    //  Serial.write(tmp_str);
     }
 }
 //---------------------------------------------------------------------
 void t_ultrasonic_sensors_controller::trigger (byte sensor_index)
 {
   if (sensor_index < num_sensors){
-    sensors[sensor_index].sonar->ping_timer(echoCheck);
+    sensors[sensor_index].trigger(echoCheck);
   }
 }
 //---------------------------------------------------------------------
@@ -70,5 +71,18 @@ byte t_ultrasonic_sensors_controller::get_num_sensors(void)
 void t_ultrasonic_sensors_controller::get_sensor_pins(byte sensor_index, byte *trig_pins, byte *echo_pins)
 {
   sensors[sensor_index].get_sensor_pins(trig_pins, echo_pins);
+}
+//---------------------------------------------------------------------
+void t_ultrasonic_sensors_controller::update_results(char *serial_out)
+{
+  serial_out[0] = 0;
+  for (byte m = 0; m < num_sensors; m++){
+    int distance = sensors[m].get_last_read_distance();
+    if (distance > -1){
+      char tmp_s[10];
+      sprintf(tmp_s, "U%d %d#", m, distance);
+      strcat(serial_out, tmp_s);
+    }
+  }
 }
 //---------------------------------------------------------------------

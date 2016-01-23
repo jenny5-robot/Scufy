@@ -12,13 +12,16 @@ class t_ultrasonic
 
     NewPing *sonar;
 
+    int last_read_distance;
+
   public:
     t_ultrasonic (void);
     ~t_ultrasonic (void);
     void create_init(byte trigger_pin, byte echo_pin);
     void get_sensor_pins(byte *trig_pins, byte *echo_pins);
-    //void trigger(void);
-    //unsigned long get_distance(void);
+    void trigger(void (*userFunc)(void));
+    int get_last_read_distance(void);// cannot be read twice !
+    void set_distance(int new_computed_distance);
 };
 
 #endif //ULTRASONIC_H
