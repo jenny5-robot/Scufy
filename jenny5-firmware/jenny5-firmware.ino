@@ -34,7 +34,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.01.23.3");
+  strcpy(firmware_version, "2016.01.24.0");
   
   //motors_controller.set_num_motors(2);
   
@@ -146,7 +146,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           else
           if (tmp_str[i] == 'S' || tmp_str[i] == 's'){ // sets something
             if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){ // motor speed and acceleration
-              int motor_index, motor_speed, motor_acceleration;
+              int motor_index; 
+              int motor_speed, motor_acceleration;
               sscanf(tmp_str + i + 2, "%d%d%d", &motor_index, &motor_speed, &motor_acceleration);
               motors_controller.set_motor_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
               i += 5;
@@ -181,10 +182,11 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         else
           if (tmp_str[i] == 'G' || tmp_str[i] == 'g'){// for debugging purpose
             if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){ // get motor speed and acceleration
-              int motor_index, motor_speed, motor_acceleration;
+              int motor_index; 
+              float motor_speed, motor_acceleration;
               sscanf(tmp_str + i + 2, "%d", &motor_index);
               motors_controller.get_motor_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
-              sprintf(serial_out, "MP%d %d %d#", motor_index, motor_speed, motor_acceleration);
+              sprintf(serial_out, "MP%d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration);
               i += 4;
             }
             else
@@ -237,6 +239,26 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  sprintf(serial_out, "CM#");
                  i += num_consumed_total;
                }
+             }
+             else
+               if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u'){// create a list of motors
+               
+                 int num_sonars = 0;
+                 
+                 int num_consumed = 0;
+                 sscanf(tmp_str + i + 3, "%d%n", &num_sonars, &num_consumed);
+                 
+                 int num_consumed_total = 3 + num_consumed;
+                 ultrasonic_sensors_controller.set_num_sensors(num_sonars);
+                 for (int k = 0; k < num_sonars; k++){
+                   int _trig_pin, _echo_pin;
+                   sscanf(tmp_str + i + num_consumed_total, "%d%d%n", &_trig_pin, &_echo_pin, &num_consumed);
+                   ultrasonic_sensors_controller.set_sensor_pins(k, _trig_pin, _echo_pin);
+                   num_consumed_total += num_consumed + 1;
+                 }
+     
+                 sprintf(serial_out, "CU#");
+                 i += num_consumed_total;
              }
          }
     }
