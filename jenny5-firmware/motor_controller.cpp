@@ -14,8 +14,8 @@ t_motor_controller::t_motor_controller(void)
   motor_running = 0;
   stepper = NULL;
 
-  motor_speed = 300;
-  motor_acceleration = 100;
+  //motor_speed = 300;
+ // motor_acceleration = 100;
 }
 //-------------------------------------------------------------------------------
 t_motor_controller::~t_motor_controller(void)
@@ -31,14 +31,14 @@ t_motor_controller::~t_motor_controller(void)
   motor_running = 0;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::create_init(byte _dir, byte _step, byte _enable, int default_motor_speed, int default_motor_acceleration)
+void t_motor_controller::create_init(byte _dir, byte _step, byte _enable, float default_motor_speed, float default_motor_acceleration)
 {
   dir_pin = _dir;
   step_pin = _step;
   enable_pin = _enable;
   
-  motor_speed = default_motor_speed;
-  motor_acceleration = default_motor_acceleration;
+  //motor_speed = default_motor_speed;
+  //motor_acceleration = default_motor_acceleration;
 
   if (stepper)
     delete stepper;
@@ -51,9 +51,9 @@ void t_motor_controller::create_init(byte _dir, byte _step, byte _enable, int de
   motor_running = 0;
     
   stepper = new AccelStepper(AccelStepper::DRIVER, step_pin, dir_pin);
-  stepper->setMaxSpeed(motor_speed);
-  stepper->setSpeed(motor_speed);
-  stepper->setAcceleration(motor_acceleration);
+  stepper->setMaxSpeed(default_motor_speed);
+  stepper->setSpeed(default_motor_speed);
+  stepper->setAcceleration(default_motor_acceleration);
 
   reset_pins();
 }
@@ -72,26 +72,26 @@ void t_motor_controller::move_motor_to(int _position)
   motor_running = 1;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_motor_speed(int _motor_speed)
+void t_motor_controller::set_motor_speed(float _motor_speed)
 {
   stepper->setMaxSpeed(_motor_speed);
   stepper->setSpeed(_motor_speed);
-  motor_speed = _motor_speed;
+//  motor_speed = _motor_speed;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_motor_acceleration(int _motor_acceleration)
+void t_motor_controller::set_motor_acceleration(float _motor_acceleration)
 {
   stepper->setAcceleration(_motor_acceleration);
-  motor_acceleration = _motor_acceleration;
+ // motor_acceleration = _motor_acceleration;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_motor_speed_and_acceleration(int _motor_speed, int _motor_acceleration)
+void t_motor_controller::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
 {
   stepper->setMaxSpeed(_motor_speed);
   stepper->setSpeed(_motor_speed);
   stepper->setAcceleration(_motor_acceleration);
-  motor_acceleration = _motor_acceleration;
-  motor_speed = _motor_speed;
+ // motor_acceleration = _motor_acceleration;
+  //motor_speed = _motor_speed;
 }
 //-------------------------------------------------------------------------------
 void t_motor_controller::disable_motor(void)
@@ -150,10 +150,16 @@ void t_motor_controller::get_sensor(byte sensor_index_in_motor_list, byte *senso
   *sensor_index = sensors[sensor_index_in_motor_list].index;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::get_motor_speed_and_acceleration(int *_motor_speed, int *_motor_acceleration)
+void t_motor_controller::get_motor_speed_and_acceleration(float *_motor_speed, float *_motor_acceleration)
 {
-  *_motor_acceleration = motor_acceleration;
-  *_motor_speed = motor_speed;
+  if (stepper){
+   *_motor_acceleration = stepper->getAcceleration();
+    *_motor_speed = stepper->maxSpeed();
+}
+    else{
+    *_motor_speed = 0;
+    *_motor_acceleration = 0;
+    }
 }
 //-------------------------------------------------------------------------------
 int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control)

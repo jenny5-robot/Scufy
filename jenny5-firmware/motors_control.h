@@ -13,8 +13,8 @@ public:
   t_motor_controller *motors;
   byte num_motors;
 
-	int default_motor_speed; //maximum steps per second 
-	int default_motor_acceleration; //steps/second/second to accelerate
+	float default_motor_speed; //maximum steps per second 
+	float default_motor_acceleration; //steps/second/second to accelerate
 	
 public:
 	t_motors_controller(void);
@@ -28,12 +28,12 @@ public:
 	void move_motor(byte motor_index, int num_steps);
   void move_motor_to(byte motor_index, int _position);
 	
-	void set_motor_speed(byte motor_index, int motor_speed);
+	void set_motor_speed(byte motor_index, float motor_speed);
 	
-	void set_motor_acceleration(byte motor_index, int motor_acceleration);
+	void set_motor_acceleration(byte motor_index, float motor_acceleration);
 
-  void set_motor_speed_and_acceleration(byte motor_index, int motor_speed, int motor_acceleration);
-  void get_motor_speed_and_acceleration(byte motor_index, int *motor_speed, int *motor_acceleration);
+  void set_motor_speed_and_acceleration(byte motor_index, float motor_speed, float motor_acceleration);
+  void get_motor_speed_and_acceleration(byte motor_index, float *motor_speed, float *motor_acceleration);
 	
 	void disable_motor(byte motor_index);
 	

@@ -78,17 +78,17 @@ void t_motors_controller::move_motor_to(byte motor_index, int _position)
   motors[motor_index].move_motor_to(_position); //move to 
 }
 //-------------------------------------------------------------------------------
-void t_motors_controller::set_motor_speed(byte motor_index, int _motor_speed)
+void t_motors_controller::set_motor_speed(byte motor_index, float _motor_speed)
 {
   motors[motor_index].set_motor_speed(_motor_speed); //set speed
 }
 //-------------------------------------------------------------------------------
-void t_motors_controller::set_motor_acceleration(byte motor_index, int _motor_acceleration)
+void t_motors_controller::set_motor_acceleration(byte motor_index, float _motor_acceleration)
 {
   motors[motor_index].set_motor_acceleration(_motor_acceleration); // set acceleration
 }
 //-------------------------------------------------------------------------------
-void t_motors_controller::set_motor_speed_and_acceleration(byte motor_index, int _motor_speed, int _motor_acceleration)
+void t_motors_controller::set_motor_speed_and_acceleration(byte motor_index, float _motor_speed, float _motor_acceleration)
 {
   motors[motor_index].set_motor_speed(_motor_speed); //set speed
   motors[motor_index].set_motor_acceleration(_motor_acceleration); // set acceleration
@@ -138,7 +138,7 @@ void t_motors_controller::get_sensor(byte motor_index, byte sensor_index_in_moto
   motors[motor_index].get_sensor(sensor_index_in_motor_list, sensor_type, sensor_index);
 }
 //-------------------------------------------------------------------------------
-void t_motors_controller::get_motor_speed_and_acceleration(byte motor_index, int *_motor_speed, int *_motor_acceleration)
+void t_motors_controller::get_motor_speed_and_acceleration(byte motor_index, float *_motor_speed, float *_motor_acceleration)
 {
   motors[motor_index].get_motor_speed_and_acceleration(_motor_speed, _motor_acceleration);
 }

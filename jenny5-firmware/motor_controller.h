@@ -26,24 +26,24 @@ public:
   AccelStepper  *stepper;
   byte motor_running;
 
-  int motor_speed;
-  int motor_acceleration;
+  //int motor_speed;
+  //int motor_acceleration;
   
 public:
   t_motor_controller(void);
   ~t_motor_controller(void);
   
-  void create_init(byte _dir, byte _step, byte _enable, int default_motor_speed, int default_motor_acceleration);
+  void create_init(byte _dir, byte _step, byte _enable, float default_motor_speed, float default_motor_acceleration);
   
   void move_motor(int num_steps);
   void move_motor_to(int _position);
   
-  void set_motor_speed(int motor_speed);
+  void set_motor_speed(float motor_speed);
   
-  void set_motor_acceleration(int motor_acceleration);
-
-  void set_motor_speed_and_acceleration(int motor_speed, int motor_acceleration);
-  void get_motor_speed_and_acceleration(int *motor_speed, int *motor_acceleration);
+  void set_motor_acceleration(float motor_acceleration);
+// speed and acceleration are float, but we read and write them as int in order to reduce serial traffic
+  void set_motor_speed_and_acceleration(float motor_speed, float motor_acceleration);
+  void get_motor_speed_and_acceleration(float *motor_speed, float *motor_acceleration);
   
   void disable_motor(void);
   
