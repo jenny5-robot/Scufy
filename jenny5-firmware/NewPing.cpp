@@ -156,10 +156,10 @@ void NewPing::ping_timer(void (*userFunc)(void)) {
 }
 
 
-boolean NewPing::check_timer() {
+byte NewPing::check_timer() {
 	if (micros() > _max_time) { // Outside the time-out limit.
 		timer_stop();             // Disable timer interrupt
-		return false;             // Cancel ping timer.
+		return 2;             // Cancel ping timer.
 	}
 
 #if URM37_ENABLED == false
@@ -169,10 +169,10 @@ boolean NewPing::check_timer() {
 #endif
 		timer_stop();                  // Disable timer interrupt
 		ping_result = (micros() - (_max_time - _maxEchoTime) - PING_TIMER_OVERHEAD); // Calculate ping time including overhead.
-		return true;                   // Return ping echo true.
+		return 1;                   // Return ping echo true.
 	}
 
-	return false; // Return false because there's no ping echo yet.
+	return 0; // Return false because there's no ping echo yet.
 }
 
 
