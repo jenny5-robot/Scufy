@@ -9,14 +9,20 @@ t_ultrasonic_sensors_controller::t_ultrasonic_sensors_controller (void)
 //---------------------------------------------------------------------
 void echoCheck(void)
 {
-  for (int i = 0; i < ultrasonic_sensors_controller.num_sensors; i++)
-    if (ultrasonic_sensors_controller.sensors[i].sonar->check_timer()) { // This is how you check to see if the ping was received.
+  for (int i = 0; i < ultrasonic_sensors_controller.num_sensors; i++){
+    byte result = ultrasonic_sensors_controller.sensors[i].sonar->check_timer();
+    if (result == 1) { // event was received
       int distance = ultrasonic_sensors_controller.sensors[i].sonar->ping_result / US_ROUNDTRIP_CM;
       ultrasonic_sensors_controller.sensors[i].set_distance(distance);
     //  char tmp_str[30];
     //  sprintf(tmp_str, "U%d %d#", i, distance);
     //  Serial.write(tmp_str);
     }
+    else
+    if (result == 2){
+      ultrasonic_sensors_controller.sensors[i].set_distance(0); // no response within limits
+    }
+  }
 }
 //---------------------------------------------------------------------
 void t_ultrasonic_sensors_controller::trigger (byte sensor_index)
@@ -41,6 +47,8 @@ void t_ultrasonic_sensors_controller::set_num_sensors(byte new_num_sensors)
 
     if (num_sensors > 0){
 
+      sensors = new t_ultrasonic[num_sensors];
+/*
       byte trig_pins[4];
       trig_pins[0] = 8;
       trig_pins[1] = 5;
@@ -52,11 +60,10 @@ void t_ultrasonic_sensors_controller::set_num_sensors(byte new_num_sensors)
       echo_pins[1] = 6;
       echo_pins[2] = 9;
       echo_pins[3] = 12;
-    
-      sensors = new t_ultrasonic[num_sensors];
       
       for (byte m = 0; m < num_sensors; m++)
         sensors[m].create_init(trig_pins[m], echo_pins[m]);
+        */
     }
     else
       sensors = NULL;
