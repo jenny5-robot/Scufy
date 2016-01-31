@@ -14,7 +14,7 @@
 byte infrared_pins[2] = {52, 53};
 
 t_motors_controller motors_controller;
-t_potentiometers_controller potentiometers_control;
+t_potentiometers_controller potentiometers_controller;
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
 t_infrared_sensors_controller *infrared_sensors_control;
 
@@ -34,7 +34,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.01.24.0");
+  strcpy(firmware_version, "2016.01.31.0");
   
   //motors_controller.set_num_motors(2);
   
@@ -65,6 +65,8 @@ void setup()
   Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#"));
   Serial.println(F("GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#"));
   Serial.println(F("CM n d1 s1 e1 d2 s2 e2# // Creates the motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CM# when done."));
+  Serial.println(F("CP n p1 l1 h1 _h1# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position. Outputs CP# when done."));
+  Serial.println(F("CU n t1 e1# // Creates the ultrasonic controllers and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
   
   Serial.println(F("V# // Outputs version string. eg: 2016.01.17.0#"));
 
@@ -99,7 +101,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer            
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            int sensor_value = potentiometers_control.get_position(sensor_index);
+            int sensor_value = potentiometers_controller.get_position(sensor_index);
             sprintf(serial_out, "P%d %d#", sensor_index, sensor_value);
             i += 2;
           }
@@ -156,7 +158,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){ // potentiometer min max home
                 int pot_index, pot_min, pot_max, pot_home, pot_pin;
                 sscanf(tmp_str + i + 2, "%d%d%d%d%d", &pot_index, &pot_pin, &pot_min, &pot_max, &pot_home);
-                potentiometers_control.set_params(pot_index, pot_pin, pot_min, pot_max, pot_home);
+                potentiometers_controller.set_params(pot_index, pot_pin, pot_min, pot_max, pot_home);
                 i += 7;
             }
           }
@@ -194,7 +196,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                 int pot_index, pot_min, pot_max, pot_home;
                 byte pot_pin;
                 sscanf(tmp_str + i + 2, "%d", &pot_index);
-                potentiometers_control.get_params(pot_index, &pot_pin, &pot_min, &pot_max, &pot_home);
+                potentiometers_controller.get_params(pot_index, &pot_pin, &pot_min, &pot_max, &pot_home);
                 sprintf(serial_out, "PP%d %d %d %d %d#", pot_index, (int)pot_pin, pot_min, pot_max, pot_home);
                 i += 4;
               }
@@ -241,7 +243,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                }
              }
              else
-               if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u'){// create a list of motors
+               if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u'){// create a list of ultrasonic sensors
                
                  int num_sonars = 0;
                  
@@ -260,6 +262,27 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  sprintf(serial_out, "CU#");
                  i += num_consumed_total;
              }
+             else
+               if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){// create a list of potentiometers
+               
+                 int num_potentiometers = 0;
+                 
+                 int num_consumed = 0;
+                 sscanf(tmp_str + i + 3, "%d%n", &num_potentiometers, &num_consumed);
+                 
+                 int num_consumed_total = 3 + num_consumed;
+                 potentiometers_controller.set_num_sensors(num_potentiometers);
+                 for (int k = 0; k < num_potentiometers; k++){
+                   int _out_pin;
+                   int _low, _high, _home;
+                   sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%n", &_out_pin, &_low, &_high, &_home, &num_consumed);
+                   potentiometers_controller.set_params(k, _out_pin, _low, _high, _home);
+                   num_consumed_total += num_consumed + 1;
+                 }
+     
+                 sprintf(serial_out, "CP#");
+                 i += num_consumed_total;
+               }
          }
     }
     else
@@ -340,7 +363,7 @@ void loop()
         }
     }
   }
-  motors_controller.run_motors(&potentiometers_control, serial_out);
+  motors_controller.run_motors(&potentiometers_controller, serial_out);
   if (serial_out[0])
     Serial.write(serial_out);
 
