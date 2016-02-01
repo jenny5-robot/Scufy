@@ -13,7 +13,6 @@ private:
 
 public:
 	t_potentiometers_controller();
-	void create_init(byte potentiometer_pin, t_limit_pair &limits);
  
 	int get_position(byte potentiometer_index);
 	void set_params(byte pot_index, byte pin, int low, int high, int _home);
