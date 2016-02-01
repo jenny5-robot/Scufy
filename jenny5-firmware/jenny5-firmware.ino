@@ -8,15 +8,10 @@
 #include "infrared_sensors_controller.h"
 //#include "MemoryFree.h"
 
-//byte potentiometers_pins[4] = {0, 1, 2, 3};
-//t_limit_pair potentiometer_limits[4] = {{500, 1000, 500}, {500, 1023, 500}, {200, 600, 400}, {300, 600, 500}};
-
-byte infrared_pins[2] = {52, 53};
-
 t_motors_controller motors_controller;
 t_potentiometers_controller potentiometers_controller;
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
-t_infrared_sensors_controller *infrared_sensors_control;
+t_infrared_sensors_controller infrared_sensors_controller;
 
 char is_command_running;
 
@@ -34,14 +29,14 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.01.31.0");
+  strcpy(firmware_version, "2016.02.01.1");
   
   //motors_controller.set_num_motors(2);
   
  // ultrasonic_sensors_controller.set_num_sensors(1);
   
   //potentiometers_control = new t_potentiometers_controller(4, potentiometers_pins, potentiometer_limits);
-  infrared_sensors_control = new t_infrared_sensors_controller (2, infrared_pins);
+  //infrared_sensors_control = new t_infrared_sensors_controller (2, infrared_pins);
   
   current_buffer[0] = 0;
 
@@ -65,8 +60,9 @@ void setup()
   Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#"));
   Serial.println(F("GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#"));
   Serial.println(F("CM n d1 s1 e1 d2 s2 e2# // Creates the motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CM# when done."));
-  Serial.println(F("CP n p1 l1 h1 _h1# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position. Outputs CP# when done."));
-  Serial.println(F("CU n t1 e1# // Creates the ultrasonic controllers and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
+  Serial.println(F("CP n p1 l1 h1 _h1 p2 l2 h2 _h2# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position. Outputs CP# when done."));
+  Serial.println(F("CU n t1 e1 t2 e2# // Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
+  Serial.println(F("CI n p1 l1 p2 l2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and l is the low and e are trigger and echo pins. Outputs CU# when done."));
   
   Serial.println(F("V# // Outputs version string. eg: 2016.01.17.0#"));
 
@@ -118,7 +114,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'I' || tmp_str[i] == 'i'){// infrared
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            int sensor_value = infrared_sensors_control->get_distance(sensor_index);
+            int sensor_value = infrared_sensors_controller.get_distance(sensor_index);
             sprintf(serial_out, "I%d %d#", sensor_index, sensor_value);
             i += 2;
           }
@@ -281,6 +277,26 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  }
      
                  sprintf(serial_out, "CP#");
+                 i += num_consumed_total;
+               }
+             else
+               if (tmp_str[i + 1] == 'I' || tmp_str[i + 1] == 'i'){// create a list of infrared sensors
+               
+                 int num_infrareds = 0;
+                 
+                 int num_consumed = 0;
+                 sscanf(tmp_str + i + 3, "%d%n", &num_infrareds, &num_consumed);
+                 
+                 int num_consumed_total = 3 + num_consumed;
+                 infrared_sensors_controller.set_num_sensors(num_infrareds);
+                 for (int k = 0; k < num_infrareds; k++){
+                   int _out_pin;
+                   int _low;
+                   sscanf(tmp_str + i + num_consumed_total, "%d%d%n", &_out_pin, &_low, &num_consumed);
+                   infrared_sensors_controller.set_params(k, _out_pin, _low);
+                   num_consumed_total += num_consumed + 1;
+                 }
+                 sprintf(serial_out, "CI#");
                  i += num_consumed_total;
                }
          }
