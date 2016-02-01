@@ -1,41 +1,34 @@
-#include "Infrared.h"
+#include "infrared.h"
 
-infrared::infrared(byte _analogPinNumber, int _minValid, int _maxValid) 
-{
-	min_valid = _minValid;
-	max_valid = _maxValid;
-	analogPinNumber = _analogPinNumber;
-	for (int idx = 0; idx < NUM_INDEXES; idx++) 
-		lastReadValues[idx] = 0;
-}
 
-void infrared::UpdateSensor()
+//--------------------------------------------------------------------------------------------
+t_infrared_sensor::t_infrared_sensor(void) 
 {
-  for(byte i = 0; i < NUM_INDEXES; i++) {
-  	int latest_value = analogRead(analogPinNumber);
-  	if (latest_value >= min_valid && latest_value <= max_valid) {
-  		lastReadValues[i] = latest_value;
-  	}
-  }
-  CalcAverage();
+  low = 100;
+  pin = 2;
 }
+//--------------------------------------------------------------------------------------------
+int t_infrared_sensor::get_distance(void)
+{
+  	return analogRead(pin);
+}
+//--------------------------------------------------------------------------------------------
+void t_infrared_sensor::set_params(byte _pin, int _low)
+{
+    pin = _pin;
+    low = _low;
+}
+//--------------------------------------------------------------------------------------------
+void t_infrared_sensor::get_params(byte *_pin, int *_low)
+{
+    *_pin = pin;
+    *_low = low;
+}
+//--------------------------------------------------------------------------------------------
+byte t_infrared_sensor::is_within_limits(void)
+{
+  int val = get_distance();
 
-void infrared::CalcAverage() 
-{
-	sensorValue = 0;
-	for (int idx = 0; idx < NUM_INDEXES; idx++) 
-		sensorValue += lastReadValues[idx];
-	if (sensorValue > 0) {
-		sensorValue /= NUM_INDEXES;
-	}
+  return low <= val; 
 }
-
-int infrared::getMinValid()
-{
-	return min_valid;
-}
-
-int infrared::getMaxValid()
-{
-	return max_valid;
-}
+//--------------------------------------------------------------------------------------------

@@ -1,34 +1,52 @@
 #include "infrared_sensors_controller.h"
 
-t_infrared_sensors_controller::t_infrared_sensors_controller(byte _numberOfSensors, byte *_analogPinNumber, int *_minValid, int *_maxValid)
-{
-	numberOfSensors = _numberOfSensors;
-	sensors = new infrared*[numberOfSensors];
-  for (byte i = 0; i < numberOfSensors; i++)
-    sensors[i] = new infrared(_analogPinNumber[i], _minValid[i], _maxValid[i]);  
-}
 
-t_infrared_sensors_controller::t_infrared_sensors_controller(byte _numberOfSensors, byte *_analogPinNumber)
+t_infrared_sensors_controller::t_infrared_sensors_controller(void)
 {
-  numberOfSensors = _numberOfSensors;
-  sensors = new infrared*[numberOfSensors];
-  for (byte i = 0; i < numberOfSensors; i++)
-    sensors[i] = new infrared(_analogPinNumber[i], 0, 100);  
+  num_sensors = 0;
+  sensors = NULL;
 }
-
-byte t_infrared_sensors_controller::is_within_range(byte _sensorIndex, int startValue, int endValue)
+//--------------------------------------------------------------------
+int  t_infrared_sensors_controller::get_distance(byte infrared_index)
 {
-	if (sensors[_sensorIndex]->sensorValue >= startValue && sensors[_sensorIndex]->sensorValue <= endValue)
-		return 1;
-	else
-		return 0;
+  return sensors[infrared_index].get_distance();
 }
-
-int t_infrared_sensors_controller::get_distance(byte _sensorIndex) {
-  return sensors[_sensorIndex]->sensorValue;
-}
-
-void t_infrared_sensors_controller::updateSensor(byte _sensorIndex)
+//--------------------------------------------------------------------
+void t_infrared_sensors_controller::set_params(byte infrared_index, byte pin, int low)
 {
-	sensors[_sensorIndex]->UpdateSensor();
+  sensors[infrared_index].set_params(pin, low);
 }
+//--------------------------------------------------------------------
+void t_infrared_sensors_controller::get_params(byte infrared_index, byte *pin, int *low)
+{
+  sensors[infrared_index].get_params(pin, low);
+}
+//--------------------------------------------------------------------
+byte t_infrared_sensors_controller::is_within_limits(byte infrared_index)
+{
+  return sensors[infrared_index].is_within_limits();
+}
+//--------------------------------------------------------------------
+void t_infrared_sensors_controller::set_num_sensors(byte new_num_sensors)
+{
+  if (new_num_sensors != num_sensors){
+    num_sensors = new_num_sensors;
+    if (sensors)
+      delete[] sensors;
+
+    if (num_sensors > 0){    
+      sensors = new t_infrared_sensor[num_sensors];
+      
+      for (byte m = 0; m < num_sensors; m++)
+        sensors[m].set_params(2, 100);
+    }
+    else
+      sensors = NULL;
+  } 
+}
+//--------------------------------------------------------------------
+byte t_infrared_sensors_controller::get_num_sensors(void)
+{
+  return num_sensors;
+}
+//--------------------------------------------------------------------
