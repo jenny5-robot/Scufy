@@ -24,6 +24,7 @@ public:
  
 	int get_position(void);	
   int get_direction(void);
+  int get_home(void);
 	byte is_within_limits(void);
   byte is_lower_bound_reached(void);
   byte is_upper_bound_reached(void);

@@ -56,3 +56,9 @@ int t_potentiometer_controller::get_direction(void)
 {
   return _direction;
 }
+//--------------------------------------------------------------------
+int t_potentiometer_controller::get_home(void)
+{
+  return _home;
+}
+

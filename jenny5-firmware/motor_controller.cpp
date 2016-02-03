@@ -220,7 +220,19 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
 //-------------------------------------------------------------------------------
 void t_motor_controller::go_home(void)
 {
-  // to do...
+  byte sensor_index = 0;
+  for (byte j = 0 ; j < sensors_count ; ++j)
+      {
+        byte type = sensors[j].type;
+        if (POTENTIOMETER == type)
+        {
+          sensor_index = sensors[j].index;
+          break;
+        }
+      }
+  //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
+  int distance_to_home = potentiometers_control->get_direction(sensor_index)*(potentiometers_control->get_home(sensor_index)-potentiometers_control->get_position(sensor_index));
+  move_motor(distance_to_home);
 }
 //-------------------------------------------------------------------------------
 
