@@ -202,20 +202,18 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
       {
         stepper->run();
         return -1;
+      } else {
+        int to_go = stepper->distanceToGo();
+        stepper->setCurrentPosition(0);
+        stepper->move(0);
+        return to_go;
       }
-      else{
-        return stepper->distanceToGo();
-        //stepper->setCurrentPosition(0);
-        set_motor_running(0);
-      }
-    }
-    else{
+    } else {
 // the motor has just finished the move, so we output that event
       if (is_motor_running()){
         set_motor_running(0);
         return 0; // distance to go
-      }
-      else
+      } else
         return -1;
     }
 }
