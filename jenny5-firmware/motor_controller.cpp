@@ -168,7 +168,8 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
 // return -1 if is still running or does nothing
   
     bool limit_reached = false;
-  int distance_to_go = stepper->distanceToGo();
+    int distance_to_go = stepper->distanceToGo();
+    int potentiometer_direction = 0;
 
     if (distance_to_go)
     {
@@ -179,13 +180,14 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
 
         if (POTENTIOMETER == type)
         {
+            potentiometer_direction = sensors[j].get_direction();
             if (potentiometers_control->is_lower_bound_reached(sensor_index)){
-              if (distance_to_go < 0){
+              if (distance_to_go*potentiometer_direction < 0){
                 limit_reached = true;
               }
             }
             if (potentiometers_control->is_upper_bound_reached(sensor_index)){
-              if (distance_to_go > 0){
+              if (distance_to_go*potentiometer_direction > 0){
                 limit_reached = true;
               }
             }

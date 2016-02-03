@@ -15,7 +15,8 @@ public:
 	t_potentiometers_controller();
  
 	int get_position(byte potentiometer_index);
-	void set_params(byte pot_index, byte pin, int low, int high, int _home);
+  int get_direction(byte potentiometer_index);
+	void set_params(byte pot_index, byte pin, int low, int high, int _home, int _direction);
 	void get_params(byte pot_index, byte *pin, int *low, int *high, int *_home);
 	byte is_within_limits(byte potentiometer_index);
   byte is_lower_bound_reached(byte potentiometer_index);

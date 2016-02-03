@@ -15,14 +15,15 @@ private:
   int high;
   int _home; // where it should be when we start
 	byte pin;
-  int motor_sens;// 0 - same direction with motor, 1 - different sens
+  int _direction;// 1 - same direction with motor, -1 - different direction
 
 public:
 	t_potentiometer_controller();
-	void set_params(byte _pin, int _low, int _high, int _home, byte );
+	void set_params(byte _pin, int _low, int _high, int _home, int _direction);
   void get_params(byte *_pin, int *low, int *high, int *_home);
  
 	int get_position(void);	
+  int get_direction(void);
 	byte is_within_limits(void);
   byte is_lower_bound_reached(void);
   byte is_upper_bound_reached(void);

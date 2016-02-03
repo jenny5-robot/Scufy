@@ -12,9 +12,14 @@ int	t_potentiometers_controller::get_position(byte potentiometer_index)
 	return sensors[potentiometer_index].get_position();
 }
 //--------------------------------------------------------------------
-void t_potentiometers_controller::set_params(byte potentiometer_index, byte pin, int low, int high, int _home)
+int t_potentiometers_controller::get_direction(byte potentiometer_index)
 {
-  sensors[potentiometer_index].set_params(pin, low, high, _home);
+  return sensors[potentiometer_index].get_direction();
+}
+//--------------------------------------------------------------------
+void t_potentiometers_controller::set_params(byte potentiometer_index, byte pin, int low, int high, int _home, int _direction)
+{
+  sensors[potentiometer_index].set_params(pin, low, high, _home, _direction);
 }
 //--------------------------------------------------------------------
 void t_potentiometers_controller::get_params(byte potentiometer_index, byte *pin, int *low, int *high, int *_home)
