@@ -39,7 +39,7 @@ CP n p1 l1 h1 _h1 p2 l2 h2 _h2# -- Creates the potentiometers controller and set
 
 CU n t1 e1 t2 e2# -- Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done. This should be called only once because otherwise it will fragment the Arduino memmory too much.
 
-CI n p1 l1 p2 l2# -- Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and l is the low and e are trigger and echo pins. Outputs CU# when done. This should be called only once because otherwise it will fragment the Arduino memmory too much.
+CI n p1 l1 p2 l2# -- Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and l is the lower limit (when a motor should stop). Outputs CU# when done. This should be called only once because otherwise it will fragment the Arduino memmory too much.
 
 V# -- Ouputs version number.(eg: 2016.01.20.0#)
   
