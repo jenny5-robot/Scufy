@@ -152,9 +152,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             }
             else
               if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p'){ // potentiometer min max home
-                int pot_index, pot_min, pot_max, pot_home, pot_pin;
-                sscanf(tmp_str + i + 2, "%d%d%d%d%d", &pot_index, &pot_pin, &pot_min, &pot_max, &pot_home);
-                potentiometers_controller.set_params(pot_index, pot_pin, pot_min, pot_max, pot_home);
+                int pot_index, pot_min, pot_max, pot_home, pot_pin, pot_dir;
+                sscanf(tmp_str + i + 2, "%d%d%d%d%d%d", &pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
+                potentiometers_controller.set_params(pot_index, pot_pin, pot_min, pot_max, pot_home, pot_dir);
                 i += 7;
             }
           }

@@ -22,9 +22,9 @@ void t_potentiometers_controller::set_params(byte potentiometer_index, byte pin,
   sensors[potentiometer_index].set_params(pin, low, high, _home, _direction);
 }
 //--------------------------------------------------------------------
-void t_potentiometers_controller::get_params(byte potentiometer_index, byte *pin, int *low, int *high, int *_home)
+void t_potentiometers_controller::get_params(byte potentiometer_index, byte *pin, int *low, int *high, int *_home, int *_direction)
 {
-  sensors[potentiometer_index].get_params(pin, low, high, _home);
+  sensors[potentiometer_index].get_params(pin, low, high, _home, _direction);
 }
 //--------------------------------------------------------------------
 byte t_potentiometers_controller::is_within_limits(byte potentiometer_index)
@@ -43,7 +43,7 @@ void t_potentiometers_controller::set_num_sensors(byte new_num_sensors)
       sensors = new t_potentiometer_controller[num_sensors];
       
       for (byte m = 0; m < num_sensors; m++)
-        sensors[m].set_params(2, 2, 2, 2);
+        sensors[m].set_params(2, 2, 2, 2, 1);
     }
     else
       sensors = NULL;

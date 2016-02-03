@@ -20,7 +20,7 @@ private:
 public:
 	t_potentiometer_controller();
 	void set_params(byte _pin, int _low, int _high, int _home, int _direction);
-  void get_params(byte *_pin, int *low, int *high, int *_home);
+  void get_params(byte *_pin, int *low, int *high, int *_home, int *_dir);
  
 	int get_position(void);	
   int get_direction(void);
