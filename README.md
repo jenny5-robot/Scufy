@@ -1,17 +1,11 @@
 # jenny5-firmware
 Arduino firmware for controlling the Jenny 5 robot
 
-The firmware can control multiple stepper and DC motors and can read data from various sensors (ultrasound, buttons and rotary encoders). If it is uploaded on a Arduino Nano, it can control up to 4 stepper motors. This limitation si due to the fact that the robot is controlled by multiple Arduino Nano boards and each board has only 14 digital pins from each 2 are for Serial communication and each motor requires 3 pins (dir, step and enable).
+The firmware can control multiple stepper and DC motors and can read data from various sensors (ultrasound, buttons, potentiometers, infrared sensors etc). If it is uploaded on a Arduino Nano, it can control up to 4 stepper motors. This limitation si due to the fact that the robot is controlled by multiple Arduino Nano boards and each board has only 14 digital pins from each 2 are for Serial communication and each motor requires 3 pins (dir, step and enable).
 
-Jenny 5 firmware uses AccelStepper library for controlling the stepper motors. This library is available from:
+There are several commands that can be sent to the firmware (from a Serial port connection). Each command terminates with #.
 
-http://www.airspayce.com/mikem/arduino/AccelStepper/
-
-It is copied in the current folder.
-
-There are several commands that can be sent to the firmware (from Serial port). Each command terminates with #.
-
-T# -- test connection. Outputs T#.
+T# -- test connection. Outputs T#. This command is used to test if the connection to Arduino is alive.
 
 Mx y# -- Moves motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement.
 
@@ -19,7 +13,9 @@ Dx# -- Disables motor x. Outputs Dx# when done.
 
 Lx# -- Locks motor x. Outputs Lx# when done.
 
-Sx y z# -- Sets speed of motor x to y and the acceleration to z.
+SMx s a# -- Sets speed of motor x to s and the acceleration to a.
+
+SPx min max home# -- Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start.
 
 Ax n Uy Pz# -- Appends n sensors to motor x (like Ultrasound y and Potentiometer z).
 
@@ -35,7 +31,17 @@ GMx# -- Gets the parameters for motor x: speed acceleration num_sensors sensor_i
 
 GPx# -- Gets the parameters for potentiometer x: min max home. Outputs Px l u h#.
 
-G# -- Debug string - unformated.
+GUx# -- Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#.
+
+CM n d1 s1 e1 d2 s2 e2# -- Creates the motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CM# when done. This should be called only once because otherwise it will fragment the Arduino memmory too much.
+
+CP n p1 l1 h1 _h1 p2 l2 h2 _h2# -- Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position. Outputs CP# when done. This should be called only once because otherwise it will fragment the Arduino memmory too much.
+
+CU n t1 e1 t2 e2# -- Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done. This should be called only once because otherwise it will fragment the Arduino memmory too much.
+
+CI n p1 l1 p2 l2# -- Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and l is the lower limit (when a motor should stop). Outputs CU# when done. This should be called only once because otherwise it will fragment the Arduino memmory too much.
+
+V# -- Ouputs version number.(eg: 2016.01.20.0#)
   
 motor index is between 0 and number of declared motors - 1.
 Each command is terminated with #.
