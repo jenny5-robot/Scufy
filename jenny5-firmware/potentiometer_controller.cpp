@@ -30,10 +30,21 @@ void t_potentiometer_controller::get_params(byte *_pin, int *_low, int *_high, i
   *_pin = pin;
 }
 //--------------------------------------------------------------------
-int t_potentiometer_controller::is_within_limits(void)
+byte t_potentiometer_controller::is_within_limits(void)
 {
 	int val = get_position();
 
 	return low <= val && val <= high;
 }
 //--------------------------------------------------------------------
+byte t_potentiometer_controller::is_lower_bound_reached(void)
+{
+  int val = get_position();
+  return low > val;
+}
+//--------------------------------------------------------------------
+byte t_potentiometer_controller::is_upper_bound_reached(void)
+{
+  int val = get_position();
+  return high < val;
+}

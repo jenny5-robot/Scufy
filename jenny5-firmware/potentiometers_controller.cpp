@@ -22,7 +22,7 @@ void t_potentiometers_controller::get_params(byte potentiometer_index, byte *pin
   sensors[potentiometer_index].get_params(pin, low, high, _home);
 }
 //--------------------------------------------------------------------
-int t_potentiometers_controller::is_within_limits(byte potentiometer_index)
+byte t_potentiometers_controller::is_within_limits(byte potentiometer_index)
 {
 	return sensors[potentiometer_index].is_within_limits();
 }
@@ -50,3 +50,12 @@ byte t_potentiometers_controller::get_num_sensors(void)
   return num_sensors;
 }
 //--------------------------------------------------------------------
+byte t_potentiometers_controller::is_lower_bound_reached(byte potentiometer_index)
+{
+  return sensors[potentiometer_index].is_lower_bound_reached();
+}
+//--------------------------------------------------------------------
+byte t_potentiometers_controller::is_upper_bound_reached(byte potentiometer_index)
+{
+  return sensors[potentiometer_index].is_upper_bound_reached();  
+}

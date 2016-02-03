@@ -168,8 +168,9 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
 // return -1 if is still running or does nothing
   
     bool limit_reached = false;
+  int distance_to_go = stepper->distanceToGo();
 
-    if (stepper->distanceToGo())
+    if (distance_to_go)
     {
       for (byte j = 0 ; j < sensors_count ; ++j)
       {
@@ -178,8 +179,16 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
 
         if (POTENTIOMETER == type)
         {
-            if (0 == potentiometers_control->is_within_limits(sensor_index))
-              limit_reached = true;
+            if (potentiometers_control->is_lower_bound_reached(sensor_index)){
+              if (distance_to_go < 0){
+                limit_reached = true;
+              }
+            }
+            if (potentiometers_control->is_upper_bound_reached(sensor_index)){
+              if (distance_to_go > 0){
+                limit_reached = true;
+              }
+            }
         }
         else if (ULTRASOUND == type)
         {
