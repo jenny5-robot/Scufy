@@ -160,8 +160,8 @@ void t_motors_controller::run_motors(t_potentiometers_controller *potentiometers
   }
 }
 //-------------------------------------------------------------------------------
-void t_motors_controller::go_home(byte motor_index)
+void t_motors_controller::go_home(byte motor_index, t_potentiometers_controller *potentiometers_control)
 {
-  motors[motor_index].go_home();
+  motors[motor_index].go_home(potentiometers_control);
 }
 //-------------------------------------------------------------------------------

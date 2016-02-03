@@ -218,7 +218,7 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
     }
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::go_home(void)
+void t_motor_controller::go_home(t_potentiometers_controller *potentiometers_control)
 {
   byte sensor_index = 0;
   for (byte j = 0 ; j < sensors_count ; ++j)

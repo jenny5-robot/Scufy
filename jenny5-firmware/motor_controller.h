@@ -57,7 +57,7 @@ public:
   void get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index);
 
   void set_motor_running(byte is_running);
-  void go_home(void);
+  void go_home(t_potentiometers_controller *potentiometers_control);
   byte is_motor_running(void);
 
   void reset_pins(void);

@@ -138,7 +138,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'H' || tmp_str[i] == 'h'){// go home
             int motor_index;
             sscanf(tmp_str + i + 1, "%d", &motor_index);
-            motors_controller.go_home(motor_index);
+            motors_controller.go_home(motor_index, &potentiometers_controller);
             sprintf(serial_out, "H%d#", motor_index);
           }
           else
