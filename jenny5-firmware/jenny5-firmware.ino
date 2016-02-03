@@ -140,6 +140,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             sscanf(tmp_str + i + 1, "%d", &motor_index);
             motors_controller.go_home(motor_index, &potentiometers_controller);
             sprintf(serial_out, "H%d#", motor_index);
+            is_command_running = 1;
+            i += 2;
           }
           else
           if (tmp_str[i] == 'S' || tmp_str[i] == 's'){ // sets something
