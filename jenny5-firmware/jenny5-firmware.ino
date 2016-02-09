@@ -8,7 +8,7 @@
 #include "infrared_sensors_controller.h"
 //#include "MemoryFree.h"
 
-t_motors_controller motors_controller;
+t_stepper_motors_controller stepper_motors_controller;
 t_potentiometers_controller potentiometers_controller;
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
 t_infrared_sensors_controller infrared_sensors_controller;
@@ -29,14 +29,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.02.01.1");
-  
-  //motors_controller.set_num_motors(2);
-  
- // ultrasonic_sensors_controller.set_num_sensors(1);
-  
-  //potentiometers_control = new t_potentiometers_controller(4, potentiometers_pins, potentiometer_limits);
-  //infrared_sensors_control = new t_infrared_sensors_controller (2, infrared_pins);
+  strcpy(firmware_version, "2016.02.09.0");
   
   current_buffer[0] = 0;
 
@@ -86,7 +79,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         int motor_index, num_steps;
         int num_read = sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_steps);
         if (num_read == 2){
-          motors_controller.move_motor(motor_index, num_steps);
+          stepper_motors_controller.move_motor(motor_index, num_steps);
           is_command_running = 1;
           i += 4;
         }
@@ -122,7 +115,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         if (tmp_str[i] == 'D' || tmp_str[i] == 'd'){// disables motor
           int motor_index;
           sscanf(tmp_str + i + 1, "%d", &motor_index);
-          motors_controller.disable_motor(motor_index);
+          stepper_motors_controller.disable_motor(motor_index);
           sprintf(serial_out, "D%d#", motor_index);
           i += 2;
         }
@@ -130,7 +123,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'L' || tmp_str[i] == 'l'){// locks motor
             int motor_index;
             sscanf(tmp_str + i + 1, "%d", &motor_index);
-            motors_controller.lock_motor(motor_index);
+            stepper_motors_controller.lock_motor(motor_index);
             sprintf(serial_out, "L%d#", motor_index);
             i += 2;
           }
@@ -138,7 +131,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'H' || tmp_str[i] == 'h'){// go home
             int motor_index;
             sscanf(tmp_str + i + 1, "%d", &motor_index);
-            motors_controller.go_home(motor_index, &potentiometers_controller);
+            stepper_motors_controller.go_home(motor_index, &potentiometers_controller);
             sprintf(serial_out, "H%d#", motor_index);
             is_command_running = 1;
             i += 2;
@@ -149,7 +142,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               int motor_index; 
               int motor_speed, motor_acceleration;
               sscanf(tmp_str + i + 2, "%d%d%d", &motor_index, &motor_speed, &motor_acceleration);
-              motors_controller.set_motor_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
+              stepper_motors_controller.set_motor_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
               i += 5;
             }
             else
@@ -164,7 +157,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'A' || tmp_str[i] == 'a'){// attach sensors to motors
             int motor_index, num_sensors;
             sscanf(tmp_str + i + 1, "%d%d", &motor_index, &num_sensors);
-            motors_controller.set_num_attached_sensors(motor_index, num_sensors);
+            stepper_motors_controller.set_num_attached_sensors(motor_index, num_sensors);
             // now I have to add sensors one by one
             int j = i + 4;
             i += 4;
@@ -172,7 +165,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               if (tmp_str[j] == 'P' || tmp_str[j] == 'p'){
                 int sensor_index;
                 sscanf(tmp_str + j + 1, "%d", &sensor_index);
-                motors_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index);
+                stepper_motors_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index);
                 i += 2;
               }
               j++;
@@ -185,7 +178,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               int motor_index; 
               float motor_speed, motor_acceleration;
               sscanf(tmp_str + i + 2, "%d", &motor_index);
-              motors_controller.get_motor_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
+              stepper_motors_controller.get_motor_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
               sprintf(serial_out, "MP%d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration);
               i += 4;
             }
@@ -221,18 +214,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
          else
            if (tmp_str[i] == 'C' || tmp_str[i] == 'c'){// create something
              if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm'){// create a list of motors
-               if (!motors_controller.is_motor_running()){           
+               if (!stepper_motors_controller.is_motor_running()){           
                  int num_motors = 0;
                  
                  int num_consumed = 0;
                  sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
                  
                  int num_consumed_total = 3 + num_consumed;
-                 motors_controller.set_num_motors(num_motors);
+                 stepper_motors_controller.set_num_motors(num_motors);
                  for (int k = 0; k < num_motors; k++){
                    int _step_pin, _dir_pin, _enable_pin;
                    sscanf(tmp_str + i + num_consumed_total, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
-                   motors_controller.set_motor_pins(k, _dir_pin, _step_pin, _enable_pin);
+                   stepper_motors_controller.set_motor_pins(k, _dir_pin, _step_pin, _enable_pin);
                    num_consumed_total += num_consumed + 1;
                  }
      
@@ -381,7 +374,7 @@ void loop()
         }
     }
   }
-  motors_controller.run_motors(&potentiometers_controller, serial_out);
+  stepper_motors_controller.run_motors(&potentiometers_controller, serial_out);
   if (serial_out[0])
     Serial.write(serial_out);
 
