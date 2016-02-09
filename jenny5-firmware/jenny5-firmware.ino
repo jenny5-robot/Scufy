@@ -2,7 +2,7 @@
 
 #include "ultrasonic_sensors_controller.h"
 #include "potentiometers_controller.h"
-#include "motors_control.h"
+#include "stepper_motors_control.h"
 #include "button_controller.h"
 #include "jenny5_types.h"
 #include "infrared_sensors_controller.h"

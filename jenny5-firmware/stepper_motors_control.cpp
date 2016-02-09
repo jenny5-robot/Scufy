@@ -1,4 +1,4 @@
-#include "motors_control.h"
+#include "stepper_motors_control.h"
 #include "jenny5_types.h"
 //-------------------------------------------------------------------------------
 t_motors_controller::t_motors_controller(void)

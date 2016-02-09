@@ -1,4 +1,4 @@
-#include "motor_controller.h"
+#include "stepper_motor_controller.h"
 #include "jenny5_types.h"
 
 //-------------------------------------------------------------------------------

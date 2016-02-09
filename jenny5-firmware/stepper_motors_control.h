@@ -1,5 +1,5 @@
 #include "Arduino.h"
-#include "motor_controller.h"
+#include "stepper_motor_controller.h"
 #include "potentiometers_controller.h"
 
 //#define MAX_SENSORS_PER_MOTOR 6
