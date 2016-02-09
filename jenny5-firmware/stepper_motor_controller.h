@@ -4,12 +4,8 @@
 #include "Arduino.h"
 #include "AccelStepper.h"
 #include "potentiometers_controller.h"
+#include "jenny5_types.h"
 
-//---------------------------------------------------
-struct t_sensor_info {
-  byte  type;
-  byte      index;
-};
 //---------------------------------------------------
 class t_stepper_motor_controller
 {
