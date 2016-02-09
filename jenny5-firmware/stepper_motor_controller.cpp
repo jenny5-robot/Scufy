@@ -2,7 +2,7 @@
 #include "jenny5_types.h"
 
 //-------------------------------------------------------------------------------
-t_motor_controller::t_motor_controller(void)
+t_stepper_motor_controller::t_stepper_motor_controller(void)
 {
   dir_pin = 2;
   step_pin = 3;
@@ -18,7 +18,7 @@ t_motor_controller::t_motor_controller(void)
  // motor_acceleration = 100;
 }
 //-------------------------------------------------------------------------------
-t_motor_controller::~t_motor_controller(void)
+t_stepper_motor_controller::~t_stepper_motor_controller(void)
 {
   if (stepper)
     delete stepper;
@@ -31,7 +31,7 @@ t_motor_controller::~t_motor_controller(void)
   motor_running = 0;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::create_init(byte _dir, byte _step, byte _enable, float default_motor_speed, float default_motor_acceleration)
+void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable, float default_motor_speed, float default_motor_acceleration)
 {
   dir_pin = _dir;
   step_pin = _step;
@@ -58,34 +58,34 @@ void t_motor_controller::create_init(byte _dir, byte _step, byte _enable, float 
   reset_pins();
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::move_motor(int num_steps)
+void t_stepper_motor_controller::move_motor(int num_steps)
 {
   digitalWrite(enable_pin, LOW); // turn motor on
   stepper->move(num_steps); //move num_steps
   motor_running = 1;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::move_motor_to(int _position)
+void t_stepper_motor_controller::move_motor_to(int _position)
 {
   digitalWrite(enable_pin, LOW); // turn motor on
   stepper->moveTo(_position); //move num_steps  
   motor_running = 1;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_motor_speed(float _motor_speed)
+void t_stepper_motor_controller::set_motor_speed(float _motor_speed)
 {
   stepper->setMaxSpeed(_motor_speed);
   stepper->setSpeed(_motor_speed);
 //  motor_speed = _motor_speed;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_motor_acceleration(float _motor_acceleration)
+void t_stepper_motor_controller::set_motor_acceleration(float _motor_acceleration)
 {
   stepper->setAcceleration(_motor_acceleration);
  // motor_acceleration = _motor_acceleration;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
+void t_stepper_motor_controller::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
 {
   stepper->setMaxSpeed(_motor_speed);
   stepper->setSpeed(_motor_speed);
@@ -94,32 +94,32 @@ void t_motor_controller::set_motor_speed_and_acceleration(float _motor_speed, fl
   //motor_speed = _motor_speed;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::disable_motor(void)
+void t_stepper_motor_controller::disable_motor(void)
 {
   digitalWrite(enable_pin, HIGH); // disable motor
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::lock_motor(void)
+void t_stepper_motor_controller::lock_motor(void)
 {
   digitalWrite(enable_pin, LOW); // enable motor
 }
 //-------------------------------------------------------------------------------
 //Reset pins to default states
-void t_motor_controller::reset_pins(void)
+void t_stepper_motor_controller::reset_pins(void)
 {
     digitalWrite(step_pin, LOW);
     digitalWrite(dir_pin, LOW);
     digitalWrite(enable_pin, HIGH); // all motors are disabled now
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::add_sensor(byte sensor_type, byte sensor_index)
+void t_stepper_motor_controller::add_sensor(byte sensor_type, byte sensor_index)
 {
   sensors[sensors_count].type = sensor_type;
   sensors[sensors_count].index = sensor_index;
   sensors_count++;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_num_attached_sensors(byte num_sensors)
+void t_stepper_motor_controller::set_num_attached_sensors(byte num_sensors)
 {
   if (sensors_count != num_sensors){
     // clear memory if the array has a different size
@@ -134,23 +134,23 @@ void t_motor_controller::set_num_attached_sensors(byte num_sensors)
   sensors_count = num_sensors; // actual number of sensors
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::set_motor_running(byte is_running)
+void t_stepper_motor_controller::set_motor_running(byte is_running)
 {
   motor_running = is_running;
 }
 //-------------------------------------------------------------------------------
-byte t_motor_controller::is_motor_running(void)
+byte t_stepper_motor_controller::is_motor_running(void)
 {
   return motor_running;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index)
+void t_stepper_motor_controller::get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index)
 {
   *sensor_type = sensors[sensor_index_in_motor_list].type;
   *sensor_index = sensors[sensor_index_in_motor_list].index;
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::get_motor_speed_and_acceleration(float *_motor_speed, float *_motor_acceleration)
+void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_speed, float *_motor_acceleration)
 {
   if (stepper){
    *_motor_acceleration = stepper->getAcceleration();
@@ -162,7 +162,7 @@ void t_motor_controller::get_motor_speed_and_acceleration(float *_motor_speed, f
     }
 }
 //-------------------------------------------------------------------------------
-int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control)
+int t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control)
 {
 // return distance_to_go or 0 if it has just been stopped
 // return -1 if is still running or does nothing
@@ -218,7 +218,7 @@ int t_motor_controller::run_motor(t_potentiometers_controller *potentiometers_co
     }
 }
 //-------------------------------------------------------------------------------
-void t_motor_controller::go_home(t_potentiometers_controller *potentiometers_control)
+void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiometers_control)
 {
 byte sensor_index = 0;
   for (byte j = 0 ; j < sensors_count ; ++j) {

@@ -1,5 +1,5 @@
-#ifndef motor_controller_H
-#define motor_controller_H
+#ifndef stepper_motor_controller_H
+#define stepper_motor_controller_H
 
 #include "Arduino.h"
 #include "AccelStepper.h"
@@ -11,7 +11,7 @@ struct t_sensor_info {
   byte      index;
 };
 //---------------------------------------------------
-class t_motor_controller
+class t_stepper_motor_controller
 {
 public:
   //Declare pin functions on Arduino
@@ -30,8 +30,8 @@ public:
   //int motor_acceleration;
   
 public:
-  t_motor_controller(void);
-  ~t_motor_controller(void);
+  t_stepper_motor_controller(void);
+  ~t_stepper_motor_controller(void);
   
   void create_init(byte _dir, byte _step, byte _enable, float default_motor_speed, float default_motor_acceleration);
   
