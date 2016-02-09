@@ -1,3 +1,6 @@
+#ifndef stepper_motors_controller_H
+#define stepper_motors_controller_H
+
 #include "Arduino.h"
 #include "stepper_motor_controller.h"
 #include "potentiometers_controller.h"
@@ -5,20 +8,20 @@
 //#define MAX_SENSORS_PER_MOTOR 6
 
 //---------------------------------------------------
-class t_motors_controller
+class t_stepper_motors_controller
 {
 public:
 	//Declare pin functions on Arduino
 
-  t_motor_controller *motors;
+  t_stepper_motor_controller *motors;
   byte num_motors;
 
 	float default_motor_speed; //maximum steps per second 
 	float default_motor_acceleration; //steps/second/second to accelerate
 	
 public:
-	t_motors_controller(void);
-  ~t_motors_controller();
+	t_stepper_motors_controller(void);
+  ~t_stepper_motors_controller();
 
   void set_motor_pins(byte motor_index, byte _dir, byte _step, byte _enable);
 
@@ -54,3 +57,4 @@ public:
   void run_motors(t_potentiometers_controller *potentiometers_control, char* serial_out);
 };
 //---------------------------------------------------
+#endif
