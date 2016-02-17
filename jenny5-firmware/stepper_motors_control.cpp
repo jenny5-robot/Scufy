@@ -61,7 +61,7 @@ void t_stepper_motors_controller::set_num_motors(int new_num_motors)
   }
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::set_motor_pins(byte motor_index, byte _dir, byte _step, byte _enable)
+void t_stepper_motors_controller::set_pins(byte motor_index, byte _dir, byte _step, byte _enable)
 {  
   if (!motors[motor_index].is_motor_running()){
     motors[motor_index].create_init(_dir, _step, _enable, default_motor_speed, default_motor_acceleration);
@@ -78,28 +78,28 @@ void t_stepper_motors_controller::move_motor_to(byte motor_index, int _position)
   motors[motor_index].move_motor_to(_position); //move to 
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::set_motor_speed(byte motor_index, float _motor_speed)
+void t_stepper_motors_controller::set_speed(byte motor_index, float _motor_speed)
 {
   motors[motor_index].set_motor_speed(_motor_speed); //set speed
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::set_motor_acceleration(byte motor_index, float _motor_acceleration)
+void t_stepper_motors_controller::set_acceleration(byte motor_index, float _motor_acceleration)
 {
   motors[motor_index].set_motor_acceleration(_motor_acceleration); // set acceleration
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::set_motor_speed_and_acceleration(byte motor_index, float _motor_speed, float _motor_acceleration)
+void t_stepper_motors_controller::set_speed_and_acceleration(byte motor_index, float _motor_speed, float _motor_acceleration)
 {
   motors[motor_index].set_motor_speed(_motor_speed); //set speed
   motors[motor_index].set_motor_acceleration(_motor_acceleration); // set acceleration
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::disable_motor(byte motor_index)
+void t_stepper_motors_controller::disable(byte motor_index)
 {
   motors[motor_index].disable_motor();
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::lock_motor(byte motor_index)
+void t_stepper_motors_controller::lock(byte motor_index)
 {
   motors[motor_index].lock_motor();
 }
@@ -114,17 +114,17 @@ void t_stepper_motors_controller::set_num_attached_sensors(byte motor_index, byt
   motors[motor_index].set_num_attached_sensors(num_sensors);
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::set_motor_running(byte motor_index, byte is_running)
+void t_stepper_motors_controller::set_is_running(byte motor_index, byte is_running)
 {
   motors[motor_index].set_motor_running(is_running);
 }
 //-------------------------------------------------------------------------------
-byte t_stepper_motors_controller::is_motor_running(byte motor_index)
+byte t_stepper_motors_controller::is_running(byte motor_index)
 {
   return motors[motor_index].is_motor_running();
 }
 //-------------------------------------------------------------------------------
-byte t_stepper_motors_controller::is_motor_running(void)
+byte t_stepper_motors_controller::is_running(void)
 {
   for (int m = 0; m < num_motors; m++)
     if (motors[m].is_motor_running())
@@ -138,7 +138,7 @@ void t_stepper_motors_controller::get_sensor(byte motor_index, byte sensor_index
   motors[motor_index].get_sensor(sensor_index_in_motor_list, sensor_type, sensor_index);
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::get_motor_speed_and_acceleration(byte motor_index, float *_motor_speed, float *_motor_acceleration)
+void t_stepper_motors_controller::get_speed_and_acceleration(byte motor_index, float *_motor_speed, float *_motor_acceleration)
 {
   motors[motor_index].get_motor_speed_and_acceleration(_motor_speed, _motor_acceleration);
 }

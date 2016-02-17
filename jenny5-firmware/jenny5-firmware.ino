@@ -32,7 +32,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.02.10.0");
+  strcpy(firmware_version, "2016.02.17.0");
   
   current_buffer[0] = 0;
 
@@ -153,7 +153,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           int motor_index;
           if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's'){// disables stepper motor
             sscanf(tmp_str + i + 2, "%d", &motor_index);
-            stepper_motors_controller.disable_motor(motor_index);
+            stepper_motors_controller.disable(motor_index);
             sprintf(serial_out, "DS%d#", motor_index);
           }
           else
@@ -168,7 +168,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'L' || tmp_str[i] == 'l'){// locks motor
             int motor_index;
             sscanf(tmp_str + i + 1, "%d", &motor_index);
-            stepper_motors_controller.lock_motor(motor_index);
+            stepper_motors_controller.lock(motor_index);
             sprintf(serial_out, "L%d#", motor_index);
             i += 2;
           }
@@ -195,7 +195,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               int motor_index; 
               int motor_speed, motor_acceleration;
               sscanf(tmp_str + i + 2, "%d%d%d", &motor_index, &motor_speed, &motor_acceleration);
-              stepper_motors_controller.set_motor_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
+              stepper_motors_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
               i += 5;
             }
             else
@@ -250,7 +250,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               int motor_index; 
               float motor_speed, motor_acceleration;
               sscanf(tmp_str + i + 2, "%d", &motor_index);
-              stepper_motors_controller.get_motor_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
+              stepper_motors_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
               sprintf(serial_out, "GS%d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration);
               i += 4;
             }
@@ -295,7 +295,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
          else
            if (tmp_str[i] == 'C' || tmp_str[i] == 'c'){// create something
              if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's'){// create a list of stepper motors
-               if (!stepper_motors_controller.is_motor_running()){           
+               if (!stepper_motors_controller.is_running()){           
                  int num_motors = 0;
                  
                  int num_consumed = 0;
@@ -306,7 +306,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  for (int k = 0; k < num_motors; k++){
                    int _step_pin, _dir_pin, _enable_pin;
                    sscanf(tmp_str + i + num_consumed_total, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
-                   stepper_motors_controller.set_motor_pins(k, _dir_pin, _step_pin, _enable_pin);
+                   stepper_motors_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
                    num_consumed_total += num_consumed + 1;
                  }
      
