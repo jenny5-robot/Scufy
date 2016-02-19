@@ -154,7 +154,7 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
     int result = motors[m].run_motor(potentiometers_control);
     if (result >= 0){
       char tmp_str[20];
-      sprintf(tmp_str, "M%d %d#", m, result);
+      sprintf(tmp_str, "MS%d %d#", m, result);
       strcat(serial_out, tmp_str);
     }
   }

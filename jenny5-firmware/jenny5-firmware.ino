@@ -32,7 +32,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.02.17.1");
+  strcpy(firmware_version, "2016.02.19.0");
   
   current_buffer[0] = 0;
 
