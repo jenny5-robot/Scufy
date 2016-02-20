@@ -107,10 +107,11 @@ void t_dc_motors_controller_TB6612FNG::update_motors(t_buttons_controller *butto
   //bool is_one_motor_running = false;
   for (int m = 0; m < num_motors; m++)
   {
-    int result = motors[m].update_motor(buttons_controller);
-    if (result >= 0){
+    long time_to_go;
+    int result = motors[m].update_motor(buttons_controller, time_to_go);
+    if (result == MOTOR_JUST_STOPPED){
       char tmp_str[20];
-      sprintf(tmp_str, "MD%d %d#", m, result);
+      sprintf(tmp_str, "MD%d %d#", m, time_to_go);
       strcat(serial_out, tmp_str);
     }
   }

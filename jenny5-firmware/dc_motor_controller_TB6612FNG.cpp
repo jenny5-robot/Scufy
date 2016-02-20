@@ -15,6 +15,7 @@ t_dc_motor_controller_TB6612FNG::t_dc_motor_controller_TB6612FNG(void)
   motor_running = 0;
 
   motor_speed = 100;
+  time_to_go = 0;
 }
 //-------------------------------------------------------------------------------
 t_dc_motor_controller_TB6612FNG::~t_dc_motor_controller_TB6612FNG(void)
@@ -43,19 +44,20 @@ void t_dc_motor_controller_TB6612FNG::create_init(byte _pwm_pin, byte _dir1, byt
   sensors_count = 0;
 
   motor_running = 0;
+  time_to_go = 0;
 }
 //-------------------------------------------------------------------------------
-void t_dc_motor_controller_TB6612FNG::move_motor(unsigned long num_millis)
+void t_dc_motor_controller_TB6612FNG::move_motor(long num_millis)
 {  
   if (num_millis > 0){
     dir_pin1 = HIGH;
     dir_pin2 = LOW;
   }
   else{
-    dir_pin1 = LOW;  
+    dir_pin1 = LOW;
     dir_pin2 = HIGH;
   }
-  
+
   time_to_go = num_millis;
   start_time = millis();
   digitalWrite(enable_pin, HIGH); //disable standby
@@ -114,17 +116,19 @@ void t_dc_motor_controller_TB6612FNG::get_speed(byte *_motor_speed)
   *_motor_speed = motor_speed;
 }
 //-------------------------------------------------------------------------------
-long t_dc_motor_controller_TB6612FNG::update_motor(t_buttons_controller *buttons_controller)
+long t_dc_motor_controller_TB6612FNG::update_motor(t_buttons_controller *buttons_controller, long & t_to_go)
 {
 // return distance_to_go or 0 if it has just been stopped
 // return -1 if is still running or does nothing
-  
+  if (motor_running){
     bool limit_reached = false;
     unsigned long time_now = millis();
     if (time_now - start_time > abs(time_to_go)){
       digitalWrite(enable_pin, LOW);
       motor_running = 0;
-      return 0;
+      t_to_go = 0;
+      time_to_go = 0;
+      return MOTOR_JUST_STOPPED;
     }
     else{ // still we have some time to go
       for (byte j = 0; j < sensors_count; j++){
@@ -152,17 +156,21 @@ long t_dc_motor_controller_TB6612FNG::update_motor(t_buttons_controller *buttons
 
       if (!limit_reached)
       {
-        return -1;
+        return MOTOR_STILL_RUNNING;
       } 
       else {
         long to_go = time_now - start_time;
         motor_running = 0;
         if (time_to_go > 0)
-          return to_go;
+          t_to_go = to_go;
         else
-          return - to_go;
+          t_to_go = -to_go;
+        return MOTOR_JUST_STOPPED;
       }
     }
+  }
+  else
+    return MOTOR_DOES_NOTHING;
 }
 //-------------------------------------------------------------------------------
 void t_dc_motor_controller_TB6612FNG::go_home(t_buttons_controller *buttons_controller)

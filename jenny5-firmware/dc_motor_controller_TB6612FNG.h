@@ -48,7 +48,7 @@ public:
   void go_home(t_buttons_controller *buttons_controller);
   byte is_running(void);
   
-  long update_motor(t_buttons_controller *buttons_controller);
+  long update_motor(t_buttons_controller *buttons_controller, long &time_to_go);
 };
 //---------------------------------------------------
 
