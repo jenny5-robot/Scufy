@@ -35,6 +35,12 @@ void t_dc_motor_controller_TB6612FNG::create_init(byte _pwm_pin, byte _dir1, byt
   dir_pin2 = _dir2;
   
   enable_pin = _enable_pin;
+
+  pinMode(enable_pin, OUTPUT);
+
+  pinMode(pwm_pin, OUTPUT);
+  pinMode(dir_pin1, OUTPUT);
+  pinMode(dir_pin2, OUTPUT);
   
   motor_speed = _motor_speed;
   
@@ -49,15 +55,21 @@ void t_dc_motor_controller_TB6612FNG::create_init(byte _pwm_pin, byte _dir1, byt
 //-------------------------------------------------------------------------------
 void t_dc_motor_controller_TB6612FNG::move_motor(long num_millis)
 {  
+  byte value_pin1, value_pin2;
+
   if (num_millis > 0){
-    dir_pin1 = HIGH;
-    dir_pin2 = LOW;
+    value_pin1 = HIGH;
+    value_pin2 = LOW;
   }
   else{
-    dir_pin1 = LOW;
-    dir_pin2 = HIGH;
+    value_pin1 = LOW;
+    value_pin2 = HIGH;
   }
 
+  digitalWrite(dir_pin1, value_pin1);
+  digitalWrite(dir_pin2, value_pin2);
+  analogWrite(pwm_pin, motor_speed);
+    
   time_to_go = num_millis;
   start_time = millis();
   digitalWrite(enable_pin, HIGH); //disable standby
