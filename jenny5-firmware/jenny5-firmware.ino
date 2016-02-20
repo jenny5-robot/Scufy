@@ -246,11 +246,24 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                     dc_motors_controller_TB6612FNG.add_sensor(motor_index, POTENTIOMETER, sensor_index);
                 i += 2;
               }
+              else
+                if (tmp_str[j] == 'B' || tmp_str[j] == 'b'){
+                  int sensor_index;
+                  sscanf(tmp_str + j + 1, "%d", &sensor_index);
+                  if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
+                    stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index);
+                  else
+                    if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
+                      dc_motors_controller_TB6612FNG.add_sensor(motor_index, BUTTON, sensor_index);
+                  i += 2;
+                }
+                else
+                  i++;
               j++;
             }
             i++;
           }
-        else
+          else
           if (tmp_str[i] == 'G' || tmp_str[i] == 'g'){// for debugging purpose
             if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's'){ // gets stepper motor speed and acceleration
               int motor_index; 
