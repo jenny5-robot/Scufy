@@ -30,7 +30,7 @@ public:
   
   void create_init(byte pwm_pin, byte _dir1, byte _dir2, byte _enable, byte _speed);
   
-  void move_motor(unsigned long num_millis);
+  void move_motor(long num_millis);
   
   void set_speed(byte motor_speed);
   void get_speed(byte *motor_speed);
