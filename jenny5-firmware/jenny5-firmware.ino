@@ -33,7 +33,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.02.20.3s");
+  strcpy(firmware_version, "2016.02.20.4");
   
   current_buffer[0] = 0;
 
@@ -125,7 +125,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             }
             else
               i++;// error on incomplete string (does nothing)
-        }  
+        }
+        else
+          i++; // incomplete string  
       }
       else
           if (tmp_str[i] == 'P' || tmp_str[i] == 'p'){// potentiometer            
@@ -285,6 +287,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                     sprintf(serial_out, "GU%d %d %d#", ultrasound_index, trig_pin, echo_pin);
                     i += 4;
                   }
+                  else
+                    i++;// incomplete string
         }
         else
          if (tmp_str[i] == 'T' || tmp_str[i] == 't'){// test connection
@@ -400,7 +404,11 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  sprintf(serial_out, "CI#");
                  i += num_consumed_total;
                }
+               else
+                 i++; // incomplete string
          }
+         else
+           i++;// incomplete string
     }
     else
       i++;
