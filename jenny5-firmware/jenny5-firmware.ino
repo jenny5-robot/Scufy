@@ -33,7 +33,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.02.20.0");
+  strcpy(firmware_version, "2016.02.20.3s");
   
   current_buffer[0] = 0;
 
@@ -481,6 +481,10 @@ void loop()
     }
   }
   stepper_motors_controller.run_motors(&potentiometers_controller, serial_out);
+  if (serial_out[0])
+    Serial.write(serial_out);
+
+  dc_motors_controller_TB6612FNG.update_motors(&buttons_controller, serial_out);
   if (serial_out[0])
     Serial.write(serial_out);
 
