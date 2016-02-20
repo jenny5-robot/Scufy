@@ -149,27 +149,15 @@ long t_dc_motor_controller_TB6612FNG::update_motor(t_buttons_controller *buttons
 
         if (BUTTON == type)
         {
-          /*
-            potentiometer_direction = potentiometers_control->get_direction(sensor_index);
-            if (potentiometers_control->is_lower_bound_reached(sensor_index)){
-              if (time_to_go * potentiometer_direction < 0){
-                limit_reached = true;
-              }
-            }
-            if (potentiometers_control->is_upper_bound_reached(sensor_index)){
-              if (time_to_go * potentiometer_direction > 0){
-                limit_reached = true;
-              }
-            }
-            */
+          if (buttons_controller->get_state((sensor_index)))
+            if (time_to_go > 0)
+              limit_reached = true;
         }
-
       }
 
-      if (!limit_reached)
-      {
+      if (!limit_reached){
         return MOTOR_STILL_RUNNING;
-      } 
+      }
       else {
         long to_go = time_now - start_time;
         motor_running = 0;
