@@ -90,8 +90,6 @@ void t_stepper_motor_controller::set_motor_speed_and_acceleration(float _motor_s
   stepper->setMaxSpeed(_motor_speed);
   stepper->setSpeed(_motor_speed);
   stepper->setAcceleration(_motor_acceleration);
- // motor_acceleration = _motor_acceleration;
-  //motor_speed = _motor_speed;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::disable_motor(void)
@@ -162,10 +160,11 @@ void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_
     }
 }
 //-------------------------------------------------------------------------------
-int t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control)
+int t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, int& dist_to_go)
 {
-// return distance_to_go or 0 if it has just been stopped
-// return -1 if is still running or does nothing
+// returns 1 if is still running 
+// returns 2 if it does nothing
+// returns 0 if it has just stopped; in dist_to_go we have what is left to run (or 0)
   
     bool limit_reached = false;
     int distance_to_go = stepper->distanceToGo();
@@ -201,20 +200,25 @@ int t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiom
       if (!limit_reached)
       {
         stepper->run();
-        return -1;
-      } else {
+        return NOTOR_STILL_RUNNING; // still running
+      } 
+      else {
         int to_go = stepper->distanceToGo();
         stepper->setCurrentPosition(0);
         stepper->move(0);
-        return to_go;
+        dist_to_go = to_go;
+        return MOTOR_JUST_STOPPED;//
       }
-    } else {
+    } 
+    else {
 // the motor has just finished the move, so we output that event
       if (is_motor_running()){
         set_motor_running(0);
-        return 0; // distance to go
-      } else
-        return -1;
+        dist_to_go = 0;
+        return MOTOR_JUST_STOPPED; // distance to go
+      } 
+      else
+        return MOTOR_DOES_NOTHING;
     }
 }
 //-------------------------------------------------------------------------------
