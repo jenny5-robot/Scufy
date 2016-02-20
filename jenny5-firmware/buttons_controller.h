@@ -18,8 +18,8 @@ class t_buttons_controller
 	public:
 
   t_buttons_controller();
-  void set_params(byte *_pins);
-  void get_params(byte *_pin);
+  void set_params(int k, byte _pins);
+  void get_params(int k, byte *_pin);
 
   void set_num_sensors(byte new_num_sensors);
   byte get_num_sensors(void);

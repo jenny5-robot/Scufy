@@ -8,8 +8,6 @@ t_buttons_controller::t_buttons_controller(void)
 {
 	num_sensors = 0;
 	buttons_pins = NULL;
-	
-
 }
 //-----------------------------------------------------------------------
 bool t_buttons_controller::get_state(byte button_index)
@@ -41,19 +39,15 @@ byte t_buttons_controller::get_num_sensors(void)
   return num_sensors;
 }
 //--------------------------------------------------------------------
-void t_buttons_controller::set_params(byte *_pins)
+void t_buttons_controller::set_params(int index, byte _pin)
 {
-  for (int i = 0; i < num_sensors; i++)
-  {
-    buttons_pins[i] = _pins[i];
-    pinMode(buttons_pins[i], INPUT);
-    digitalWrite(buttons_pins[i], HIGH); // pull-up
-  }
+    buttons_pins[index] = _pin;
+    pinMode(buttons_pins[index], INPUT);
+    digitalWrite(buttons_pins[index], HIGH); // pull-up
 }
 //--------------------------------------------------------------------
-void t_buttons_controller::get_params(byte *_pin)
+void t_buttons_controller::get_params(int index, byte *_pin)
 {
-    
+    *_pin = buttons_pins[index];
 }
 //--------------------------------------------------------------------
-

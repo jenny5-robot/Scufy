@@ -417,6 +417,25 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  sprintf(serial_out, "CI#");
                  i += num_consumed_total;
                }
+             else
+               if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b'){// create a list of button sensors
+               
+                 int num_buttons = 0;
+                 
+                 int num_consumed = 0;
+                 sscanf(tmp_str + i + 3, "%d%n", &num_buttons, &num_consumed);
+                 
+                 int num_consumed_total = 3 + num_consumed;
+                 buttons_controller.set_num_sensors(num_buttons);
+                 for (int k = 0; k < num_buttons; k++){
+                   int _pin;
+                   sscanf(tmp_str + i + num_consumed_total, "%d%n", &_pin, &num_consumed);
+                   buttons_controller.set_params(k, _pin);
+                   num_consumed_total += num_consumed + 1;
+                 }
+                 sprintf(serial_out, "CB#");
+                 i += num_consumed_total;
+               }
                else
                  i++; // incomplete string
          }
