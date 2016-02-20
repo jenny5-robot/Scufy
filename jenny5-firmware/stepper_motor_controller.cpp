@@ -160,7 +160,7 @@ void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_
     }
 }
 //-------------------------------------------------------------------------------
-int t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, int& dist_to_go)
+byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, int& dist_to_go)
 {
 // returns 1 if is still running 
 // returns 2 if it does nothing
@@ -200,7 +200,7 @@ int t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiom
       if (!limit_reached)
       {
         stepper->run();
-        return NOTOR_STILL_RUNNING; // still running
+        return MOTOR_STILL_RUNNING; // still running
       } 
       else {
         int to_go = stepper->distanceToGo();

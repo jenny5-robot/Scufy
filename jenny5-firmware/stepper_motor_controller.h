@@ -58,7 +58,7 @@ public:
 
   void reset_pins(void);
   
-  int run_motor(t_potentiometers_controller *potentiometers_control);
+  byte run_motor(t_potentiometers_controller *potentiometers_control, int &dist_to_go);
 };
 //---------------------------------------------------
 
