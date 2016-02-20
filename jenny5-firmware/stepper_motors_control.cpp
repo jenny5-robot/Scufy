@@ -151,7 +151,8 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
   //bool is_one_motor_running = false;
   for (int m = 0; m < num_motors; m++)
   {
-    int result = motors[m].run_motor(potentiometers_control, int dist_to_go);
+    int dist_to_go;
+    byte result = motors[m].run_motor(potentiometers_control, dist_to_go);
     if (result == MOTOR_JUST_STOPPED){
       char tmp_str[20];
       sprintf(tmp_str, "MS%d %d#", m, dist_to_go);
