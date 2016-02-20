@@ -2,7 +2,7 @@
 #define motor_controller_H
 
 #include "Arduino.h"
-#include "potentiometers_controller.h"
+#include "buttons_controller.h"
 #include "jenny5_types.h"
 
 //---------------------------------------------------
@@ -16,6 +16,8 @@ public:
   byte speed_pin;// must be pwm
   byte enable_pin;
 
+  unsigned long time_to_go;
+  unsigned long start_time;
   byte motor_speed;
   
   t_sensor_info  *sensors;
@@ -28,7 +30,7 @@ public:
   
   void create_init(byte pwm_pin, byte _dir1, byte _dir2, byte _enable, byte _speed);
   
-  void move_motor(int num_milis);
+  void move_motor(unsigned long num_millis);
   
   void set_speed(byte motor_speed);
   void get_speed(byte *motor_speed);
@@ -43,10 +45,10 @@ public:
   void get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index);
 
   void set_running(byte is_running);
-  void go_home(t_potentiometers_controller *potentiometers_control);
+  void go_home(t_buttons_controller *buttons_controller);
   byte is_running(void);
   
-  int update_motor(t_potentiometers_controller *potentiometers_control);
+  long update_motor(t_buttons_controller *buttons_controller);
 };
 //---------------------------------------------------
 

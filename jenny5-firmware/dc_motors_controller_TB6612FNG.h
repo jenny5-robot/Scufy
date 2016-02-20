@@ -25,7 +25,7 @@ public:
   byte get_num_motors(void);
   void set_num_motors(int value);
   
-	void move_motor(byte motor_index, int _time);
+	void move_motor(byte motor_index, long num_millis);
 	
 	void set_speed(byte motor_index, byte motor_speed);
 	
@@ -41,11 +41,11 @@ public:
   void get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index);
 
   void set_running(byte motor_index, byte is_running);
-  void go_home(byte motor_index, t_potentiometers_controller *potentiometers_control);
+  void go_home(byte motor_index, t_buttons_controller *buttons_control);
   byte is_running(byte motor_index);
   byte is_running(void);
 
-  void update_motors(t_potentiometers_controller *potentiometers_control, char* serial_out);
+  void update_motors(t_buttons_controller *buttons_control, char* serial_out);
 };
 //---------------------------------------------------
 #endif

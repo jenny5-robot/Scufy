@@ -45,9 +45,20 @@ void t_dc_motor_controller_TB6612FNG::create_init(byte _pwm_pin, byte _dir1, byt
   motor_running = 0;
 }
 //-------------------------------------------------------------------------------
-void t_dc_motor_controller_TB6612FNG::move_motor(int num_steps)
-{
-
+void t_dc_motor_controller_TB6612FNG::move_motor(unsigned long num_millis)
+{  
+  if (num_millis > 0){
+    dir_pin1 = HIGH;
+    dir_pin2 = LOW;
+  }
+  else{
+    dir_pin1 = LOW;  
+    dir_pin2 = HIGH;
+  }
+  
+  time_to_go = num_millis;
+  start_time = millis();
+  digitalWrite(enable_pin, HIGH); //disable standby
   motor_running = 1;
 }
 //-------------------------------------------------------------------------------
@@ -103,24 +114,26 @@ void t_dc_motor_controller_TB6612FNG::get_speed(byte *_motor_speed)
   *_motor_speed = motor_speed;
 }
 //-------------------------------------------------------------------------------
-int t_dc_motor_controller_TB6612FNG::update_motor(t_potentiometers_controller *potentiometers_control)
+long t_dc_motor_controller_TB6612FNG::update_motor(t_buttons_controller *buttons_controller)
 {
 // return distance_to_go or 0 if it has just been stopped
 // return -1 if is still running or does nothing
   
     bool limit_reached = false;
-    int time_to_go = 0; // must compute time to go
-    int potentiometer_direction = 1;
-
-    if (time_to_go)
-    {
-      for (byte j = 0 ; j < sensors_count ; ++j)
-      {
+    unsigned long time_now = millis();
+    if (time_now - start_time > abs(time_to_go)){
+      digitalWrite(enable_pin, LOW);
+      motor_running = 0;
+      return 0;
+    }
+    else{ // still we have some time to go
+      for (byte j = 0; j < sensors_count; j++){
         byte sensor_index = sensors[j].index;
         byte type = sensors[j].type;
 
-        if (POTENTIOMETER == type)
+        if (BUTTON == type)
         {
+          /*
             potentiometer_direction = potentiometers_control->get_direction(sensor_index);
             if (potentiometers_control->is_lower_bound_reached(sensor_index)){
               if (time_to_go * potentiometer_direction < 0){
@@ -132,34 +145,27 @@ int t_dc_motor_controller_TB6612FNG::update_motor(t_potentiometers_controller *p
                 limit_reached = true;
               }
             }
+            */
         }
-        else if (ULTRASOUND == type)
-        {
-          // deal with ultrasound sensor
-        }
+
       }
 
       if (!limit_reached)
       {
-//        stepper->run();
         return -1;
-      } else {
-        int to_go = 0;//stepper->distanceToGo();
-        //stepper->setCurrentPosition(0);
-        //stepper->move(0);
-        return to_go;
+      } 
+      else {
+        long to_go = time_now - start_time;
+        motor_running = 0;
+        if (time_to_go > 0)
+          return to_go;
+        else
+          return - to_go;
       }
-    } else {
-// the motor has just finished the move, so we output that event
-      if (is_running()){
-        set_running(0);
-        return 0; // distance to go
-      } else
-        return -1;
     }
 }
 //-------------------------------------------------------------------------------
-void t_dc_motor_controller_TB6612FNG::go_home(t_potentiometers_controller *potentiometers_control)
+void t_dc_motor_controller_TB6612FNG::go_home(t_buttons_controller *buttons_controller)
 {
   byte sensor_index = 0;
   for (byte j = 0 ; j < sensors_count ; ++j) {
@@ -169,12 +175,14 @@ void t_dc_motor_controller_TB6612FNG::go_home(t_potentiometers_controller *poten
       break;
     }
   }
+/*
   //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
   int pot_dir = potentiometers_control->get_direction(sensor_index);
   int pot_home = potentiometers_control->get_home(sensor_index);
   int pot_pos = potentiometers_control->get_position(sensor_index);
   int distance_to_home = pot_dir*(pot_home - pot_pos);
   move_motor(distance_to_home);
+  */
 }
 //-------------------------------------------------------------------------------
 

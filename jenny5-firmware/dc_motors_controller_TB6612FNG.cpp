@@ -45,9 +45,9 @@ void t_dc_motors_controller_TB6612FNG::set_motor_pins(byte motor_index, byte pwm
   }
 }
 //-------------------------------------------------------------------------------
-void t_dc_motors_controller_TB6612FNG::move_motor(byte motor_index, int num_steps)
+void t_dc_motors_controller_TB6612FNG::move_motor(byte motor_index, long num_millis)
 {
-  motors[motor_index].move_motor(num_steps); //move num_steps
+  motors[motor_index].move_motor(num_millis); //move num_millis
 }
 //-------------------------------------------------------------------------------
 void t_dc_motors_controller_TB6612FNG::set_speed(byte motor_index, byte _motor_speed)
@@ -99,7 +99,7 @@ void t_dc_motors_controller_TB6612FNG::get_speed(byte motor_index, byte *_motor_
   motors[motor_index].get_speed(_motor_speed);
 }
 //-------------------------------------------------------------------------------
-void t_dc_motors_controller_TB6612FNG::update_motors(t_potentiometers_controller *potentiometers_control, char* serial_out)
+void t_dc_motors_controller_TB6612FNG::update_motors(t_buttons_controller *buttons_controller, char* serial_out)
 {
   serial_out[0] = 0;
   // run motors
@@ -107,17 +107,17 @@ void t_dc_motors_controller_TB6612FNG::update_motors(t_potentiometers_controller
   //bool is_one_motor_running = false;
   for (int m = 0; m < num_motors; m++)
   {
-    int result = motors[m].update_motor(potentiometers_control);
+    int result = motors[m].update_motor(buttons_controller);
     if (result >= 0){
       char tmp_str[20];
-      sprintf(tmp_str, "M%d %d#", m, result);
+      sprintf(tmp_str, "MD%d %d#", m, result);
       strcat(serial_out, tmp_str);
     }
   }
 }
 //-------------------------------------------------------------------------------
-void t_dc_motors_controller_TB6612FNG::go_home(byte motor_index, t_potentiometers_controller *potentiometers_control)
+void t_dc_motors_controller_TB6612FNG::go_home(byte motor_index, t_buttons_controller *buttons_controller)
 {
-  motors[motor_index].go_home(potentiometers_control);
+  motors[motor_index].go_home(buttons_controller);
 }
 //-------------------------------------------------------------------------------
