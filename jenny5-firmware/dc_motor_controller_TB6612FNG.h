@@ -16,7 +16,7 @@ public:
   byte speed_pin;// must be pwm
   byte enable_pin;
 
-  unsigned long time_to_go;
+  long time_to_go;
   unsigned long start_time;
   byte motor_speed;
   
