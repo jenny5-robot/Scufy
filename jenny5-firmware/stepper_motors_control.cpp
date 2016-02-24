@@ -31,30 +31,7 @@ void t_stepper_motors_controller::set_num_motors(int new_num_motors)
       delete[] motors;
 
     if (num_motors > 0){
-    
       motors = new t_stepper_motor_controller[num_motors];
-      
-/*
-      byte dir_pins[4];
-      dir_pins[0] = 2;
-      dir_pins[1] = 5;
-      dir_pins[2] = 8;
-      dir_pins[3] = 11;
-    
-      byte step_pins[4];
-      step_pins[0] = 3;
-      step_pins[1] = 6;
-      step_pins[2] = 9;
-      step_pins[3] = 12;
-    
-      byte enable_pins[4];
-      enable_pins[0] = 4;
-      enable_pins[1] = 7;
-      enable_pins[2] = 10;
-      enable_pins[3] = 13;
-        for (byte m = 0; m < num_motors; m++)
-        motors[m].create_init(dir_pins[m], step_pins[m], enable_pins[m], default_motor_speed, default_motor_acceleration); 
-        */
     }
     else
       motors = NULL;
@@ -166,3 +143,9 @@ void t_stepper_motors_controller::go_home(byte motor_index, t_potentiometers_con
   motors[motor_index].go_home(potentiometers_control);
 }
 //-------------------------------------------------------------------------------
+void t_stepper_motors_controller::disable_all(void)
+{
+  for (int m = 0; m < num_motors; m++)
+    motors[m].disable_motor();
+}
+
