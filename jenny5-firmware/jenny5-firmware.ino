@@ -33,7 +33,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.02.20.4");
+  strcpy(firmware_version, "2016.02.24.0");
   
   current_buffer[0] = 0;
 
@@ -330,7 +330,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                    stepper_motors_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
                    num_consumed_total += num_consumed + 1;
                  }
-     
+                 stepper_motors_controller.disable_all();
                  sprintf(serial_out, "CS#");
                  i += num_consumed_total;
                }
