@@ -33,7 +33,7 @@ bool first_start;
 void setup() 
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.02.24.0");
+  strcpy(firmware_version, "2016.05.09.0");
   
   current_buffer[0] = 0;
 
@@ -80,7 +80,7 @@ void setup()
 
   Serial.println(F("CP n p1 l1 h1 _h1 _d1 p2 l2 h2 _h2 _d2# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position, _d is the directon of the sensor relative to the direction in which the motor is moving. Outputs CP# when done."));
   Serial.println(F("CU n t1 e1 t2 e2# // Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
-  Serial.println(F("CI n p1 l1 p2 l2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and l is the low and e are trigger and echo pins. Outputs CI# when done."));
+  Serial.println(F("CI n p1 min1 max1 home1 p2 min2 max2 home2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and min, max and home are the lower, upper bounds and home position of this sensor. Outputs CI# when done."));
   Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
   
   
@@ -150,7 +150,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           if (tmp_str[i] == 'I' || tmp_str[i] == 'i'){// infrared
             int sensor_index;
             sscanf(tmp_str + i + 1, "%d", &sensor_index);
-            int sensor_value = infrared_sensors_controller.get_distance(sensor_index);
+            int sensor_value = infrared_sensors_controller.get_signal_strength(sensor_index);
             sprintf(serial_out, "I%d %d#", sensor_index, sensor_value);
             i += 2;
           }
@@ -408,10 +408,10 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  int num_consumed_total = 3 + num_consumed;
                  infrared_sensors_controller.set_num_sensors(num_infrareds);
                  for (int k = 0; k < num_infrareds; k++){
-                   int _out_pin;
-                   int _low;
-                   sscanf(tmp_str + i + num_consumed_total, "%d%d%n", &_out_pin, &_low, &num_consumed);
-                   infrared_sensors_controller.set_params(k, _out_pin, _low);
+                   int out_pin;
+                   int min_pos, max_pos, home_pos;
+                   sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%n", &out_pin, &min_pos, &max_pos, &home_pos, &num_consumed);
+                   infrared_sensors_controller.set_params(k, out_pin, min_pos, max_pos, home_pos);
                    num_consumed_total += num_consumed + 1;
                  }
                  sprintf(serial_out, "CI#");
