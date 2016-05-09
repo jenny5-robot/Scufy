@@ -7,19 +7,24 @@ t_infrared_sensors_controller::t_infrared_sensors_controller(void)
   sensors = NULL;
 }
 //--------------------------------------------------------------------
-int  t_infrared_sensors_controller::get_distance(byte infrared_index)
+int  t_infrared_sensors_controller::get_signal_strength(byte infrared_index)
 {
-  return sensors[infrared_index].get_distance();
+  return sensors[infrared_index].get_signal_strength();
 }
 //--------------------------------------------------------------------
-void t_infrared_sensors_controller::set_params(byte infrared_index, byte pin, int low)
+int  t_infrared_sensors_controller::get_home(byte infrared_index)
 {
-  sensors[infrared_index].set_params(pin, low);
+  return sensors[infrared_index].get_home();
 }
 //--------------------------------------------------------------------
-void t_infrared_sensors_controller::get_params(byte infrared_index, byte *pin, int *low)
+void t_infrared_sensors_controller::set_params(byte infrared_index, byte pin, int min_pos, int max_pos, int home_pos)
 {
-  sensors[infrared_index].get_params(pin, low);
+  sensors[infrared_index].set_params(pin, min_pos, max_pos, home_pos);
+}
+//--------------------------------------------------------------------
+void t_infrared_sensors_controller::get_params(byte infrared_index, byte *pin, int *min_pos, int *max_pos, int *home_pos)
+{
+  sensors[infrared_index].get_params(pin, min_pos, max_pos, home_pos);
 }
 //--------------------------------------------------------------------
 byte t_infrared_sensors_controller::is_within_limits(byte infrared_index)
@@ -38,7 +43,7 @@ void t_infrared_sensors_controller::set_num_sensors(byte new_num_sensors)
       sensors = new t_infrared_sensor[num_sensors];
       
       for (byte m = 0; m < num_sensors; m++)
-        sensors[m].set_params(2, 100);
+        sensors[m].set_params(2, 100, 900, 500);
     }
     else
       sensors = NULL;
