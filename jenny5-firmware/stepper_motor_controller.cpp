@@ -240,4 +240,23 @@ byte sensor_index = 0;
   move_motor(distance_to_home);
 }
 //-------------------------------------------------------------------------------
+void t_stepper_motor_controller::go_home(t_infrared_sensors_controller *infrareds_control)
+{
+  byte sensor_index = 0;
+  for (byte j = 0 ; j < sensors_count ; ++j) {
+    byte type = sensors[j].type;
+    if (INFRARED == type) {
+      sensor_index = sensors[j].index;
+      break;
+    }
+  }
+  //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
+  //int i_dir = infrareds_control->get_direction(sensor_index);
+  int i_home = infrareds_control->get_home(sensor_index);
+  int i_pos = infrareds_control->get_signal_strength(sensor_index);
+  int distance_to_home = (i_home - i_pos);// this must be multiplied by gear factor!!!!
+  
+  move_motor(distance_to_home);
+}
+//-------------------------------------------------------------------------------
 

@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include "AccelStepper.h"
 #include "potentiometers_controller.h"
+#include "infrared_sensors_controller.h"
 #include "jenny5_types.h"
 
 //---------------------------------------------------
@@ -54,6 +55,8 @@ public:
 
   void set_motor_running(byte is_running);
   void go_home(t_potentiometers_controller *potentiometers_control);
+  void go_home(t_infrared_sensors_controller *infrareds_control);
+  
   byte is_motor_running(void);
 
   void reset_pins(void);
