@@ -4,8 +4,8 @@
 #include "Arduino.h"
 #include "stepper_motor_controller.h"
 #include "potentiometers_controller.h"
+#include "infrared_sensors_controller.h"
 
-//#define MAX_SENSORS_PER_MOTOR 6
 
 //---------------------------------------------------
 class t_stepper_motors_controller
@@ -52,10 +52,13 @@ class t_stepper_motors_controller
 
     void set_is_running(byte motor_index, byte is_running);
     void go_home(byte motor_index, t_potentiometers_controller *potentiometers_control);
+    void go_home(byte motor_index, t_infrared_sensors_controller *infrared_control);
+    
     byte is_running(byte motor_index);
     byte is_running(void);
 
-    void run_motors(t_potentiometers_controller *potentiometers_control, char* serial_out);
+    void run_motors(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_control, char* serial_out);
+    //void run_motors(t_infrared_sensors_controller *infrared_control, char* serial_out);
 };
 //---------------------------------------------------
 #endif

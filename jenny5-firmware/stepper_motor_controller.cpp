@@ -160,7 +160,7 @@ void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_
     }
 }
 //-------------------------------------------------------------------------------
-byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, int& dist_to_go)
+byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_controller, int& dist_to_go)
 {
 // returns 1 if is still running 
 // returns 2 if it does nothing
@@ -168,7 +168,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
   
     bool limit_reached = false;
     int distance_to_go = stepper->distanceToGo();
-    int potentiometer_direction = 1;
+
 
     if (distance_to_go)
     {
@@ -177,9 +177,8 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
         byte sensor_index = sensors[j].index;
         byte type = sensors[j].type;
 
-        if (POTENTIOMETER == type)
-        {
-            potentiometer_direction = potentiometers_control->get_direction(sensor_index);
+        if (POTENTIOMETER == type){
+            int potentiometer_direction = potentiometers_control->get_direction(sensor_index);
             if (potentiometers_control->is_lower_bound_reached(sensor_index)){
               if (distance_to_go*potentiometer_direction < 0){
                 limit_reached = true;
@@ -191,9 +190,23 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
               }
             }
         }
-        else if (ULTRASOUND == type)
-        {
+        else 
+        if (ULTRASOUND == type){
           // deal with ultrasound sensor
+        }
+        else
+        if (INFRARED == type){
+            int infrared_direction = infrared_controller->get_direction(sensor_index);
+            if (infrared_controller->is_lower_bound_reached(sensor_index)){
+              if (distance_to_go * infrared_direction < 0){
+                limit_reached = true;
+              }
+            }
+            if (infrared_controller->is_upper_bound_reached(sensor_index)){
+              if (distance_to_go * infrared_direction > 0){
+                limit_reached = true;
+              }
+            }
         }
       }
 
@@ -234,7 +247,7 @@ byte sensor_index = 0;
   }
   //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
   int pot_dir = potentiometers_control->get_direction(sensor_index);
-  int pot_home = potentiometers_control->get_home(sensor_index);
+  int pot_home = potentiometers_control->get_home_position(sensor_index);
   int pot_pos = potentiometers_control->get_position(sensor_index);
   int distance_to_home = pot_dir*(pot_home - pot_pos);
   move_motor(distance_to_home);
@@ -252,7 +265,7 @@ void t_stepper_motor_controller::go_home(t_infrared_sensors_controller *infrared
   }
   //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
   //int i_dir = infrareds_control->get_direction(sensor_index);
-  int i_home = infrareds_control->get_home(sensor_index);
+  int i_home = infrareds_control->get_home_position(sensor_index);
   int i_pos = infrareds_control->get_signal_strength(sensor_index);
   int distance_to_home = (i_home - i_pos);// this must be multiplied by gear factor!!!!
   

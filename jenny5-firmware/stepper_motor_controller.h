@@ -61,7 +61,8 @@ public:
 
   void reset_pins(void);
   
-  byte run_motor(t_potentiometers_controller *potentiometers_control, int &dist_to_go);
+  byte run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_controller, int &dist_to_go);
+  //byte run_motor(t_infrared_sensors_controller *infrared_control, int &dist_to_go);
 };
 //---------------------------------------------------
 

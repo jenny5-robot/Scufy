@@ -120,7 +120,7 @@ void t_stepper_motors_controller::get_speed_and_acceleration(byte motor_index, f
   motors[motor_index].get_motor_speed_and_acceleration(_motor_speed, _motor_acceleration);
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potentiometers_control, char* serial_out)
+void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_control, char* serial_out)
 {
   serial_out[0] = 0;
   // run motors
@@ -129,7 +129,7 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
   for (int m = 0; m < num_motors; m++)
   {
     int dist_to_go;
-    byte result = motors[m].run_motor(potentiometers_control, dist_to_go);
+    byte result = motors[m].run_motor(potentiometers_control, infrared_control, dist_to_go);
     if (result == MOTOR_JUST_STOPPED){
       char tmp_str[20];
       sprintf(tmp_str, "MS%d %d#", m, dist_to_go);
@@ -141,6 +141,11 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
 void t_stepper_motors_controller::go_home(byte motor_index, t_potentiometers_controller *potentiometers_control)
 {
   motors[motor_index].go_home(potentiometers_control);
+}
+//-------------------------------------------------------------------------------
+void t_stepper_motors_controller::go_home(byte motor_index, t_infrared_sensors_controller *infrared_control)
+{
+  motors[motor_index].go_home(infrared_control);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motors_controller::disable_all(void)
