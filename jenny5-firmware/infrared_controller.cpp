@@ -4,10 +4,13 @@
 //--------------------------------------------------------------------------------------------
 t_infrared_sensor::t_infrared_sensor(void) 
 {
+  pin = 2;
+  
   min_pos = 60;
   max_pos = 900;
   home_pos = 500;
-  pin = 2;
+  
+  _direction = 1;
 }
 //--------------------------------------------------------------------------------------------
 int t_infrared_sensor::get_signal_strength(void)
@@ -62,3 +65,15 @@ int t_infrared_sensor::get_direction(void)
   return _direction;
 }
 //--------------------------------------------------------------------
+/*
+bool t_infrared_sensor::is_going_home(void)
+{
+  return going_home;
+}
+//--------------------------------------------------------------------
+void t_infrared_sensor::set_going_home(bool value)
+{
+  going_home = value;
+}
+//--------------------------------------------------------------------
+*/
