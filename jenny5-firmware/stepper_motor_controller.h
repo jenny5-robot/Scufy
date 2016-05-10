@@ -23,9 +23,8 @@ public:
   AccelStepper  *stepper;
   byte motor_running;
 
-  //int motor_speed;
-  //int motor_acceleration;
-  
+  bool going_home;
+
 public:
   t_stepper_motor_controller(void);
   ~t_stepper_motor_controller(void);
