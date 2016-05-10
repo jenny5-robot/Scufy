@@ -409,9 +409,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
                  infrared_sensors_controller.set_num_sensors(num_infrareds);
                  for (int k = 0; k < num_infrareds; k++){
                    int out_pin;
-                   int min_pos, max_pos, home_pos;
-                   sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%n", &out_pin, &min_pos, &max_pos, &home_pos, &num_consumed);
-                   infrared_sensors_controller.set_params(k, out_pin, min_pos, max_pos, home_pos);
+                   int min_pos, max_pos, home_pos, _direction;
+                   sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%d%n", &out_pin, &min_pos, &max_pos, &home_pos, &_direction, &num_consumed);
+                   infrared_sensors_controller.set_params(k, out_pin, min_pos, max_pos, home_pos, _direction);
                    num_consumed_total += num_consumed + 1;
                  }
                  sprintf(serial_out, "CI#");
@@ -520,7 +520,7 @@ void loop()
         }
     }
   }
-  stepper_motors_controller.run_motors(&potentiometers_controller, serial_out);
+  stepper_motors_controller.run_motors(&potentiometers_controller, &infrared_sensors_controller, serial_out);
   if (serial_out[0])
     Serial.write(serial_out);
 
