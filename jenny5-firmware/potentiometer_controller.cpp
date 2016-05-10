@@ -40,13 +40,13 @@ byte t_potentiometer_controller::is_within_limits(void)
 	return low <= val && val <= high;
 }
 //--------------------------------------------------------------------
-byte t_potentiometer_controller::is_lower_bound_reached(void)
+bool t_potentiometer_controller::is_lower_bound_reached(void)
 {
   int val = get_position();
   return low > val;
 }
 //--------------------------------------------------------------------
-byte t_potentiometer_controller::is_upper_bound_reached(void)
+bool t_potentiometer_controller::is_upper_bound_reached(void)
 {
   int val = get_position();
   return high < val;
@@ -57,8 +57,8 @@ int t_potentiometer_controller::get_direction(void)
   return _direction;
 }
 //--------------------------------------------------------------------
-int t_potentiometer_controller::get_home(void)
+int t_potentiometer_controller::get_home_position(void)
 {
   return _home;
 }
-
+//--------------------------------------------------------------------
