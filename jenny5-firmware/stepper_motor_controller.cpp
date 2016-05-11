@@ -125,7 +125,7 @@ void t_stepper_motor_controller::set_num_attached_sensors(byte num_sensors)
     if (num_sensors > 0)
       sensors = new t_sensor_info[num_sensors]; // allocate memory for them
   }
-  sensors_count = num_sensors; // actual number of sensors
+  sensors_count = 0; // actual number of sensors
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_motor_running(byte is_running)
@@ -164,8 +164,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
 
   bool limit_reached = false;
   int distance_to_go = stepper->distanceToGo();
-
-
+  
   if (distance_to_go)
   {
     for (byte j = 0 ; j < sensors_count ; ++j)
@@ -194,6 +193,13 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
         int infrared_signal_strength = infrared_controller->get_signal_strength(sensor_index);
         int infrared_home_pos = infrared_controller->get_home_position(sensor_index);
 
+        /*
+Serial.print(distance_to_go);
+Serial.write(' ');
+Serial.print(infrared_signal_strength);
+Serial.write(' ');
+Serial.println(infrared_home_pos);
+        */
         if (infrared_controller->is_lower_bound_reached(sensor_index)) {
           if (distance_to_go * infrared_direction < 0) {
             limit_reached = true;
@@ -207,10 +213,10 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
         if (going_home) {
           // must stop to home
           if (distance_to_go > 0)
-            if (infrared_signal_strength < infrared_home_pos)
+            if (infrared_signal_strength > infrared_home_pos)
               limit_reached = true;
             else;
-          else if (infrared_signal_strength > infrared_home_pos)
+          else if (infrared_signal_strength < infrared_home_pos)
             limit_reached = true;
         }
       }
@@ -228,6 +234,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
       stepper->move(0);
       dist_to_go = to_go;
       going_home = false;
+      Serial.println("left to go  > 0");
       return MOTOR_JUST_STOPPED;//
     }
   }
@@ -237,6 +244,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
     if (is_motor_running()) {
       set_motor_running(0);
       dist_to_go = 0;
+      Serial.println("left to go == 0");
       return MOTOR_JUST_STOPPED; // distance to go
     }
     else
@@ -281,9 +289,9 @@ void t_stepper_motor_controller::go_home(t_infrared_sensors_controller *infrared
     int i_pos = infrareds_control->get_signal_strength(sensor_index);
     int distance_to_home;
     if (i_home < i_pos)
-      distance_to_home = 32000;
-    else
       distance_to_home = -32000;
+    else
+      distance_to_home = 32000;
     going_home = true;
     move_motor(distance_to_home);
   }

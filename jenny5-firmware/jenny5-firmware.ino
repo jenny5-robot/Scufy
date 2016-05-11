@@ -33,7 +33,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.05.10.0");
+  strcpy(firmware_version, "2016.05.11.0");
 
   current_buffer[0] = 0;
 
@@ -44,59 +44,62 @@ void setup()
   Serial.println(F("T# // test connection. Returns T#."));
   Serial.println(F("MSx y# // Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs MSx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
   Serial.println(F("MDx y# // Moves dc motor x for y miliseconds. Outputs MDx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the time to go."));
-  Serial.println(F("MVx y# // Moves servo motor x for y steps.");
-                 Serial.println(F("HSx# // Moves stepper motor x to home position. The first sensor in the list of sensors will establish the home position. The motor does nothing if no sensor is attached. Returns HSx#."));
-                 Serial.println(F("HDx# // Moves DC motor x to home position. The first sensor in the list of sensors must be the button which establish the home position. The motor does nothing if no sensor is attached. Returns HDx#."));
-                 Serial.println(F("HVx# // Moves servo motor x to home position.  Returns HVx#.");
+  Serial.println(F("MVx y# // Moves servo motor x for y steps."));
+  Serial.println(F("HSx# // Moves stepper motor x to home position. The first sensor in the list of sensors will establish the home position. The motor does nothing if no sensor is attached. Returns HSx#."));
+  Serial.println(F("HDx# // Moves DC motor x to home position. The first sensor in the list of sensors must be the button which establish the home position. The motor does nothing if no sensor is attached. Returns HDx#."));
+  Serial.println(F("HVx# // Moves servo motor x to home position.  Returns HVx#."));
 
-                                Serial.println(F("DSx#  // Disables stepper motor x. Outputs DSx# when done."));
-                                Serial.println(F("DDx#  // Disables dc motor x. Outputs DDx# when done."));
+  Serial.println(F("DSx#  // Disables stepper motor x. Outputs DSx# when done."));
+  Serial.println(F("DDx#  // Disables dc motor x. Outputs DDx# when done."));
 
-                                Serial.println(F("Lx#  // Locks stepper motor x. Outputs Lx# when done."));
+  Serial.println(F("Lx#  // Locks stepper motor x. Outputs Lx# when done."));
 
-                                Serial.println(F("SSx s a# // Sets speed of stepper motor x to s and the acceleration to a."));
-                                Serial.println(F("SDx s# // Sets speed of motor x to s."));
-                                Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start."));
+  Serial.println(F("SSx s a# // Sets speed of stepper motor x to s and the acceleration to a."));
+  Serial.println(F("SDx s# // Sets speed of motor x to s."));
+  Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start."));
 
-                                Serial.println(F("ASx n Py Bz ... # // Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z etc)."));
-                                Serial.println(F("ADx n Py Bz ... # // Attach to dc motor x a list of n sensors (like Potentiometer y, Button z etc)."));
-                                Serial.println(F("AVx n Py Bz ... # // Attach to servo motor x a list of n sensors (like Potentiometer y, Button z etc)."));
+  Serial.println(F("ASx n Py Bz ... # // Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z etc)."));
+  Serial.println(F("ADx n Py Bz ... # // Attach to dc motor x a list of n sensors (like Potentiometer y, Button z etc)."));
+  Serial.println(F("AVx n Py Bz ... # // Attach to servo motor x a list of n sensors (like Potentiometer y, Button z etc)."));
 
-                                Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x. Outputs Ux d# when the reading has been completed. Note that this works in \"background\" and can output after some time (and in the meantime the program can do something else."));
-                                Serial.println(F("Bx# // Gets the status of the button x. Outputs Bx s#"));
-                                Serial.println(F("Px# // Gets the position of the potentiometer x. Outputs Px p#"));
-                                Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
+  Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x. Outputs Ux d# when the reading has been completed. Note that this works in \"background\" and can output after some time (and in the meantime the program can do something else."));
+  Serial.println(F("Bx# // Gets the status of the button x. Outputs Bx s#"));
+  Serial.println(F("Px# // Gets the position of the potentiometer x. Outputs Px p#"));
+  Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
 
-                                Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GSx s a 1 0 0#"));
-                                Serial.println(F("GDx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GDx s a 1 0 0#"));
-                                Serial.println(F("GVx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GVx s a 1 0 0#"));
-                                Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#"));
-                                Serial.println(F("GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#"));
+  Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GSx s a 1 0 0#"));
+  Serial.println(F("GDx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GDx s a 1 0 0#"));
+  Serial.println(F("GVx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GVx s a 1 0 0#"));
+  Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#"));
+  Serial.println(F("GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#"));
 
-                                Serial.println(F("CS n d1 s1 e1 d2 s2 e2# // Creates the stepper motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CS# when done."));
-                                Serial.println(F("CD n p1 d11 d12 e1 p2 d21 d22 e2# // Creates the dc motors controller and set some of its parameters. n is the number of motors, p is the pwm_pin, d1 and d2 are the direction pins and e is the enable pins. Outputs CD# when done."));
-                                Serial.println(F("CV n# // Creates the servo motors controller and set some of its parameters. n is the number of motors, Outputs CV# when done."));
+  Serial.println(F("CS n d1 s1 e1 d2 s2 e2# // Creates the stepper motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CS# when done."));
+  Serial.println(F("CD n p1 d11 d12 e1 p2 d21 d22 e2# // Creates the dc motors controller and set some of its parameters. n is the number of motors, p is the pwm_pin, d1 and d2 are the direction pins and e is the enable pins. Outputs CD# when done."));
+  Serial.println(F("CV n# // Creates the servo motors controller and set some of its parameters. n is the number of motors, Outputs CV# when done."));
 
-                                Serial.println(F("CP n p1 l1 h1 _h1 _d1 p2 l2 h2 _h2 _d2# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position, _d is the directon of the sensor relative to the direction in which the motor is moving. Outputs CP# when done."));
-                                Serial.println(F("CU n t1 e1 t2 e2# // Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
-                                Serial.println(F("CI n pin1 min1 max1 home1 dir1 pin2 min2 max2 home2 dir2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and min, max and home are the lower, upper bounds and home position of this sensor. Outputs CI# when done."));
-                                Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
-
-
-                                Serial.println(F("V# // Outputs version string. eg: 2016.01.17.0#"));
+  Serial.println(F("CP n p1 l1 h1 _h1 _d1 p2 l2 h2 _h2 _d2# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position, _d is the directon of the sensor relative to the direction in which the motor is moving. Outputs CP# when done."));
+  Serial.println(F("CU n t1 e1 t2 e2# // Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
+  Serial.println(F("CI n pin1 min1 max1 home1 dir1 pin2 min2 max2 home2 dir2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and min, max and home are the lower, upper bounds and home position of this sensor. Outputs CI# when done."));
+  Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
 
 
-                                Serial.println(F("Motor index is between 0 and num_motors - 1"));
+  Serial.println(F("V# // Outputs version string. eg: 2016.01.17.0#"));
 
-                                Serial.println();
+
+  Serial.println(F("Motor index is between 0 and num_motors - 1"));
+
+  Serial.println();
 #endif
-                                Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
+  Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
 }
-               //--------------------------------------------------------------------------------------------
-               void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out)
+//--------------------------------------------------------------------------------------------
+void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out)
 {
   byte i = 0;
   serial_out[0] = 0;
+  char tmp_serial_out[100];
+  tmp_serial_out[0] = 0;
+
   while (i < str_length) {
     // can be more than 1 command in a string, so I have to check again for a letter
     if ((tmp_str[i] >= 'A' && tmp_str[i] <= 'Z') || (tmp_str[i] >= 'a' && tmp_str[i] <= 'z')) {
@@ -134,7 +137,8 @@ void setup()
         int sensor_index;
         sscanf(tmp_str + i + 1, "%d", &sensor_index);
         int sensor_value = potentiometers_controller.get_position(sensor_index);
-        sprintf(serial_out, "P%d %d#", sensor_index, sensor_value);
+        sprintf(tmp_serial_out, "P%d %d#", sensor_index, sensor_value);
+        strcat(serial_out, tmp_serial_out);
         i += 2;
         continue;
       }
@@ -155,7 +159,8 @@ void setup()
         int sensor_index;
         sscanf(tmp_str + i + 1, "%d", &sensor_index);
         int sensor_value = infrared_sensors_controller.get_signal_strength(sensor_index);
-        sprintf(serial_out, "I%d %d#", sensor_index, sensor_value);
+        sprintf(tmp_serial_out, "I%d %d#", sensor_index, sensor_value);
+        strcat(serial_out, tmp_serial_out);
         i += 2;
         continue;
       }
@@ -166,12 +171,14 @@ void setup()
         if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // disables stepper motor
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           stepper_motors_controller.disable(motor_index);
-          sprintf(serial_out, "DS%d#", motor_index);
+          sprintf(tmp_serial_out, "DS%d#", motor_index);
+          strcat(serial_out, tmp_serial_out);
         }
         else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // disables DC motor
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           dc_motors_controller_TB6612FNG.disable(motor_index);
-          sprintf(serial_out, "DD%d#", motor_index);
+          sprintf(tmp_serial_out, "DD%d#", motor_index);
+          strcat(serial_out, tmp_serial_out);
         }
         i += 4;
         continue;
@@ -182,7 +189,8 @@ void setup()
         int motor_index;
         sscanf(tmp_str + i + 1, "%d", &motor_index);
         stepper_motors_controller.lock(motor_index);
-        sprintf(serial_out, "L%d#", motor_index);
+        sprintf(tmp_serial_out, "L%d#", motor_index);
+        strcat(serial_out, tmp_serial_out);
         i += 2;
         continue;
       }
@@ -192,13 +200,11 @@ void setup()
         int motor_index;
         if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // go stepper home
           sscanf(tmp_str + i + 2, "%d", &motor_index);
-          stepper_motors_controller.go_home(motor_index, &potentiometers_controller);
-          sprintf(serial_out, "HS%d#", motor_index);
+          stepper_motors_controller.go_home(motor_index, &infrared_sensors_controller);
         }
-        else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // go stepper home
+        else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // go DC home
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           dc_motors_controller_TB6612FNG.go_home(motor_index, &buttons_controller);
-          sprintf(serial_out, "HD%d#", motor_index);
         }
         is_command_running = 1;
         i += 4;
@@ -232,7 +238,7 @@ void setup()
 
       if (tmp_str[i] == 'A' || tmp_str[i] == 'a') { // attach sensors to motors
         int motor_index, num_sensors;
-        char motor_type = tmp_str[i];
+        char motor_type = tmp_str[i + 1];
         sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_sensors);
         if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
           stepper_motors_controller.set_num_attached_sensors(motor_index, num_sensors);
@@ -284,7 +290,8 @@ void setup()
           float motor_speed, motor_acceleration;
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           stepper_motors_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
-          sprintf(serial_out, "GS%d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration);
+          sprintf(tmp_serial_out, "GS%d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration);
+          strcat(serial_out, tmp_serial_out);
           i += 4;
         }
         else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // gets stepper motor speed and acceleration
@@ -292,7 +299,8 @@ void setup()
           byte motor_speed;
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           dc_motors_controller_TB6612FNG.get_speed(motor_index, &motor_speed);
-          sprintf(serial_out, "GD%d %d#", motor_index, motor_speed);
+          sprintf(tmp_serial_out, "GD%d %d#", motor_index, motor_speed);
+          strcat(serial_out, tmp_serial_out);
           i += 4;
         }
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home
@@ -300,7 +308,8 @@ void setup()
           byte pot_pin;
           sscanf(tmp_str + i + 2, "%d", &pot_index);
           potentiometers_controller.get_params(pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
-          sprintf(serial_out, "GP%d %d %d %d %d %d#", pot_index, (int)pot_pin, pot_min, pot_max, pot_home, pot_dir);
+          sprintf(tmp_serial_out, "GP%d %d %d %d %d %d#", pot_index, (int)pot_pin, pot_min, pot_max, pot_home, pot_dir);
+          strcat(serial_out, tmp_serial_out);
           i += 5;
         }
         else if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { // get potentiometer min max home
@@ -308,7 +317,8 @@ void setup()
           byte trig_pin, echo_pin;
           sscanf(tmp_str + i + 2, "%d", &ultrasound_index);
           ultrasonic_sensors_controller.get_sensor_pins(ultrasound_index, &trig_pin, &echo_pin);
-          sprintf(serial_out, "GU%d %d %d#", ultrasound_index, trig_pin, echo_pin);
+          sprintf(tmp_serial_out, "GU%d %d %d#", ultrasound_index, trig_pin, echo_pin);
+          strcat(serial_out, tmp_serial_out);
           i += 4;
         }
         else
@@ -317,13 +327,15 @@ void setup()
       }
       // test connection
       if (tmp_str[i] == 'T' || tmp_str[i] == 't') {
-        sprintf(serial_out, "T#");
+        sprintf(tmp_serial_out, "T#");
+        strcat(serial_out, tmp_serial_out);
         i += 2;
         continue;
       }
       // version number
       if (tmp_str[i] == 'V' || tmp_str[i] == 'v') {
-        sprintf(serial_out, "%s#", firmware_version);
+        sprintf(tmp_serial_out, "%s#", firmware_version);
+        strcat(serial_out, tmp_serial_out);
         i += 2;
         continue;
       }
@@ -346,7 +358,8 @@ void setup()
               num_consumed_total += num_consumed + 1;
             }
             stepper_motors_controller.disable_all();
-            sprintf(serial_out, "CS#");
+            sprintf(tmp_serial_out, "CS#");
+            strcat(serial_out, tmp_serial_out);
             i += num_consumed_total;
           }
         }
@@ -366,7 +379,8 @@ void setup()
               num_consumed_total += num_consumed + 1;
             }
 
-            sprintf(serial_out, "CD#");
+            sprintf(tmp_serial_out, "CD#");
+            strcat(serial_out, tmp_serial_out);
             i += num_consumed_total;
           }
         }
@@ -386,7 +400,8 @@ void setup()
             num_consumed_total += num_consumed + 1;
           }
 
-          sprintf(serial_out, "CU#");
+          sprintf(tmp_serial_out, "CU#");
+          strcat(serial_out, tmp_serial_out);
           i += num_consumed_total;
         }
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // create a list of potentiometers
@@ -406,7 +421,8 @@ void setup()
             num_consumed_total += num_consumed + 1;
           }
 
-          sprintf(serial_out, "CP#");
+          sprintf(tmp_serial_out, "CP#");
+          strcat(serial_out, tmp_serial_out);
           i += num_consumed_total;
         }
         else if (tmp_str[i + 1] == 'I' || tmp_str[i + 1] == 'i') { // create a list of infrared sensors
@@ -424,11 +440,14 @@ void setup()
             int num_read = sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%d%n", &out_pin, &min_pos, &max_pos, &home_pos, &_direction, &num_consumed);
             if (num_read == 5)
               infrared_sensors_controller.set_params(k, out_pin, min_pos, max_pos, home_pos, _direction);
-            else
-              sprintf(serial_out, "E#");
+            else {
+              sprintf(tmp_serial_out, "E#");
+              strcat(serial_out, tmp_serial_out);
+            }
             num_consumed_total += num_consumed + 1;
           }
-          sprintf(serial_out, "CI#");
+          sprintf(tmp_serial_out, "CI#");
+          strcat(serial_out, tmp_serial_out);
           i += num_consumed_total;
         }
         else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // create a list of button sensors
@@ -446,7 +465,8 @@ void setup()
             buttons_controller.set_params(k, _pin);
             num_consumed_total += num_consumed + 1;
           }
-          sprintf(serial_out, "CB#");
+          sprintf(tmp_serial_out, "CB#");
+          strcat(serial_out, tmp_serial_out);
           i += num_consumed_total;
         }
         else
@@ -457,7 +477,8 @@ void setup()
         i++;// incomplete string
     }
     else
-      i++;
+      i++; // not a letter, move to the next one
+
   }
 }
 //--------------------------------------------------------------------------------------------
@@ -535,12 +556,16 @@ void loop()
     }
   }
   stepper_motors_controller.run_motors(&potentiometers_controller, &infrared_sensors_controller, serial_out);
-  if (serial_out[0])
+  if (serial_out[0]){
     Serial.write(serial_out);
+    serial_out[0] = 0;
+  }
 
   dc_motors_controller_TB6612FNG.update_motors(&buttons_controller, serial_out);
-  if (serial_out[0])
+  if (serial_out[0]){
     Serial.write(serial_out);
+     serial_out[0] = 0;
+  }
 
   //   Serial.print("freeMemory()=");
   // Serial.println(freeMemory());
