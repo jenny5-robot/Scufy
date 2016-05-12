@@ -93,6 +93,7 @@ void AccelStepper::setCurrentPosition(long position)
     _targetPos = _currentPos = position;
     _n = 0;
     _stepInterval = 0;
+    _speed = 0.0;
 }
 
 void AccelStepper::computeNewSpeed()
@@ -540,7 +541,10 @@ void    AccelStepper::disableOutputs()
 
     setOutputPins(0); // Handles inversion automatically
     if (_enablePin != 0xff)
+    {
+        pinMode(_enablePin, OUTPUT);
         digitalWrite(_enablePin, LOW ^ _enableInverted);
+    }
 }
 
 void    AccelStepper::enableOutputs()

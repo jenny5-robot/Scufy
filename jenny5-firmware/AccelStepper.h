@@ -23,7 +23,7 @@
 /// The latest version of this documentation can be downloaded from 
 /// http://www.airspayce.com/mikem/arduino/AccelStepper
 /// The version of the package that this documentation refers to can be downloaded 
-/// from http://www.airspayce.com/mikem/arduino/AccelStepper/AccelStepper-1.49.zip
+/// from http://www.airspayce.com/mikem/arduino/AccelStepper/AccelStepper-1.51.zip
 ///
 /// Example Arduino programs are included to show the main modes of use.
 ///
@@ -55,6 +55,11 @@
 /// An initial step interval is calculated for the first step, based on the desired acceleration
 /// On subsequent steps, shorter step intervals are calculated based 
 /// on the previous step until max speed is achieved.
+///
+/// \par Adafruit Motor Shield V2
+///
+/// The included examples AFMotor_* are for Adafruit Motor Shield V1 and do not work with Adafruit Motor Shield V2.
+/// See https://github.com/adafruit/Adafruit_Motor_Shield_V2_Library for examples that work with Adafruit Motor Shield V2.
 /// 
 /// \par Donations
 ///
@@ -207,6 +212,15 @@
 ///                and slow speeds like 180 full steps per second the motor movement can be erratic, 
 ///                probably due to some mechanical resonance. Best to accelerate through this speed.<br>
 ///                Added isRunning().<br>
+/// \version 1.50 2016-02-25
+///                AccelStepper::disableOutputs now sets the enable pion to OUTPUT mode if the enable pin is defined.
+///                Patch from Piet De Jong.<br>
+///                Added notes about the fact that AFMotor_* examples do not work with Adafruit Motor Shield V2.<br>
+/// \version 1.51 2016-03-24
+///                Fixed a problem reported by gregor: when resetting the stepper motor position using setCurrentPosition() the 
+///                stepper speed is reset by setting _stepInterval to 0, but _speed is not 
+///                reset. this results in the stepper motor not starting again when calling 
+///                setSpeed() with the same speed the stepper was set to before.
 ///
 /// \author  Mike McCauley (mikem@airspayce.com) DO NOT CONTACT THE AUTHOR DIRECTLY: USE THE LISTS
 // Copyright (C) 2009-2013 Mike McCauley
@@ -435,10 +449,12 @@ public:
     /// This is useful to support Arduino low power modes: disable the outputs
     /// during sleep and then reenable with enableOutputs() before stepping
     /// again.
+    /// If the enable Pin is defined, sets it to OUTPUT mode and clears the pin to disabled.
     virtual void    disableOutputs();
 
     /// Enable motor pin outputs by setting the motor pins to OUTPUT
     /// mode. Called automatically by the constructor.
+    /// If the enable Pin is defined, sets it to OUTPUT mode and sets the pin to enabled.
     virtual void    enableOutputs();
 
     /// Sets the minimum pulse width allowed by the stepper driver. The minimum practical pulse width is 
