@@ -33,7 +33,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.05.11.0");
+  strcpy(firmware_version, "2016.05.12.0");
 
   current_buffer[0] = 0;
 
@@ -67,7 +67,7 @@ void setup()
   Serial.println(F("Px# // Gets the position of the potentiometer x. Outputs Px p#"));
   Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
 
-  Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GSx s a 1 0 0#"));
+  Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors. Outputs GSx s a 1#"));
   Serial.println(F("GDx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GDx s a 1 0 0#"));
   Serial.println(F("GVx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GVx s a 1 0 0#"));
   Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#"));
@@ -240,6 +240,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         int motor_index, num_sensors;
         char motor_type = tmp_str[i + 1];
         sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_sensors);
+       // Serial.println(num_sensors);
         if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
           stepper_motors_controller.set_num_attached_sensors(motor_index, num_sensors);
         else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
@@ -248,7 +249,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         // now I have to add sensors one by one
         int j = i + 4;
         i += 5;
-        while (j < str_length) {
+        int k = 0;
+        while (k < num_sensors){
           if (tmp_str[j] == 'P' || tmp_str[j] == 'p') {
             int sensor_index;
             sscanf(tmp_str + j + 1, "%d", &sensor_index);
@@ -256,7 +258,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               stepper_motors_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
               dc_motors_controller_TB6612FNG.add_sensor(motor_index, POTENTIOMETER, sensor_index);
-            i += 2;
+            j += 2;
+            k++;
           }
           else if (tmp_str[j] == 'B' || tmp_str[j] == 'b') {
             int sensor_index;
@@ -265,32 +268,39 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
               stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
               dc_motors_controller_TB6612FNG.add_sensor(motor_index, BUTTON, sensor_index);
-            i += 2;
+            j += 2;
+            k++;
           }
           else if (tmp_str[j] == 'I' || tmp_str[j] == 'i') {
             int sensor_index;
             sscanf(tmp_str + j + 1, "%d", &sensor_index);
+            Serial.print(motor_index);
+            Serial.write(' ');
+            Serial.println(sensor_index);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
               stepper_motors_controller.add_sensor(motor_index, INFRARED, sensor_index);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
               dc_motors_controller_TB6612FNG.add_sensor(motor_index, INFRARED, sensor_index);
-            i += 2;
+            j += 2;
+            k++;
           }
           else
-            i++;
-          j++;
+            j++;
         }
-        i++;
+        i = j + 1;
+       // Serial.println(i);
         continue;
       }
 
       if (tmp_str[i] == 'G' || tmp_str[i] == 'g') { // for debugging purpose
         if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // gets stepper motor speed and acceleration
           int motor_index;
+          byte num_sensors;
           float motor_speed, motor_acceleration;
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           stepper_motors_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
-          sprintf(tmp_serial_out, "GS%d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration);
+          num_sensors = stepper_motors_controller.get_num_attached_sensors(motor_index);
+          sprintf(tmp_serial_out, "GS%d %d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors);
           strcat(serial_out, tmp_serial_out);
           i += 4;
         }
