@@ -91,6 +91,11 @@ void t_stepper_motors_controller::set_num_attached_sensors(byte motor_index, byt
   motors[motor_index].set_num_attached_sensors(num_sensors);
 }
 //-------------------------------------------------------------------------------
+byte t_stepper_motors_controller::get_num_attached_sensors(byte motor_index)
+{
+  return motors[motor_index].get_num_attached_sensors();
+}
+//-------------------------------------------------------------------------------
 void t_stepper_motors_controller::set_is_running(byte motor_index, byte is_running)
 {
   motors[motor_index].set_motor_running(is_running);

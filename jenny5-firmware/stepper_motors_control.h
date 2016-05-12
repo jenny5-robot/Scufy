@@ -44,7 +44,7 @@ class t_stepper_motors_controller
     void lock(byte motor_index);
 
     void set_num_attached_sensors(byte motor_index, byte num_sensors);
-    void get_num_attached_sensors(byte motor_index, byte *num_sensors);
+    byte get_num_attached_sensors(byte motor_index);
 
     void add_sensor(byte motor_index, byte sensor_type, byte sensor_index);
 
