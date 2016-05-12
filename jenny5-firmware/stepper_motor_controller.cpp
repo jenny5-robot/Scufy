@@ -113,6 +113,11 @@ void t_stepper_motor_controller::add_sensor(byte sensor_type, byte sensor_index)
   sensors_count++;
 }
 //-------------------------------------------------------------------------------
+byte t_stepper_motor_controller::get_num_attached_sensors(void)
+{
+  return sensors_count;
+}
+//-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_num_attached_sensors(byte num_sensors)
 {
   if (sensors_count != num_sensors) {
@@ -164,7 +169,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
 
   bool limit_reached = false;
   int distance_to_go = stepper->distanceToGo();
-  
+
   if (distance_to_go)
   {
     for (byte j = 0 ; j < sensors_count ; ++j)
@@ -194,11 +199,11 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
         int infrared_home_pos = infrared_controller->get_home_position(sensor_index);
 
         /*
-Serial.print(distance_to_go);
-Serial.write(' ');
-Serial.print(infrared_signal_strength);
-Serial.write(' ');
-Serial.println(infrared_home_pos);
+          Serial.print(distance_to_go);
+          Serial.write(' ');
+          Serial.print(infrared_signal_strength);
+          Serial.write(' ');
+          Serial.println(infrared_home_pos);
         */
         if (infrared_controller->is_lower_bound_reached(sensor_index)) {
           if (distance_to_go * infrared_direction < 0) {
@@ -229,13 +234,16 @@ Serial.println(infrared_home_pos);
       return MOTOR_STILL_RUNNING; // still running
     }
     else {
-      int to_go = stepper->distanceToGo();
-      stepper->setCurrentPosition(0);
-      stepper->move(0);
-      dist_to_go = to_go;
-      going_home = false;
-      Serial.println("left to go  > 0");
-      return MOTOR_JUST_STOPPED;//
+      if (is_motor_running()) {
+        int to_go = stepper->distanceToGo();
+        stepper->setCurrentPosition(0);
+        stepper->move(0);
+        dist_to_go = to_go;
+        going_home = false;
+        //Serial.println("left to go  > 0");
+        set_motor_running(0);
+        return MOTOR_JUST_STOPPED;
+      }
     }
   }
   else {
@@ -244,7 +252,7 @@ Serial.println(infrared_home_pos);
     if (is_motor_running()) {
       set_motor_running(0);
       dist_to_go = 0;
-      Serial.println("left to go == 0");
+      //Serial.println("left to go == 0");
       return MOTOR_JUST_STOPPED; // distance to go
     }
     else

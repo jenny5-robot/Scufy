@@ -46,7 +46,7 @@ public:
   void lock_motor(void);
 
   void set_num_attached_sensors(byte num_sensors);
-  void get_num_attached_sensors(byte *num_sensors);
+  byte get_num_attached_sensors(void);
 
   void add_sensor(byte sensor_type, byte sensor_index);
 
