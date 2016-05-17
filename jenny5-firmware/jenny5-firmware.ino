@@ -143,6 +143,16 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         continue;
       }
 
+      // button
+      if (tmp_str[i] == 'B' || tmp_str[i] == 'b') {
+        int sensor_index;
+        sscanf(tmp_str + i + 1, "%d", &sensor_index);
+        int sensor_value = buttons_controller.get_state(sensor_index);
+        sprintf(tmp_serial_out, "B%d %d#", sensor_index, sensor_value);
+        strcat(serial_out, tmp_serial_out);
+        i += 2;
+        continue;
+      }
       // ultrasonic
       if (tmp_str[i] == 'U' || tmp_str[i] == 'u') {
         int sensor_index;
@@ -200,7 +210,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         int motor_index;
         if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // go stepper home
           sscanf(tmp_str + i + 2, "%d", &motor_index);
-          stepper_motors_controller.go_home(motor_index, &infrared_sensors_controller);
+          stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &infrared_sensors_controller, &buttons_controller);
         }
         else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // go DC home
           sscanf(tmp_str + i + 2, "%d", &motor_index);
@@ -271,12 +281,10 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             j += 2;
             k++;
           }
-          else if (tmp_str[j] == 'I' || tmp_str[j] == 'i') {
+          else 
+          if (tmp_str[j] == 'I' || tmp_str[j] == 'i') {
             int sensor_index;
             sscanf(tmp_str + j + 1, "%d", &sensor_index);
-            Serial.print(motor_index);
-            Serial.write(' ');
-            Serial.println(sensor_index);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
               stepper_motors_controller.add_sensor(motor_index, INFRARED, sensor_index);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
@@ -471,8 +479,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           buttons_controller.set_num_sensors(num_buttons);
           for (int k = 0; k < num_buttons; k++) {
             int _pin;
-            sscanf(tmp_str + i + num_consumed_total, "%d%n", &_pin, &num_consumed);
-            buttons_controller.set_params(k, _pin);
+            int _dir;
+            sscanf(tmp_str + i + num_consumed_total, "%d%d%n", &_pin, &_dir, &num_consumed);
+            buttons_controller.set_params(k, _pin, _dir);
             num_consumed_total += num_consumed + 1;
           }
           sprintf(tmp_serial_out, "CB#");
@@ -565,7 +574,7 @@ void loop()
         }
     }
   }
-  stepper_motors_controller.run_motors(&potentiometers_controller, &infrared_sensors_controller, serial_out);
+  stepper_motors_controller.run_motors(&potentiometers_controller, &infrared_sensors_controller, &buttons_controller, serial_out);
   if (serial_out[0]){
     Serial.write(serial_out);
     serial_out[0] = 0;

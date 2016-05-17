@@ -5,6 +5,7 @@
 #include "AccelStepper.h"
 #include "potentiometers_controller.h"
 #include "infrared_sensors_controller.h"
+#include "buttons_controller.h"
 #include "jenny5_types.h"
 
 //---------------------------------------------------
@@ -53,14 +54,13 @@ public:
   void get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index);
 
   void set_motor_running(byte is_running);
-  void go_home(t_potentiometers_controller *potentiometers_control);
-  void go_home(t_infrared_sensors_controller *infrareds_control);
+  void go_home(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_control, t_buttons_controller* buttons_controller);
   
   byte is_motor_running(void);
 
   void reset_pins(void);
   
-  byte run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_controller, int &dist_to_go);
+  byte run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_controller, t_buttons_controller* buttons_controller, int &dist_to_go);
   //byte run_motor(t_infrared_sensors_controller *infrared_control, int &dist_to_go);
 };
 //---------------------------------------------------
