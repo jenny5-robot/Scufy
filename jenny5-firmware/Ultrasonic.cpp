@@ -28,6 +28,7 @@ void t_ultrasonic::create_init(byte trigger_pin, byte echo_pin)
      
    sonar = new NewPing(trigger_pin, echo_pin, 200);
    last_read_distance = -1;
+   millis_start = 0;
 }
 //-------------------------------------------------------
 void t_ultrasonic::get_sensor_pins(byte *trig_pin, byte *echo_pin)
@@ -39,6 +40,7 @@ void t_ultrasonic::get_sensor_pins(byte *trig_pin, byte *echo_pin)
 void t_ultrasonic::trigger(void (*echoCheck)(void))
 {
   last_read_distance = -1;
+  millis_start = millis();
   sonar->ping_timer(echoCheck);
 }
 //-------------------------------------------------------
@@ -47,6 +49,7 @@ int t_ultrasonic::get_last_read_distance(void)
   // cannot be read twice !
   int tmp_value = last_read_distance;
   last_read_distance = -1;
+  millis_start = 0;
   return tmp_value;
 }
 //-------------------------------------------------------
@@ -55,3 +58,14 @@ void t_ultrasonic::set_distance(int new_computed_distance)
   last_read_distance = new_computed_distance;
 }
 //-------------------------------------------------------
+unsigned long t_ultrasonic::get_millis_start(void)
+{
+  return millis_start;
+}
+//-------------------------------------------------------
+void t_ultrasonic::set_millis_start(unsigned long new_value)
+{
+  millis_start = new_value;
+}
+//-------------------------------------------------------
+
