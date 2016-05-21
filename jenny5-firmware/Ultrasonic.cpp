@@ -31,16 +31,18 @@ void t_ultrasonic::get_sensor_pins(byte *trig_pin, byte *echo_pin)
 //-------------------------------------------------------
 void t_ultrasonic::trigger(void)
 {
-  last_read_distance = -1;
+  if (!trigger_started) {// don't call trigger again if the echo has not been received.
+    last_read_distance = -1;
 
-  digitalWrite(Trig_pin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(Trig_pin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(Trig_pin, LOW);
+    digitalWrite(Trig_pin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(Trig_pin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(Trig_pin, LOW);
 
-  first_high_received = false;
-  trigger_started = true;
+    first_high_received = false;
+    trigger_started = true;
+  }
 }
 //-------------------------------------------------------
 bool t_ultrasonic::check_echo(void)
@@ -59,14 +61,14 @@ bool t_ultrasonic::check_echo(void)
         unsigned long micros_now = micros();
         last_read_distance = (micros_now - micros_start) / 58;
         if (last_read_distance > 500)
-        last_read_distance = 0;
+          last_read_distance = 0;
         trigger_started = false;
       }
     }
     return true;
   }
   else
-  return false;
+    return false;
 }
 //-------------------------------------------------------
 int t_ultrasonic::get_last_read_distance(void)
