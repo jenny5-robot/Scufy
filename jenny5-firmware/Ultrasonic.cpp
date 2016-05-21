@@ -6,29 +6,21 @@ t_ultrasonic::t_ultrasonic(void)
   Trig_pin = 2;
   Echo_pin = 3;
 
-  sonar = NULL;
-
   last_read_distance = -1;
-}
-//-------------------------------------------------------
-t_ultrasonic::~t_ultrasonic(void)
-{
-  if (sonar){
-    delete[] sonar;  
-    sonar = NULL;
-  }
+  trigger_started = false;
 }
 //-------------------------------------------------------
 void t_ultrasonic::create_init(byte trigger_pin, byte echo_pin)
 {
-   Trig_pin = trigger_pin;
-   Echo_pin = echo_pin;
-   if (sonar)
-     delete sonar;
-     
-   sonar = new NewPing(trigger_pin, echo_pin, 200);
-   last_read_distance = -1;
-   millis_start = 0;
+  Trig_pin = trigger_pin;
+  Echo_pin = echo_pin;
+
+  last_read_distance = -1;
+  micros_start = 0;
+
+  pinMode(Trig_pin, OUTPUT);
+  pinMode(Echo_pin, INPUT);
+  trigger_started = false;
 }
 //-------------------------------------------------------
 void t_ultrasonic::get_sensor_pins(byte *trig_pin, byte *echo_pin)
@@ -37,35 +29,48 @@ void t_ultrasonic::get_sensor_pins(byte *trig_pin, byte *echo_pin)
   *echo_pin = Echo_pin;
 }
 //-------------------------------------------------------
-void t_ultrasonic::trigger(void (*echoCheck)(void))
+void t_ultrasonic::trigger(void)
 {
   last_read_distance = -1;
-  millis_start = millis();
-  sonar->ping_timer(echoCheck);
+
+  digitalWrite(Trig_pin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(Trig_pin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(Trig_pin, LOW);
+
+  first_high_received = false;
+  trigger_started = true;
+}
+//-------------------------------------------------------
+bool t_ultrasonic::check_echo(void)
+{
+  if (trigger_started) {
+    int val = digitalRead(Echo_pin);
+    if (!first_high_received) {
+      if (val == HIGH) {
+        first_high_received = true;
+        micros_start = micros();
+      }
+    }
+    else {
+      if (val == LOW) {
+        first_high_received = false;
+        unsigned long micros_now = micros();
+        last_read_distance = (micros_now - micros_start) / 58;
+        if (last_read_distance > 500)
+        last_read_distance = 0;
+        trigger_started = false;
+      }
+    }
+    return true;
+  }
+  else
+  return false;
 }
 //-------------------------------------------------------
 int t_ultrasonic::get_last_read_distance(void)
 {
-  // cannot be read twice !
-  int tmp_value = last_read_distance;
-  last_read_distance = -1;
-  millis_start = 0;
-  return tmp_value;
+  return last_read_distance;
 }
 //-------------------------------------------------------
-void t_ultrasonic::set_distance(int new_computed_distance)
-{
-  last_read_distance = new_computed_distance;
-}
-//-------------------------------------------------------
-unsigned long t_ultrasonic::get_millis_start(void)
-{
-  return millis_start;
-}
-//-------------------------------------------------------
-void t_ultrasonic::set_millis_start(unsigned long new_value)
-{
-  millis_start = new_value;
-}
-//-------------------------------------------------------
-

@@ -2,7 +2,6 @@
 #define ULTRASONIC_H
 
 #include <Arduino.h>
-#include "NewPing.h"
 
 class t_ultrasonic
 {
@@ -10,22 +9,19 @@ class t_ultrasonic
     byte Trig_pin;
     byte Echo_pin;
 
-    NewPing *sonar;
-
     int last_read_distance;
 
-    unsigned long millis_start;
+    unsigned long micros_start;
+    bool first_high_received;
+    bool trigger_started;
 
   public:
     t_ultrasonic (void);
-    ~t_ultrasonic (void);
     void create_init(byte trigger_pin, byte echo_pin);
     void get_sensor_pins(byte *trig_pins, byte *echo_pins);
-    void trigger(void (*userFunc)(void));
+    void trigger(void);
+    bool check_echo(void);
     int get_last_read_distance(void);// cannot be read twice !
-    void set_distance(int new_computed_distance);
-    unsigned long get_millis_start(void);
-    void set_millis_start(unsigned long new_value);
 };
 
 #endif //ULTRASONIC_H
