@@ -56,13 +56,20 @@ bool t_ultrasonic::check_echo(void)
       }
     }
     else {
+      unsigned long micros_now = micros();
       if (val == LOW) {
         first_high_received = false;
-        unsigned long micros_now = micros();
         last_read_distance = (micros_now - micros_start) / 58;
         if (last_read_distance > 500)
           last_read_distance = 0;
         trigger_started = false;
+      }
+      else{ // fail safe; do not wait if the echo does not go down in 100 miliseconds
+        if (micros_now - micros_start > 100000){
+          last_read_distance = 0;
+          trigger_started = false;
+          first_high_received = false;
+        }
       }
     }
     return true;
