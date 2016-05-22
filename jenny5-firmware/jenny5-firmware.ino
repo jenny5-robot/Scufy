@@ -33,7 +33,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.05.12.0");
+  strcpy(firmware_version, "2016.05.21.0");
 
   current_buffer[0] = 0;
 
@@ -63,7 +63,7 @@ void setup()
   Serial.println(F("AVx n Py Bz ... # // Attach to servo motor x a list of n sensors (like Potentiometer y, Button z etc)."));
 
   Serial.println(F("Ux# // Gets the distance as measured by the ultrasonic sensor x. Outputs Ux d# when the reading has been completed. Note that this works in \"background\" and can output after some time (and in the meantime the program can do something else."));
-  Serial.println(F("Bx# // Gets the status of the button x. Outputs Bx s#"));
+  Serial.println(F("Bx# // Gets the status of the button x. Outputs Bx s# where s is either 0 or 1."));
   Serial.println(F("Px# // Gets the position of the potentiometer x. Outputs Px p#"));
   Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
 
@@ -108,6 +108,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // stepper motor
           int motor_index, num_steps;
           int num_read = sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_steps);
+        //  Serial.print(motor_index);
+        //  Serial.write(' ');
+        //  Serial.println(num_steps);
           if (num_read == 2) {
             stepper_motors_controller.move_motor(motor_index, num_steps);
             is_command_running = 1;
@@ -147,6 +150,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
       if (tmp_str[i] == 'B' || tmp_str[i] == 'b') {
         int sensor_index;
         sscanf(tmp_str + i + 1, "%d", &sensor_index);
+       // Serial.println(sensor_index);
         int sensor_value = buttons_controller.get_state(sensor_index);
         sprintf(tmp_serial_out, "B%d %d#", sensor_index, sensor_value);
         strcat(serial_out, tmp_serial_out);
@@ -339,6 +343,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           strcat(serial_out, tmp_serial_out);
           i += 4;
         }
+        else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // get button pin direction
+          int button_index;
+          byte _pin, _dir;
+          sscanf(tmp_str + i + 2, "%d", &button_index);
+          buttons_controller.get_params(button_index, &_pin, &_dir);
+          //Serial.print(_pin);
+          //Serial.write(' ');
+          //Serial.println(_dir);
+          sprintf(tmp_serial_out, "GB%d %d %d#", button_index, _pin, _dir);
+          strcat(serial_out, tmp_serial_out);
+          i += 4;
+        }
         else
           i++;// incomplete string
         continue;
@@ -469,9 +485,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           i += num_consumed_total;
         }
         else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // create a list of button sensors
-
           int num_buttons = 0;
-
           int num_consumed = 0;
           sscanf(tmp_str + i + 3, "%d%n", &num_buttons, &num_consumed);
 

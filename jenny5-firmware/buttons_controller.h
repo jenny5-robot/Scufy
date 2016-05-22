@@ -14,7 +14,7 @@ class t_buttons_controller
 	public:
 
   t_buttons_controller();
-  void set_params(int sensor_index, byte _pins, byte _dir);
+  void set_params(int sensor_index, byte _pin, byte _dir);
   void get_params(int sensor_index, byte *_pin, byte *_dir);
 
   byte get_direction(int sensor_index);

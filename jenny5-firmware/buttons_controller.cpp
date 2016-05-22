@@ -30,15 +30,11 @@ void t_buttons_controller::set_num_sensors(byte new_num_sensors)
     if (num_sensors > 0){    
       buttons_pins = new byte[num_sensors];
       _direction = new byte[num_sensors];
-      
-      for (byte m = 0; m < num_sensors; m++){
-        buttons_pins[m] = 2;
-        _direction[m] = 1;
-      }
     }
-    else
+    else{
       buttons_pins = NULL;
       _direction = NULL;
+    }
   } 
 }
 //--------------------------------------------------------------------
@@ -47,23 +43,23 @@ byte t_buttons_controller::get_num_sensors(void)
   return num_sensors;
 }
 //--------------------------------------------------------------------
-void t_buttons_controller::set_params(int index, byte _pin, byte _dir)
+void t_buttons_controller::set_params(int button_index, byte _pin, byte _dir)
 {
-    buttons_pins[index] = _pin;
-    _direction[index] = _dir;
-    pinMode(buttons_pins[index], INPUT);
-    digitalWrite(buttons_pins[index], HIGH); // pull-up
+    buttons_pins[button_index] = _pin;
+    _direction[button_index] = _dir;
+    pinMode(_pin, INPUT);
+    digitalWrite(_pin, HIGH); // pull-up
 }
 //--------------------------------------------------------------------
-void t_buttons_controller::get_params(int index, byte *_pin, byte *_dir)
+void t_buttons_controller::get_params(int button_index, byte *_pin, byte *_dir)
 {
-    *_pin = buttons_pins[index];
-    *_dir  = _direction[index];
+    *_pin = buttons_pins[button_index];
+    *_dir  = _direction[button_index];
 }
 //--------------------------------------------------------------------
-byte t_buttons_controller::get_direction(int sensor_index)
+byte t_buttons_controller::get_direction(int button_index)
 {
-  return _direction[sensor_index];
+  return _direction[button_index];
 }
 //--------------------------------------------------------------------
 
