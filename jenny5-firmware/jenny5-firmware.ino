@@ -67,11 +67,11 @@ void setup()
   Serial.println(F("Px# // Gets the position of the potentiometer x. Outputs Px p#"));
   Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
 
-  Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors. Outputs GSx s a 1#"));
+  Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors_attached. Outputs GSx s a 1#"));
   Serial.println(F("GDx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GDx s a 1 0 0#"));
-  Serial.println(F("GVx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GVx s a 1 0 0#"));
-  Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#"));
-  Serial.println(F("GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#"));
+  Serial.println(F("GPx# // Gets the parameters for potentiometer x: min max home direction. Outputs GPx n u h d#"));
+  Serial.println(F("GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs GUx t e#"));
+  Serial.println(F("GBx# // Gets the parameters for button x: out_pin direction. Outputs GBx p d#"));
 
   Serial.println(F("CS n d1 s1 e1 d2 s2 e2# // Creates the stepper motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CS# when done."));
   Serial.println(F("CD n p1 d11 d12 e1 p2 d21 d22 e2# // Creates the dc motors controller and set some of its parameters. n is the number of motors, p is the pwm_pin, d1 and d2 are the direction pins and e is the enable pins. Outputs CD# when done."));
@@ -305,14 +305,14 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
       }
 
       if (tmp_str[i] == 'G' || tmp_str[i] == 'g') { // for debugging purpose
-        if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // gets stepper motor speed and acceleration
+        if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // gets stepper motor speed and acceleration num sensors attached
           int motor_index;
-          byte num_sensors;
+          byte num_sensors_attached;
           float motor_speed, motor_acceleration;
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           stepper_motors_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
-          num_sensors = stepper_motors_controller.get_num_attached_sensors(motor_index);
-          sprintf(tmp_serial_out, "GS%d %d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors);
+          num_sensors_attached = stepper_motors_controller.get_num_attached_sensors(motor_index);
+          sprintf(tmp_serial_out, "GS%d %d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors_attached);
           strcat(serial_out, tmp_serial_out);
           i += 4;
         }
@@ -325,7 +325,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           strcat(serial_out, tmp_serial_out);
           i += 4;
         }
-        else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home
+        else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home dir
           int pot_index, pot_min, pot_max, pot_home, pot_dir;
           byte pot_pin;
           sscanf(tmp_str + i + 2, "%d", &pot_index);
@@ -334,7 +334,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           strcat(serial_out, tmp_serial_out);
           i += 5;
         }
-        else if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { // get potentiometer min max home
+        else if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { // get ultrasound trig_pin echo_pin
           int ultrasound_index;
           byte trig_pin, echo_pin;
           sscanf(tmp_str + i + 2, "%d", &ultrasound_index);
