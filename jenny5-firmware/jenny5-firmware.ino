@@ -345,7 +345,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         }
         else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // get button pin direction
           int button_index;
-          byte _pin, _dir;
+          byte _pin;
+          int _dir;
           sscanf(tmp_str + i + 2, "%d", &button_index);
           buttons_controller.get_params(button_index, &_pin, &_dir);
           //Serial.print(_pin);
