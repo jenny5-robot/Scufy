@@ -1,7 +1,3 @@
-// Push-button must be connected as follows:
-//                    __,__
-//   Pin[index] ------o   o------ GND
-
 #include "buttons_controller.h"
 //-----------------------------------------------------------------------
 t_buttons_controller::t_buttons_controller(void)
@@ -29,7 +25,7 @@ void t_buttons_controller::set_num_sensors(byte new_num_sensors)
 
     if (num_sensors > 0){    
       buttons_pins = new byte[num_sensors];
-      _direction = new byte[num_sensors];
+      _direction = new int[num_sensors];
     }
     else{
       buttons_pins = NULL;
@@ -43,7 +39,7 @@ byte t_buttons_controller::get_num_sensors(void)
   return num_sensors;
 }
 //--------------------------------------------------------------------
-void t_buttons_controller::set_params(int button_index, byte _pin, byte _dir)
+void t_buttons_controller::set_params(int button_index, byte _pin, int _dir)
 {
     buttons_pins[button_index] = _pin;
     _direction[button_index] = _dir;
@@ -51,13 +47,13 @@ void t_buttons_controller::set_params(int button_index, byte _pin, byte _dir)
     digitalWrite(_pin, HIGH); // pull-up
 }
 //--------------------------------------------------------------------
-void t_buttons_controller::get_params(int button_index, byte *_pin, byte *_dir)
+void t_buttons_controller::get_params(int button_index, byte *_pin, int *_dir)
 {
     *_pin = buttons_pins[button_index];
     *_dir  = _direction[button_index];
 }
 //--------------------------------------------------------------------
-byte t_buttons_controller::get_direction(int button_index)
+int t_buttons_controller::get_direction(int button_index)
 {
   return _direction[button_index];
 }

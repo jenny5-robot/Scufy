@@ -9,15 +9,15 @@ class t_buttons_controller
     byte num_sensors;
 
 	  byte *buttons_pins;
-    byte *_direction;
+    int *_direction; // -1 motors moves to negative; +1 motors move to positive
 	
 	public:
 
   t_buttons_controller();
-  void set_params(int sensor_index, byte _pin, byte _dir);
-  void get_params(int sensor_index, byte *_pin, byte *_dir);
+  void set_params(int sensor_index, byte _pin, int _dir);
+  void get_params(int sensor_index, byte *_pin, int *_dir);
 
-  byte get_direction(int sensor_index);
+  int get_direction(int sensor_index);
 
   void set_num_sensors(byte new_num_sensors);
   byte get_num_sensors(void);
