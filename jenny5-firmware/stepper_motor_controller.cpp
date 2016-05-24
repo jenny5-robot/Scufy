@@ -235,7 +235,7 @@ Serial.write(' ');
 Serial.println(distance_to_go);
 */
           if (button_state == 1) // limit reached
-            if (distance_to_go * button_direction < 0)
+            if (distance_to_go * button_direction > 0)
               limit_reached = true;
         
       }
@@ -307,9 +307,9 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
       int b_direction = buttons_controller->get_direction(sensor_index);
       int distance_to_home;
       if (b_direction > 0)
-        distance_to_home = -200; // assume 1.8 degrees steps
+        distance_to_home = 200; // assume 1.8 degrees steps
       else
-        distance_to_home = 200;
+        distance_to_home = -200;
       going_home = true;
       move_motor(distance_to_home);
 
