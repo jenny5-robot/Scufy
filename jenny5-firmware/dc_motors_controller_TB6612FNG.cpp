@@ -111,7 +111,7 @@ void t_dc_motors_controller_TB6612FNG::update_motors(t_buttons_controller *butto
     int result = motors[m].update_motor(buttons_controller, time_to_go);
     if (result == MOTOR_JUST_STOPPED){
       char tmp_str[20];
-      sprintf(tmp_str, "MD%d %d#", m, time_to_go);
+      sprintf(tmp_str, "MD%d %ld#", m, time_to_go);
       strcat(serial_out, tmp_str);
     }
   }
