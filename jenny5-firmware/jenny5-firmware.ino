@@ -6,7 +6,9 @@
 #include "buttons_controller.h"
 #include "jenny5_types.h"
 #include "infrared_sensors_controller.h"
+#include "tera_ranger_one_controller.h"
 #include "dc_motors_controller_TB6612FNG.h"
+
 
 //#include "MemoryFree.h"
 
@@ -16,6 +18,7 @@ t_potentiometers_controller potentiometers_controller;
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
 t_infrared_sensors_controller infrared_sensors_controller;
 t_buttons_controller buttons_controller;
+t_tera_ranger_one_controller tera_ranger_one_controller;
 
 char is_command_running;
 
@@ -33,7 +36,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.05.21.0");
+  strcpy(firmware_version, "2016.06.14.0");
 
   current_buffer[0] = 0;
 
@@ -43,7 +46,7 @@ void setup()
   Serial.write("Commands are:");
   Serial.println(F("T# // test connection. Returns T#."));
   Serial.println(F("MSx y# // Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs MSx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
-  Serial.println(F("MDx y# // Moves dc motor x for y miliseconds. Outputs MDx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the time to go."));
+  Serial.println(F("MDx y# // Moves DC motor x for y miliseconds. Outputs MDx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the time to go."));
   Serial.println(F("MVx y# // Moves servo motor x for y steps."));
   Serial.println(F("HSx# // Moves stepper motor x to home position. The first sensor in the list of sensors will establish the home position. The motor does nothing if no sensor is attached. Returns HSx#."));
   Serial.println(F("HDx# // Moves DC motor x to home position. The first sensor in the list of sensors must be the button which establish the home position. The motor does nothing if no sensor is attached. Returns HDx#."));
@@ -66,6 +69,7 @@ void setup()
   Serial.println(F("Bx# // Gets the status of the button x. Outputs Bx s# where s is either 0 or 1."));
   Serial.println(F("Px# // Gets the position of the potentiometer x. Outputs Px p#"));
   Serial.println(F("Ix# // Gets the value of infrared sensor x. Outputs Ix v#"));
+  Serial.println(F("TRx# // Gets the value of Tera Ranger One sensor. Outputs TRx v#"));
 
   Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors_attached. Outputs GSx s a 1#"));
   Serial.println(F("GDx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GDx s a 1 0 0#"));
@@ -81,9 +85,10 @@ void setup()
   Serial.println(F("CU n t1 e1 t2 e2# // Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
   Serial.println(F("CI n pin1 min1 max1 home1 dir1 pin2 min2 max2 home2 dir2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and min, max and home are the lower, upper bounds and home position of this sensor. Outputs CI# when done."));
   Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
+  Serial.println(F("CTR# // Creates the Tera Ranger One controller. Outputs CTR# when done."));
 
 
-  Serial.println(F("V# // Outputs version string. eg: 2016.01.17.0#"));
+  Serial.println(F("V# // Outputs version string. eg: 2016.06.12.0#"));
 
 
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
@@ -162,8 +167,6 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         int sensor_index;
         sscanf(tmp_str + i + 1, "%d", &sensor_index);
         ultrasonic_sensors_controller.trigger(sensor_index);
-        //sprintf(serial_out, "U%d %d#", sensor_index, sensor_value);
-
         i += 2;
         continue;
       }
@@ -349,9 +352,6 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           int _dir;
           sscanf(tmp_str + i + 2, "%d", &button_index);
           buttons_controller.get_params(button_index, &_pin, &_dir);
-          //Serial.print(_pin);
-          //Serial.write(' ');
-          //Serial.println(_dir);
           sprintf(tmp_serial_out, "GB%d %d %d#", button_index, _pin, _dir);
           strcat(serial_out, tmp_serial_out);
           i += 4;
@@ -360,12 +360,19 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           i++;// incomplete string
         continue;
       }
-      // test connection
+      // test connection or read Tera Ranger One
       if (tmp_str[i] == 'T' || tmp_str[i] == 't') {
-        sprintf(tmp_serial_out, "T#");
-        strcat(serial_out, tmp_serial_out);
-        i += 2;
-        continue;
+        if (tmp_str[i + 1] == 'R' || tmp_str[i + 1] == 'r') {
+          tera_ranger_one_controller.trigger();
+          i += 3;
+          continue;
+        }
+        else{ // test connection
+          sprintf(tmp_serial_out, "T#");
+          strcat(serial_out, tmp_serial_out);
+          i += 2;
+          continue;
+        }
       }
       // version number
       if (tmp_str[i] == 'V' || tmp_str[i] == 'v') {
@@ -503,6 +510,12 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           strcat(serial_out, tmp_serial_out);
           i += num_consumed_total;
         }
+        else if (tmp_str[i + 1] == 'T' || tmp_str[i + 1] == 't') { // create Tera Ranger One controller
+          tera_ranger_one_controller.create_init();
+          sprintf(tmp_serial_out, "CT#");
+          strcat(serial_out, tmp_serial_out);
+          i += 3;
+        }
         else
           i++; // incomplete string
         continue;
@@ -523,6 +536,10 @@ void loop()
 
   // check to see if there are new results from ultrasonic sensor
   ultrasonic_sensors_controller.update_results(serial_out);
+  if (serial_out[0])
+    Serial.write(serial_out);
+
+  tera_ranger_one_controller.update_results(serial_out);
   if (serial_out[0])
     Serial.write(serial_out);
 
