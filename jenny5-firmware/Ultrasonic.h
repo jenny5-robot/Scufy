@@ -5,7 +5,7 @@
 
 class t_ultrasonic
 {
-  public:
+  private:
     byte Trig_pin;
     byte Echo_pin;
 
