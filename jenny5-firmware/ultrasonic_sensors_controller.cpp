@@ -58,22 +58,6 @@ void t_ultrasonic_sensors_controller::update_results(char *serial_out)
         strcat(serial_out, tmp_s);
       }
     }
-    /*
-      else {
-      // distance is -1;
-      // I must check if no more than 100 miliseconds have passed
-      unsigned long millis_start = sensors[m].get_millis_start();
-      if (millis_start) {
-        unsigned long millis_now = millis();
-        if (millis_now > sensors[m].get_millis_start() + 100) {
-          char tmp_s[10];
-          sprintf(tmp_s, "U%d 0#", m);
-          strcat(serial_out, tmp_s);
-          sensors[m].set_millis_start(0);
-        }
-      }
-      }
-    */
   }
 }
 //---------------------------------------------------------------------
