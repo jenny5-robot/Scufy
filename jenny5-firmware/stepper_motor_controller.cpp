@@ -192,7 +192,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
           }
         
       }
-      else if (INFRARED == type) {
+      else if (INFRARED_ANALOG == type) {
 
         
           int infrared_direction = infrared_controller->get_direction(sensor_index);
@@ -289,7 +289,7 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
       int distance_to_home = pot_dir * (pot_home - pot_pos);
       move_motor(distance_to_home);
     }
-    else if (sensor_type == INFRARED) {
+    else if (sensor_type == INFRARED_ANALOG) {
       //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
       //int i_dir = infrareds_control->get_direction(sensor_index);
       int i_home = infrareds_control->get_home_position(sensor_index);
