@@ -1,17 +1,17 @@
-#ifndef T_INFRARED_SENSORS_CONTROLLER_H
-#define T_INFRARED_SENSORS_CONTROLLER_H
+#ifndef INFRARED_ANALOG_SENSORS_CONTROLLER_H
+#define INFRARED_ANALOG_SENSORS_CONTROLLER_H
 
 #include "Arduino.h"
-#include "infrared_controller.h"
+#include "infrared_analog_controller.h"
 
-class t_infrared_sensors_controller
+class t_infrared_analog_sensors_controller
 {
   public:
-    t_infrared_sensor *sensors;
+    t_infrared_analog_sensor *sensors;
     byte num_sensors;
 
   public:
-    t_infrared_sensors_controller(void);
+    t_infrared_analog_sensors_controller(void);
 
     byte is_within_limits(byte sensor_index);
 

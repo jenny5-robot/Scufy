@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include "stepper_motor_controller.h"
 #include "potentiometers_controller.h"
-#include "infrared_sensors_controller.h"
+#include "infrared_analog_sensors_controller.h"
 #include "buttons_controller.h"
 
 
@@ -52,12 +52,12 @@ class t_stepper_motors_controller
     void get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index);
 
     void set_is_running(byte motor_index, byte is_running);
-    void go_home(byte motor_index, t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_control, t_buttons_controller* buttons_controller);
+    void go_home(byte motor_index, t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_control, t_buttons_controller* buttons_controller);
     
     byte is_running(byte motor_index);
     byte is_running(void);
 
-    void run_motors(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_control, t_buttons_controller* buttons_controller, char* serial_out);
+    void run_motors(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_control, t_buttons_controller* buttons_controller, char* serial_out);
 };
 //---------------------------------------------------
 #endif

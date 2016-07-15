@@ -161,7 +161,7 @@ void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_
   }
 }
 //-------------------------------------------------------------------------------
-byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_controller, t_buttons_controller *buttons_controller, int& dist_to_go)
+byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_controller, t_buttons_controller *buttons_controller, int& dist_to_go)
 {
   // returns 1 if is still running
   // returns 2 if it does nothing
@@ -275,7 +275,7 @@ Serial.println(distance_to_go);
   }
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrareds_control, t_buttons_controller* buttons_controller)
+void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrareds_control, t_buttons_controller* buttons_controller)
 {
   if (sensors_count > 0) {
     int sensor_index = sensors[0].index;

@@ -1,9 +1,9 @@
-#ifndef INFRARED_H
-#define INFRARED_H
+#ifndef INFRARED_ANALOG_H
+#define INFRARED_ANALOG_H
 
 #include "Arduino.h"
 
-class t_infrared_sensor
+class t_infrared_analog_sensor
 {
   private:
     byte pin;
@@ -16,7 +16,7 @@ class t_infrared_sensor
 
 
   public:
-    t_infrared_sensor();
+    t_infrared_analog_sensor();
     void set_params(byte _pin, int _min_pos, int _max_pos, int _home_pos, int _direction);
     void get_params(byte *_pin, int *_min_pos, int *_max_pos, int *_home_pos, int *_direction);
     int get_home_position(void);

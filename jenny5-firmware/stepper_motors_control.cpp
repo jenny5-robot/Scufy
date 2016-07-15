@@ -125,7 +125,7 @@ void t_stepper_motors_controller::get_speed_and_acceleration(byte motor_index, f
   motors[motor_index].get_motor_speed_and_acceleration(_motor_speed, _motor_acceleration);
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_control, t_buttons_controller *buttons_controller, char* serial_out)
+void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_control, t_buttons_controller *buttons_controller, char* serial_out)
 {
   serial_out[0] = 0;
   // run motors
@@ -143,7 +143,7 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
   }
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::go_home(byte motor_index, t_potentiometers_controller *potentiometers_control, t_infrared_sensors_controller *infrared_control, t_buttons_controller *buttons_controller)
+void t_stepper_motors_controller::go_home(byte motor_index, t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_control, t_buttons_controller *buttons_controller)
 {
   motors[motor_index].go_home(potentiometers_control, infrared_control, buttons_controller);
 }

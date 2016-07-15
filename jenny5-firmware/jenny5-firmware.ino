@@ -5,7 +5,7 @@
 #include "stepper_motors_control.h"
 #include "buttons_controller.h"
 #include "jenny5_types.h"
-#include "infrared_sensors_controller.h"
+#include "infrared_analog_sensors_controller.h"
 #include "tera_ranger_one_controller.h"
 #include "dc_motors_controller_TB6612FNG.h"
 
@@ -16,7 +16,7 @@ t_stepper_motors_controller stepper_motors_controller;
 t_dc_motors_controller_TB6612FNG dc_motors_controller_TB6612FNG;
 t_potentiometers_controller potentiometers_controller;
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
-t_infrared_sensors_controller infrared_sensors_controller;
+t_infrared_analog_sensors_controller infrared_analog_sensors_controller;
 t_buttons_controller buttons_controller;
 t_tera_ranger_one_controller tera_ranger_one_controller;
 
@@ -36,7 +36,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.06.14.0");
+  strcpy(firmware_version, "2016.07.15.0");
 
   current_buffer[0] = 0;
 
@@ -175,7 +175,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
       if (tmp_str[i] == 'I' || tmp_str[i] == 'i') {
         int sensor_index;
         sscanf(tmp_str + i + 1, "%d", &sensor_index);
-        int sensor_value = infrared_sensors_controller.get_signal_strength(sensor_index);
+        int sensor_value = infrared_analog_sensors_controller.get_signal_strength(sensor_index);
         sprintf(tmp_serial_out, "I%d %d#", sensor_index, sensor_value);
         strcat(serial_out, tmp_serial_out);
         i += 2;
@@ -217,7 +217,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         int motor_index;
         if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // go stepper home
           sscanf(tmp_str + i + 2, "%d", &motor_index);
-          stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &infrared_sensors_controller, &buttons_controller);
+          stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &infrared_analog_sensors_controller, &buttons_controller);
         }
         else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // go DC home
           sscanf(tmp_str + i + 2, "%d", &motor_index);
@@ -475,13 +475,13 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           sscanf(tmp_str + i + 3, "%d%n", &num_infrareds, &num_consumed);
 
           int num_consumed_total = 3 + num_consumed;
-          infrared_sensors_controller.set_num_sensors(num_infrareds);
+          infrared_analog_sensors_controller.set_num_sensors(num_infrareds);
           for (int k = 0; k < num_infrareds; k++) {
             int out_pin;
             int min_pos, max_pos, home_pos, _direction;
             int num_read = sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%d%n", &out_pin, &min_pos, &max_pos, &home_pos, &_direction, &num_consumed);
             if (num_read == 5)
-              infrared_sensors_controller.set_params(k, out_pin, min_pos, max_pos, home_pos, _direction);
+              infrared_analog_sensors_controller.set_params(k, out_pin, min_pos, max_pos, home_pos, _direction);
             else {
               sprintf(tmp_serial_out, "E#");
               strcat(serial_out, tmp_serial_out);
@@ -606,7 +606,7 @@ void loop()
         }
     }
   }
-  stepper_motors_controller.run_motors(&potentiometers_controller, &infrared_sensors_controller, &buttons_controller, serial_out);
+  stepper_motors_controller.run_motors(&potentiometers_controller, &infrared_analog_sensors_controller, &buttons_controller, serial_out);
   if (serial_out[0]){
     Serial.write(serial_out);
     serial_out[0] = 0;
