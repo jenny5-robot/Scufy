@@ -18,7 +18,7 @@ int t_infrared_analog_sensor::get_signal_strength(void)
   	return analogRead(pin);
 }
 //--------------------------------------------------------------------------------------------
-void t_infrared_analog_sensor::set_params(byte _pin, int _min_pos, int _max_pos, int _home_pos, int __direction)
+void t_infrared_analog_sensor::set_params(byte _pin, int _min_pos, int _max_pos, int _home_pos, unsigned char __direction)
 {
     pin = _pin;
     min_pos = _min_pos;
@@ -27,7 +27,7 @@ void t_infrared_analog_sensor::set_params(byte _pin, int _min_pos, int _max_pos,
     _direction = __direction;
 }
 //--------------------------------------------------------------------------------------------
-void t_infrared_analog_sensor::get_params(byte *_pin, int *_min_pos, int *_max_pos, int *_home_pos, int *__direction)
+void t_infrared_analog_sensor::get_params(byte *_pin, int *_min_pos, int *_max_pos, int *_home_pos, unsigned char *__direction)
 {
     *_pin = pin;
     *_min_pos = min_pos;
@@ -60,7 +60,7 @@ bool t_infrared_analog_sensor::is_upper_bound_reached(void)
   return max_pos < val;
 }
 //--------------------------------------------------------------------
-int t_infrared_analog_sensor::get_direction(void) 
+unsigned char t_infrared_analog_sensor::get_direction(void) 
 {
   return _direction;
 }

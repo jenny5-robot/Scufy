@@ -17,12 +17,12 @@ int t_infrared_analog_sensors_controller::get_home_position(byte infrared_index)
   return sensors[infrared_index].get_home_position();
 }
 //--------------------------------------------------------------------
-void t_infrared_analog_sensors_controller::set_params(byte infrared_index, byte pin, int min_pos, int max_pos, int home_pos, int _direction)
+void t_infrared_analog_sensors_controller::set_params(byte infrared_index, byte pin, int min_pos, int max_pos, int home_pos, unsigned char _direction)
 {
   sensors[infrared_index].set_params(pin, min_pos, max_pos, home_pos, _direction);
 }
 //--------------------------------------------------------------------
-void t_infrared_analog_sensors_controller::get_params(byte infrared_index, byte *pin, int *min_pos, int *max_pos, int *home_pos, int *_direction)
+void t_infrared_analog_sensors_controller::get_params(byte infrared_index, byte *pin, int *min_pos, int *max_pos, int *home_pos, unsigned char *_direction)
 {
   sensors[infrared_index].get_params(pin, min_pos, max_pos, home_pos, _direction);
 }
@@ -55,7 +55,7 @@ byte t_infrared_analog_sensors_controller::get_num_sensors(void)
   return num_sensors;
 }
 //--------------------------------------------------------------------
-int t_infrared_analog_sensors_controller::get_direction(byte sensor_index)
+unsigned char t_infrared_analog_sensors_controller::get_direction(byte sensor_index)
 {
   return sensors[sensor_index].get_direction();
 }

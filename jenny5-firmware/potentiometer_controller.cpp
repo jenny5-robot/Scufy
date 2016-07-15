@@ -10,7 +10,7 @@ t_potentiometer_controller::t_potentiometer_controller(void)
   _direction = 1;
 }
 //--------------------------------------------------------------------
-void t_potentiometer_controller::set_params (byte _pin, int _low, int _high, int __home, int __direction)
+void t_potentiometer_controller::set_params (byte _pin, int _low, int _high, int __home, unsigned char __direction)
 {
 		pin = _pin;
 		low = _low;
@@ -24,7 +24,7 @@ int	t_potentiometer_controller::get_position(void)
 	return (int)analogRead(pin);
 }
 //--------------------------------------------------------------------
-void t_potentiometer_controller::get_params(byte *_pin, int *_low, int *_high, int *__home, int *__direction)
+void t_potentiometer_controller::get_params(byte *_pin, int *_low, int *_high, int *__home, unsigned char *__direction)
 {
 	*_low = low;
   *_high = high;
@@ -52,7 +52,7 @@ bool t_potentiometer_controller::is_upper_bound_reached(void)
   return high < val;
 }
 //--------------------------------------------------------------------
-int t_potentiometer_controller::get_direction(void) 
+unsigned char t_potentiometer_controller::get_direction(void) 
 {
   return _direction;
 }

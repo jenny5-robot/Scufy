@@ -17,10 +17,10 @@ class t_infrared_analog_sensors_controller
 
     int get_signal_strength(byte sensor_index);
     int get_home_position(byte sensor_index);
-    int get_direction(byte sensor_index);
+    unsigned char get_direction(byte sensor_index);
 
-    void set_params(byte infrared_index, byte pin, int min_pos, int max_pos, int home_pos, int _direction);
-    void get_params(byte infrared_index, byte *pin, int *min_pos, int *max_pos, int *home_pos, int *_direction);
+    void set_params(byte infrared_index, byte pin, int min_pos, int max_pos, int home_pos, unsigned char _direction);
+    void get_params(byte infrared_index, byte *pin, int *min_pos, int *max_pos, int *home_pos, unsigned char *_direction);
 
     void set_num_sensors(byte new_num_sensors);
     byte get_num_sensors(void);

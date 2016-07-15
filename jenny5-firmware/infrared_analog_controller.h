@@ -12,23 +12,19 @@ class t_infrared_analog_sensor
     int max_pos;
     int home_pos;
 
-    int _direction;// 1 - same direction with motor, -1 - different direction
-
+    unsigned char _direction;// 1 - same direction with motor, -1 - different direction
 
   public:
     t_infrared_analog_sensor();
-    void set_params(byte _pin, int _min_pos, int _max_pos, int _home_pos, int _direction);
-    void get_params(byte *_pin, int *_min_pos, int *_max_pos, int *_home_pos, int *_direction);
+    void set_params(byte _pin, int _min_pos, int _max_pos, int _home_pos, unsigned char _direction);
+    void get_params(byte *_pin, int *_min_pos, int *_max_pos, int *_home_pos, unsigned char *_direction);
     int get_home_position(void);
-    int get_direction(void);
+    unsigned char get_direction(void);
 
     int get_signal_strength(void);
     byte is_within_limits(void);
     bool is_lower_bound_reached(void);
     bool is_upper_bound_reached(void);
-
-//    bool is_going_home(void);
-//    void set_going_home(bool value);
 };
 
 #endif //INFRARED_H
