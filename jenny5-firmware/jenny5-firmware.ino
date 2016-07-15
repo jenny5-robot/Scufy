@@ -36,7 +36,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.07.15.0");
+  strcpy(firmware_version, "2016.07.15.1");
 
   current_buffer[0] = 0;
 
@@ -83,7 +83,8 @@ void setup()
 
   Serial.println(F("CP n p1 l1 h1 _h1 _d1 p2 l2 h2 _h2 _d2# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position, _d is the directon of the sensor relative to the direction in which the motor is moving. Outputs CP# when done."));
   Serial.println(F("CU n t1 e1 t2 e2# // Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done."));
-  Serial.println(F("CI n pin1 min1 max1 home1 dir1 pin2 min2 max2 home2 dir2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and min, max and home are the lower, upper bounds and home position of this sensor. Outputs CI# when done."));
+  Serial.println(F("CIA n pin1 min1 max1 home1 dir1 pin2 min2 max2 home2 dir2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, pin is the analog pin index and min, max and home are the lower, upper bounds and home position of this sensor. Outputs CIA# when done."));
+  Serial.println(F("CID n pin1 pin2# // Creates the infrared digital controller and set some of its parameters. n is the number of infrared digital sensors, pin1 is the analog pin index. Outputs CID# when done."));
   Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
   Serial.println(F("CTR# // Creates the Tera Ranger One controller. Outputs CTR# when done."));
 
@@ -293,9 +294,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             int sensor_index;
             sscanf(tmp_str + j + 1, "%d", &sensor_index);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-              stepper_motors_controller.add_sensor(motor_index, INFRARED, sensor_index);
+              stepper_motors_controller.add_sensor(motor_index, INFRARED_ANALOG, sensor_index);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
-              dc_motors_controller_TB6612FNG.add_sensor(motor_index, INFRARED, sensor_index);
+              dc_motors_controller_TB6612FNG.add_sensor(motor_index, INFRARED_ANALOG, sensor_index);
             j += 2;
             k++;
           }
@@ -329,7 +330,9 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           i += 4;
         }
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home dir
-          int pot_index, pot_min, pot_max, pot_home, pot_dir;
+          byte pot_index;
+          int pot_min, pot_max, pot_home;
+          unsigned char pot_dir;
           byte pot_pin;
           sscanf(tmp_str + i + 2, "%d", &pot_index);
           potentiometers_controller.get_params(pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
@@ -349,7 +352,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // get button pin direction
           int button_index;
           byte _pin;
-          int _dir;
+          unsigned char _dir;
           sscanf(tmp_str + i + 2, "%d", &button_index);
           buttons_controller.get_params(button_index, &_pin, &_dir);
           sprintf(tmp_serial_out, "GB%d %d %d#", button_index, _pin, _dir);
