@@ -3,9 +3,9 @@
 
 #include "Arduino.h"
 #include "AccelStepper.h"
-#include "potentiometers_controller.h"
-#include "infrared_analog_sensors_controller.h"
-#include "buttons_controller.h"
+#include "potentiometers.h"
+#include "infrared_analog_sensors.h"
+#include "buttons.h"
 #include "jenny5_types.h"
 
 //---------------------------------------------------

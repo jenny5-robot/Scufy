@@ -2,7 +2,7 @@
 #define INFRARED_ANALOG_SENSORS_CONTROLLER_H
 
 #include "Arduino.h"
-#include "infrared_analog_controller.h"
+#include "infrared_analog.h"
 
 class t_infrared_analog_sensors_controller
 {

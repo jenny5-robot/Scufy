@@ -1,8 +1,8 @@
-#include "tera_ranger_one_controller.h"
+#include "tera_ranger_one.h"
 #include "tera_ranger_one_utils.h"
 
-#include <Arduino.h>
-#include <Wire.h>
+#include <wire.h>
+#include <arduino.h>
 
 //-------------------------------------------------------
 t_tera_ranger_one_controller::t_tera_ranger_one_controller(void)

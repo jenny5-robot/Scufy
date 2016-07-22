@@ -1,14 +1,15 @@
+#include <Wire.h>
 #include <avr/pgmspace.h>
 
-#include "ultrasonic_sensors_controller.h"
-#include "potentiometers_controller.h"
-#include "stepper_motors_control.h"
-#include "buttons_controller.h"
+#include "ultrasonic_sensors.h"
+#include "potentiometers.h"
+#include "stepper_motors.h"
+#include "buttons.h"
 #include "jenny5_types.h"
-#include "infrared_analog_sensors_controller.h"
-#include "tera_ranger_one_controller.h"
-#include "dc_motors_controller_TB6612FNG.h"
-
+#include "infrared_analog_sensors.h"
+#include "tera_ranger_one.h"
+#include "dc_motors_TB6612FNG.h"
+#include "tera_ranger_one_lidar.h"
 
 //#include "MemoryFree.h"
 
@@ -19,6 +20,7 @@ t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
 t_infrared_analog_sensors_controller infrared_analog_sensors_controller;
 t_buttons_controller buttons_controller;
 t_tera_ranger_one_controller tera_ranger_one_controller;
+t_tera_ranger_one_lidar *tera_ranger_one_lidar;
 
 char is_command_running;
 
@@ -27,6 +29,7 @@ char firmware_version[20];// year.month.day.build number
 char current_buffer[65];
 
 //#define DEBUG
+//#define PRINT_HELP
 
 //unsigned long time;
 
@@ -36,13 +39,15 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.07.15.1");
+  strcpy(firmware_version, "2016.07.16.0");
 
   current_buffer[0] = 0;
 
+  tera_ranger_one_lidar = NULL;
+
   Serial.begin(115200); //Open Serial connection
 
-#ifdef DEBUG
+/*
   Serial.write("Commands are:");
   Serial.println(F("T# // test connection. Returns T#."));
   Serial.println(F("MSx y# // Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs MSx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
@@ -87,6 +92,7 @@ void setup()
   Serial.println(F("CID n pin1 pin2# // Creates the infrared digital controller and set some of its parameters. n is the number of infrared digital sensors, pin1 is the analog pin index. Outputs CID# when done."));
   Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
   Serial.println(F("CTR# // Creates the Tera Ranger One controller. Outputs CTR# when done."));
+  - CL creates LIDAR
 
 
   Serial.println(F("V# // Outputs version string. eg: 2016.06.12.0#"));
@@ -95,7 +101,7 @@ void setup()
   Serial.println(F("Motor index is between 0 and num_motors - 1"));
 
   Serial.println();
-#endif
+*/
   Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
 }
 //--------------------------------------------------------------------------------------------
@@ -330,7 +336,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           i += 4;
         }
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home dir
-          byte pot_index;
+          int pot_index;
           int pot_min, pot_max, pot_home;
           unsigned char pot_dir;
           byte pot_pin;
@@ -518,6 +524,21 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           sprintf(tmp_serial_out, "CT#");
           strcat(serial_out, tmp_serial_out);
           i += 3;
+        }
+        else
+            if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') { // create a LIDAR
+            
+            int num_consumed = 0;
+              int _dir_pin, _step_pin, _enable_pin, _infrared_pin;
+              sscanf(tmp_str + i, "%d%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &_infrared_pin, &num_consumed);
+			  tera_ranger_one_lidar = new t_tera_ranger_one_lidar(_dir_pin, _step_pin, _enable_pin, _infrared_pin);
+			  //tera_ranger_one_lidar.set_pins(_dir_pin, _step_pin, _enable_pin, _infrared_pin);
+              
+         
+			  //tera_ranger_one_lidar.disable_all();
+            sprintf(tmp_serial_out, "CL#");
+            strcat(serial_out, tmp_serial_out);
+            i += num_consumed;
         }
         else
           i++; // incomplete string

@@ -2,7 +2,7 @@
 #define POTENTIOMETERS_CONTROLLER_H_
 
 #include "Arduino.h"
-#include "potentiometer_controller.h"
+#include "potentiometer.h"
 
 
 class t_potentiometers_controller

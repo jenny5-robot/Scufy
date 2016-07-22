@@ -1,6 +1,6 @@
 //---------------------------------------------------
-#ifndef JENNY_5_TYPES
-#define JENNY_5_TYPES
+#ifndef JENNY_5_TYPES_H
+#define JENNY_5_TYPES_H
 
 #define BUTTON 0
 #define POTENTIOMETER 1

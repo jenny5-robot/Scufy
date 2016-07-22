@@ -2,7 +2,7 @@
 #define INFRARED_DIGITAL_SENSORS_CONTROLLER_H
 
 #include "Arduino.h"
-#include "infrared_digital_controller.h"
+#include "infrared_digital.h"
 
 class t_infrared_digital_sensors_controller
 {

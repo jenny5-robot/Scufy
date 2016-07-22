@@ -1,5 +1,4 @@
-#include "infrared_analog_controller.h"
-
+#include "infrared_analog.h"
 
 //--------------------------------------------------------------------------------------------
 t_infrared_analog_sensor::t_infrared_analog_sensor(void) 

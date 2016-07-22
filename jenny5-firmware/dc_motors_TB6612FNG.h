@@ -2,8 +2,8 @@
 #define dc_motors_controller_TB6612FNG_H
 
 #include "Arduino.h"
-#include "dc_motor_controller_TB6612FNG.h"
-#include "potentiometers_controller.h"
+#include "dc_motor_TB6612FNG.h"
+#include "potentiometers.h"
 
 //---------------------------------------------------
 class t_dc_motors_controller_TB6612FNG

@@ -1,4 +1,4 @@
-#include "potentiometers_controller.h"
+#include "potentiometers.h"
 #include "Arduino.h"
 //--------------------------------------------------------------------
 t_potentiometers_controller::t_potentiometers_controller(void)

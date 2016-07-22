@@ -1,4 +1,4 @@
-#include "dc_motor_controller_TB6612FNG.h"
+#include "dc_motor_TB6612FNG.h"
 #include "jenny5_types.h"
 
 //-------------------------------------------------------------------------------

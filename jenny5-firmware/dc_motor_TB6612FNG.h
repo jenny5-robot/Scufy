@@ -2,7 +2,7 @@
 #define motor_controller_H
 
 #include "Arduino.h"
-#include "buttons_controller.h"
+#include "buttons.h"
 #include "jenny5_types.h"
 
 //---------------------------------------------------

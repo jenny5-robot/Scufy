@@ -2,10 +2,10 @@
 #define stepper_motors_controller_H
 
 #include "Arduino.h"
-#include "stepper_motor_controller.h"
-#include "potentiometers_controller.h"
-#include "infrared_analog_sensors_controller.h"
-#include "buttons_controller.h"
+#include "stepper_motor.h"
+#include "potentiometers.h"
+#include "infrared_analog_sensors.h"
+#include "buttons.h"
 
 
 //---------------------------------------------------

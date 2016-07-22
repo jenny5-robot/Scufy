@@ -1,4 +1,4 @@
-#include "infrared_digital_controller.h"
+#include "infrared_digital.h"
 
 
 //--------------------------------------------------------------------------------------------
