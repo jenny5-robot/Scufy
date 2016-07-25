@@ -14,8 +14,6 @@ class t_stepper_motor_controller
 public:
   //Declare pin functions on Arduino
   
-  byte dir_pin;
-  byte step_pin;
   byte enable_pin;
   
   t_sensor_info  *sensors;
@@ -57,11 +55,8 @@ public:
   void go_home(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_control, t_buttons_controller* buttons_controller);
   
   byte is_motor_running(void);
-
-  void reset_pins(void);
   
   byte run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_controller, t_buttons_controller* buttons_controller, int &dist_to_go);
-  //byte run_motor(t_infrared_sensors_controller *infrared_control, int &dist_to_go);
 };
 //---------------------------------------------------
 

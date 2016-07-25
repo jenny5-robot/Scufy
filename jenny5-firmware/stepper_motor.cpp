@@ -4,8 +4,8 @@
 //-------------------------------------------------------------------------------
 t_stepper_motor_controller::t_stepper_motor_controller(void)
 {
-  dir_pin = 2;
-  step_pin = 3;
+//  dir_pin = 2;
+//  step_pin = 3;
   enable_pin = 4;
 
   sensors_count = 0;
@@ -32,8 +32,8 @@ t_stepper_motor_controller::~t_stepper_motor_controller(void)
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable, float default_motor_speed, float default_motor_acceleration)
 {
-  dir_pin = _dir;
-  step_pin = _step;
+//  dir_pin = _dir;
+//  step_pin = _step;
   enable_pin = _enable;
 
   if (stepper)
@@ -47,12 +47,14 @@ void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable
   motor_running = 0;
   going_home = false;
 
-  stepper = new AccelStepper(AccelStepper::DRIVER, step_pin, dir_pin);
+  stepper = new AccelStepper(AccelStepper::DRIVER, _step, _dir);
   stepper->setMaxSpeed(default_motor_speed);
   stepper->setSpeed(default_motor_speed);
   stepper->setAcceleration(default_motor_acceleration);
 
-  reset_pins();
+  digitalWrite(_step, LOW);
+  digitalWrite(_dir, LOW);
+  digitalWrite(enable_pin, HIGH); // all motors are disabled now
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::move_motor(int num_steps)
@@ -96,14 +98,6 @@ void t_stepper_motor_controller::disable_motor(void)
 void t_stepper_motor_controller::lock_motor(void)
 {
   digitalWrite(enable_pin, LOW); // enable motor
-}
-//-------------------------------------------------------------------------------
-//Reset pins to default states
-void t_stepper_motor_controller::reset_pins(void)
-{
-  digitalWrite(step_pin, LOW);
-  digitalWrite(dir_pin, LOW);
-  digitalWrite(enable_pin, HIGH); // all motors are disabled now
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::add_sensor(byte sensor_type, byte sensor_index)
