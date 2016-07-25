@@ -9,3 +9,4 @@ jenny5-firmware/__vm/Upload.vmps.xml
 *.elf
 *.hex
 *.buildinfo
+*.vcxproj

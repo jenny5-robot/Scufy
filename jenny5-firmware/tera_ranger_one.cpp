@@ -55,6 +55,7 @@ bool t_tera_ranger_one_controller::check_echo(void)
         last_read_distance = -1;
 
       trigger_started = false;
+	  return true;
     }
     else
       return false;
