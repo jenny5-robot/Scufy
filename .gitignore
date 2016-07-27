@@ -10,3 +10,7 @@ jenny5-firmware/__vm/Upload.vmps.xml
 *.hex
 *.buildinfo
 *.vcxproj
+jenny5-firmware/jenny5-firmware.vcxproj
+*.vcxproj
+jenny5-firmware/jenny5-firmware.vcxproj
+*.filters
