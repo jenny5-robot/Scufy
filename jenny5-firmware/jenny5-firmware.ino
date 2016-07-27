@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.07.16.0");
+  strcpy(firmware_version, "2016.07.27.0");
 
   current_buffer[0] = 0;
 
@@ -116,23 +116,56 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
     // can be more than 1 command in a string, so I have to check again for a letter
     if ((tmp_str[i] >= 'A' && tmp_str[i] <= 'Z') || (tmp_str[i] >= 'a' && tmp_str[i] <= 'z')) {
 
-      if (tmp_str[i] == 'M' || tmp_str[i] == 'm') { // moves motor
-        if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // stepper motor
-          int motor_index, num_steps;
-          int num_read = sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_steps);
-        //  Serial.print(motor_index);
-        //  Serial.write(' ');
-        //  Serial.println(num_steps);
-          if (num_read == 2) {
-            stepper_motors_controller.move_motor(motor_index, num_steps);
-            is_command_running = 1;
-            i += 5;
-          }
-          else
-            i++;// error on incomplete string (does nothing)
+		if (tmp_str[i] == 'S' || tmp_str[i] == 's') { // stepper motor
+			if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm') { // move motor
+				int motor_index, num_steps;
+       int num_consumed;
+				int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &num_steps, &num_consumed);
+				if (num_read == 2) {
+					stepper_motors_controller.move_motor(motor_index, num_steps);
+					is_command_running = 1;
+					i += 2 + num_consumed;
+				}
+				else
+					i++;// error on incomplete string (does nothing)
+			}
+			else
+			if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // disable motor
+				int motor_index;
+					sscanf(tmp_str + i + 2, "%d", &motor_index);
+					stepper_motors_controller.disable(motor_index);
+					sprintf(tmp_serial_out, "SD%d#", motor_index);
+					strcat(serial_out, tmp_serial_out);
+					i += 4;
+			}
+			// locks motor
+			else
+			if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') {
+				int motor_index;
+				sscanf(tmp_str + i + 2, "%d", &motor_index);
+				stepper_motors_controller.lock(motor_index);
+				sprintf(tmp_serial_out, "SL%d#", motor_index);
+				strcat(serial_out, tmp_serial_out);
+				i += 4;
+			}
+     else
+        if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // stepper motor speed and acceleration
+          int motor_index;
+          int motor_speed, motor_acceleration;
+          int num_consumed;
+          sscanf(tmp_str + i + 2, "%d%d%d%n", &motor_index, &motor_speed, &motor_acceleration, &num_consumed);
+          stepper_motors_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
+          i += 2 + num_consumed;
         }
-        else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // DC motor
-          int motor_index, num_miliseconds;
+			else
+				i++;
+			continue;
+		}
+
+        // dc motor
+		if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // DC motor
+			if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm') { // stepper motor
+				int motor_index, num_miliseconds;
           int num_read = sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_miliseconds);
           if (num_read == 2) {
             dc_motors_controller_TB6612FNG.move_motor(motor_index, num_miliseconds);
@@ -142,6 +175,16 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           else
             i++;// error on incomplete string (does nothing)
         }
+			// disables motor
+			else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // disables DC motor
+				int motor_index;
+				sscanf(tmp_str + i + 2, "%d", &motor_index);
+				dc_motors_controller_TB6612FNG.disable(motor_index);
+				sprintf(tmp_serial_out, "DD%d#", motor_index);
+				strcat(serial_out, tmp_serial_out);
+				i += 4;
+			}
+		
         else
           i++; // incomplete string
         continue;
@@ -189,35 +232,12 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         continue;
       }
 
-      // disables motor
-      if (tmp_str[i] == 'D' || tmp_str[i] == 'd') {
-        int motor_index;
-        if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // disables stepper motor
-          sscanf(tmp_str + i + 2, "%d", &motor_index);
-          stepper_motors_controller.disable(motor_index);
-          sprintf(tmp_serial_out, "DS%d#", motor_index);
-          strcat(serial_out, tmp_serial_out);
-        }
-        else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // disables DC motor
-          sscanf(tmp_str + i + 2, "%d", &motor_index);
-          dc_motors_controller_TB6612FNG.disable(motor_index);
-          sprintf(tmp_serial_out, "DD%d#", motor_index);
-          strcat(serial_out, tmp_serial_out);
-        }
-        i += 4;
-        continue;
-      }
-
-      // locks motor
-      if (tmp_str[i] == 'L' || tmp_str[i] == 'l') {
-        int motor_index;
-        sscanf(tmp_str + i + 1, "%d", &motor_index);
-        stepper_motors_controller.lock(motor_index);
-        sprintf(tmp_serial_out, "L%d#", motor_index);
-        strcat(serial_out, tmp_serial_out);
-        i += 2;
-        continue;
-      }
+	  // LIDAR
+	  if (tmp_str[i] == 'L' || tmp_str[i] == 'l') {
+		  tera_ranger_one_lidar->start();
+		  i +=2;
+		  continue;
+	  }
 
       // go home
       if (tmp_str[i] == 'H' || tmp_str[i] == 'h') {
@@ -236,14 +256,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
       }
 
       // sets something
+/*
       if (tmp_str[i] == 'S' || tmp_str[i] == 's') {
-        if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // stepper motor speed and acceleration
-          int motor_index;
-          int motor_speed, motor_acceleration;
-          sscanf(tmp_str + i + 2, "%d%d%d", &motor_index, &motor_speed, &motor_acceleration);
-          stepper_motors_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
-          i += 5;
-        }
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // potentiometer min max home
           int pot_index, pot_min, pot_max, pot_home, pot_pin, pot_dir;
           sscanf(tmp_str + i + 2, "%d%d%d%d%d%d", &pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
@@ -259,7 +273,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         }
         continue;
       }
-
+*/
       if (tmp_str[i] == 'A' || tmp_str[i] == 'a') { // attach sensors to motors
         int motor_index, num_sensors;
         char motor_type = tmp_str[i + 1];
@@ -526,22 +540,19 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           i += 3;
         }
         else
-            if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') { // create a LIDAR
+            if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') { // creates a LIDAR
             
-            int num_consumed = 0;
+              int num_consumed = 0;
               int _dir_pin, _step_pin, _enable_pin, _infrared_pin;
-              sscanf(tmp_str + i, "%d%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &_infrared_pin, &num_consumed);
-			  tera_ranger_one_lidar = new t_tera_ranger_one_lidar(_dir_pin, _step_pin, _enable_pin, _infrared_pin);
-			  //tera_ranger_one_lidar.set_pins(_dir_pin, _step_pin, _enable_pin, _infrared_pin);
-              
+              sscanf(tmp_str + i + 2, "%d%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &_infrared_pin, &num_consumed);
+			        tera_ranger_one_lidar = new t_tera_ranger_one_lidar(_dir_pin, _step_pin, _enable_pin, _infrared_pin);              
          
-			  //tera_ranger_one_lidar.disable_all();
-            sprintf(tmp_serial_out, "CL#");
-            strcat(serial_out, tmp_serial_out);
-            i += num_consumed;
-        }
-        else
-          i++; // incomplete string
+              sprintf(tmp_serial_out, "CL#");
+              strcat(serial_out, tmp_serial_out);
+              i += num_consumed + 2;
+            }
+            else
+              i++; // incomplete string
         continue;
       }
       else
@@ -642,9 +653,12 @@ void loop()
      serial_out[0] = 0;
   }
 
-  //   Serial.print("freeMemory()=");
-  // Serial.println(freeMemory());
-
-  //delay(1000);
+  if (tera_ranger_one_lidar) {
+	  tera_ranger_one_lidar->run_motor(serial_out);
+	  if (serial_out[0]) {
+		  Serial.write(serial_out);
+		  serial_out[0] = 0;
+	  }
+  }
 }
 //------------------------------------------------------------------------------
