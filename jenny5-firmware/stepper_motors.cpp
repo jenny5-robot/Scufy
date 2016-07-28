@@ -137,7 +137,7 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
     byte result = motors[m].run_motor(potentiometers_control, infrared_control, buttons_controller, dist_to_go);
     if (result == MOTOR_JUST_STOPPED){
       char tmp_str[20];
-      sprintf(tmp_str, "MS%d %d#", m, dist_to_go);
+      sprintf(tmp_str, "SM%d %d#", m, dist_to_go);
       strcat(serial_out, tmp_str);
     }
   }
