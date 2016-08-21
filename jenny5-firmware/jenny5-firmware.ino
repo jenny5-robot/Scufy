@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.07.27.0");
+  strcpy(firmware_version, "2016.08.20.0");
 
   current_buffer[0] = 0;
 
@@ -233,9 +233,26 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
       }
 
 	  // LIDAR
-	  if (tmp_str[i] == 'L' || tmp_str[i] == 'l') {
-		  tera_ranger_one_lidar->start();
-		  i +=2;
+	  if (tmp_str[i] == 'L' || tmp_str[i] == 'l') {// lidar operations
+		  if (tmp_str[i + 1] == 'G' || tmp_str[i + 1] == 'g') {// lidar go
+			  tera_ranger_one_lidar->start();
+			  i += 3;
+		  }
+		  else
+			  if (tmp_str[i + 1] == 'H' || tmp_str[i + 1] == 'h') {// lidar halt
+				  tera_ranger_one_lidar->stop();
+				  i += 3;
+			  }
+			  else
+				  if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') {// lidar halt
+					  int motor_speed, motor_acceleration;
+					  int num_consumed;
+					  sscanf(tmp_str + i + 2, "%d%d%n", &motor_speed, &motor_acceleration, &num_consumed);
+					  tera_ranger_one_lidar->set_motor_speed_and_acceleration(motor_speed, motor_acceleration);
+					  i += 2 + num_consumed;
+				  }
+			  else// unknown command
+				  i += 2;
 		  continue;
 	  }
 
