@@ -7,7 +7,7 @@ class t_tera_ranger_one_controller
 
     int last_read_distance;
     bool trigger_started;
-    unsigned int millis_start;// how many millis were when we trigger
+//    unsigned int millis_start;// how many millis were when we trigger
 
   public:
     t_tera_ranger_one_controller (void);

@@ -14,7 +14,7 @@ t_tera_ranger_one_controller::t_tera_ranger_one_controller(void)
 void t_tera_ranger_one_controller::create_init(void)
 {
   last_read_distance = -1;
-  millis_start = 0;
+  //millis_start = 0;
 
   Wire.begin();
 
