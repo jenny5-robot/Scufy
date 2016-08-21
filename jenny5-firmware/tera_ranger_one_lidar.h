@@ -24,7 +24,9 @@ public:
   t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_step_pin, byte motor_enable_pin, byte infrared_pin);
   
   void start(void);
+  void stop(void);
   void run_motor(char *serial_out);
+  void set_motor_speed_and_acceleration(float motor_speed, float motor_acceleration);
 };
 
 #endif
