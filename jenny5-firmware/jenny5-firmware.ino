@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.08.20.0");
+  strcpy(firmware_version, "2016.09.15.0");
 
   current_buffer[0] = 0;
 
@@ -157,6 +157,14 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           stepper_motors_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
           i += 2 + num_consumed;
         }
+		else
+			if (tmp_str[i + 1] == 'H' || tmp_str[i + 1] == 'h') {// home
+				int motor_index;
+				int num_consumed;
+				sscanf(tmp_str + i + 2, "%d", &motor_index, &num_consumed);
+				stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &infrared_analog_sensors_controller, &buttons_controller);
+				i += 4;
+			}
 			else
 				i++;
 			continue;
@@ -256,13 +264,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 		  continue;
 	  }
 
+	  /*
       // go home
-      if (tmp_str[i] == 'H' || tmp_str[i] == 'h') {
-        int motor_index;
-        if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // go stepper home
-          sscanf(tmp_str + i + 2, "%d", &motor_index);
-          stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &infrared_analog_sensors_controller, &buttons_controller);
-        }
         else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // go DC home
           sscanf(tmp_str + i + 2, "%d", &motor_index);
           dc_motors_controller_TB6612FNG.go_home(motor_index, &buttons_controller);
@@ -271,7 +274,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         i += 4;
         continue;
       }
-
+	  */
       // sets something
 /*
       if (tmp_str[i] == 'S' || tmp_str[i] == 's') {
