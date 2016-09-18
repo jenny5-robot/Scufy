@@ -18,3 +18,5 @@ jenny5-firmware/jenny5-firmware.vcxproj
 *.vcxproj
 *.filters
 *.vcxproj
+*.vcxproj
+jenny5-firmware/jenny5-firmware.vcxproj.filters
