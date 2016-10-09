@@ -32,8 +32,6 @@ t_stepper_motor_controller::~t_stepper_motor_controller(void)
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable, float default_motor_speed, float default_motor_acceleration)
 {
-//  dir_pin = _dir;
-//  step_pin = _step;
   enable_pin = _enable;
 
   if (stepper)
@@ -54,6 +52,7 @@ void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable
 
   digitalWrite(_step, LOW);
   digitalWrite(_dir, LOW);
+  pinMode(enable_pin, OUTPUT);
   digitalWrite(enable_pin, HIGH); // all motors are disabled now
 }
 //-------------------------------------------------------------------------------
