@@ -52,7 +52,7 @@ bool t_potentiometer_controller::is_upper_bound_reached(void)
   return high < val;
 }
 //--------------------------------------------------------------------
-unsigned char t_potentiometer_controller::get_direction(void) 
+int8_t t_potentiometer_controller::get_direction(void)
 {
   return _direction;
 }

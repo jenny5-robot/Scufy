@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.10.09.0");
+  strcpy(firmware_version, "2016.10.14.0");
 
   current_buffer[0] = 0;
 
@@ -161,7 +161,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 			if (tmp_str[i + 1] == 'H' || tmp_str[i + 1] == 'h') {// home
 				int motor_index;
 				int num_consumed;
-				sscanf(tmp_str + i + 2, "%d", &motor_index, &num_consumed);
+				sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
 				stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &infrared_analog_sensors_controller, &buttons_controller);
 				i += 4;
 			}
@@ -372,7 +372,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home dir
           int pot_index;
           int pot_min, pot_max, pot_home;
-          unsigned char pot_dir;
+		  int8_t pot_dir;
           byte pot_pin;
           sscanf(tmp_str + i + 2, "%d", &pot_index);
           potentiometers_controller.get_params(pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
@@ -500,7 +500,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           potentiometers_controller.set_num_sensors(num_potentiometers);
           for (int k = 0; k < num_potentiometers; k++) {
             int _out_pin;
-            int _low, _high, _home, _direction;
+			int _low, _high, _home ;
+			int8_t _direction;
             sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%d%n", &_out_pin, &_low, &_high, &_home, &_direction, &num_consumed);
             potentiometers_controller.set_params(k, _out_pin, _low, _high, _home, _direction);
             num_consumed_total += num_consumed + 1;

@@ -20,7 +20,7 @@ public:
   void get_params(byte *_pin, int *low, int *high, int *_home, int8_t *_direction);
  
 	int get_position(void);	
-  unsigned char get_direction(void);
+  int8_t get_direction(void);
   int get_home_position(void);
 	byte is_within_limits(void);
   bool is_lower_bound_reached(void);
