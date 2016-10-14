@@ -183,6 +183,36 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
               limit_reached = true;
             }
           }
+
+		  if (going_home) {
+			  // must stop to home
+			  int pot_position = potentiometers_control->get_position(sensor_index);
+			  int pot_home_position = potentiometers_control->get_home_position(sensor_index);
+			  int8_t pot_direction = potentiometers_control->get_direction(sensor_index);
+
+			  if (pot_direction == 1) {
+				  if (distance_to_go > 0) {
+					  if (pot_position >= pot_home_position)
+						  limit_reached = true;
+				  }
+				  else { // distance to go is negative 
+					  if (pot_position <= pot_home_position)
+						  limit_reached = true;
+				  }
+			  }
+			  else {// pot direction == -1
+				  if (distance_to_go > 0) {
+					  if (pot_position <= pot_home_position)
+						  limit_reached = true;
+				  }
+				  else { // distance to go is negative 
+					  if (pot_position >= pot_home_position)
+						  limit_reached = true;
+				  }
+
+			  }
+
+		  }
         
       }
       else if (INFRARED_ANALOG == type) {
@@ -279,7 +309,12 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
       int pot_dir = potentiometers_control->get_direction(sensor_index);
       int pot_home = potentiometers_control->get_home_position(sensor_index);
       int pot_pos = potentiometers_control->get_position(sensor_index);
-      int distance_to_home = pot_dir * (pot_home - pot_pos);
+	  int distance_to_home = pot_dir * (pot_home - pot_pos) * 10;
+//	  Serial.println(pot_dir);
+//	  Serial.println(pot_home);
+//	  Serial.println(pot_pos);
+//	  Serial.println(distance_to_home);
+	  going_home = true;
       move_motor(distance_to_home);
     }
     else if (sensor_type == INFRARED_ANALOG) {
