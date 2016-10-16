@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.10.14.0");
+  strcpy(firmware_version, "2016.10.16.0");
 
   current_buffer[0] = 0;
 
@@ -501,7 +501,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           for (int k = 0; k < num_potentiometers; k++) {
             int _out_pin;
 			int _low, _high, _home ;
-			int8_t _direction;
+			int _direction;
             sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%d%n", &_out_pin, &_low, &_high, &_home, &_direction, &num_consumed);
             potentiometers_controller.set_params(k, _out_pin, _low, _high, _home, _direction);
             num_consumed_total += num_consumed + 1;
@@ -557,7 +557,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         else if (tmp_str[i + 1] == 'T' || tmp_str[i + 1] == 't') { // create Tera Ranger One controller
           tera_ranger_one_controller.create_init();
           sprintf(tmp_serial_out, "CT#");
-          strcat(serial_out, tmp_serial_out);
+		  strcat(serial_out, tmp_serial_out);
+
           i += 3;
         }
         else

@@ -4,7 +4,8 @@
 t_tera_ranger_one_lidar::t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_step_pin, byte motor_enable_pin, byte infrared_pin)
 {
 	started = false;
-	infrared_read_first_time = false;
+	reference_touched = false;
+	first_reference_touched = false;
 
 	enable_pin = motor_enable_pin;
 
@@ -34,11 +35,13 @@ void t_tera_ranger_one_lidar::start(void)
 {
 	digitalWrite(enable_pin, LOW); // turn motor on
 	stepper->move(400); //move num_steps
-	infrared_read_first_time = false;
+	reference_touched = false;
 	request_for_distance_sent = false;
+	first_reference_touched = false;
+	prev_reference_touched = false;
 
 	motor_position = 0;
-  started = true;
+	started = true;
 }
 //-----------------------------------------------------------------------------
 void t_tera_ranger_one_lidar::stop(void)
@@ -50,51 +53,56 @@ void t_tera_ranger_one_lidar::stop(void)
 //-----------------------------------------------------------------------------
 void t_tera_ranger_one_lidar::run_motor(char *serial_out)
 {
-  serial_out[0] = 0;
+	serial_out[0] = 0;
 
 	if (started) {
-    
-		if (request_for_distance_sent) {
-    //  Serial.write("3");
-			// no more steps until lidar sends a distance back
-			if (tera_ranger_one.check_echo()) 
-			{
-				request_for_distance_sent = false;
 
-				// here I have to output a string
-				sprintf(serial_out, "L%d %d#", motor_position, tera_ranger_one.get_last_read_distance()); //tera_ranger_one.get_last_read_distance());
-			}
+		if (!infrared_sensor.get_value()) {
+			// infrared has detected an obstacle (the reference point)
+			//	Serial.write("4");
+			prev_reference_touched = reference_touched;
+			reference_touched = true;
+			
+			//motor_position = 0;
 		}
 		else {
-			// no request for distance yet
-			if (!infrared_sensor.get_value()) {
-        // infrared has detected an obstacle
-				//Serial.write("4 ");
-				infrared_read_first_time = true;
+			reference_touched = false;
+			if (prev_reference_touched) {
+				prev_reference_touched = false;
 				motor_position = 0;
-			}
-			if (!infrared_read_first_time) {
-			//	Serial.write("1 ");
-				stepper->run();
-			}
-			else {
-				//Serial.write("2 ");
-				long prev_dist_to_go = stepper->distanceToGo();
-				stepper->run();
-				long curr_dist_to_go = stepper->distanceToGo();
-
-				long traveled_distance = prev_dist_to_go - curr_dist_to_go;
-				//Serial.print(traveled_distance);
-				if (traveled_distance) {
-					// now I have to read the distance
-					tera_ranger_one.trigger();
-
-					stepper->move(400); //move num_steps
-					request_for_distance_sent = true;
-					motor_position += traveled_distance;
-				}
+				first_reference_touched = true;
 			}
 		}
+
+		if (first_reference_touched) {
+			if (request_for_distance_sent) {
+				// Serial.write("3");
+				// no more steps until lidar sends a distance back
+				if (tera_ranger_one.check_echo()) {
+					request_for_distance_sent = false;
+
+					// here I have to output a string
+					sprintf(serial_out, "L%d %d#", motor_position, tera_ranger_one.get_last_read_distance()); //tera_ranger_one.get_last_read_distance());
+				}
+			}
+
+			long prev_dist_to_go = stepper->distanceToGo();
+			stepper->run();
+			long curr_dist_to_go = stepper->distanceToGo();
+
+			long traveled_distance = prev_dist_to_go - curr_dist_to_go;
+			//Serial.print(traveled_distance);
+			if (traveled_distance) {
+				// now I have to read the distance
+				tera_ranger_one.trigger();
+
+				stepper->move(400); //move num_steps
+				request_for_distance_sent = true;
+				motor_position += traveled_distance;
+			}
+		}
+		else
+			stepper->run();
 	}
 }
 //-----------------------------------------------------------------------------

@@ -17,7 +17,7 @@ class t_tera_ranger_one_lidar{
   t_tera_ranger_one_controller tera_ranger_one;
 
   bool started;
-  bool infrared_read_first_time;
+  bool reference_touched, prev_reference_touched, first_reference_touched;
   int motor_position;
 
 public:
