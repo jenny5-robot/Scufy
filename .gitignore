@@ -20,3 +20,15 @@ jenny5-firmware/jenny5-firmware.vcxproj
 *.vcxproj
 *.vcxproj
 jenny5-firmware/jenny5-firmware.vcxproj.filters
+*.vcxproj
+jenny5-firmware/jenny5-firmware.vcxproj.filters
+*.filters
+*.tlog
+*.pdb
+*.idb
+*.log
+*.vcxproj
+*.user
+*.filters
+*.vcxproj
+*.filters

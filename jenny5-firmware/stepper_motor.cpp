@@ -99,10 +99,15 @@ void t_stepper_motor_controller::lock_motor(void)
   digitalWrite(enable_pin, LOW); // enable motor
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motor_controller::add_sensor(byte sensor_type, byte sensor_index)
+void t_stepper_motor_controller::add_sensor(byte sensor_type, byte sensor_index, int _min_pos, int _max_pos, int _home_pos, int8_t __direction)
 {
   sensors[sensors_count].type = sensor_type;
   sensors[sensors_count].index = sensor_index;
+
+  sensors[sensors_count].min_pos = _min_pos;
+  sensors[sensors_count].max_pos = _max_pos;
+  sensors[sensors_count].home_pos = _home_pos;
+  sensors[sensors_count]._direction = __direction;
   sensors_count++;
 }
 //-------------------------------------------------------------------------------
@@ -136,10 +141,15 @@ byte t_stepper_motor_controller::is_motor_running(void)
   return motor_running;
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motor_controller::get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index)
+void t_stepper_motor_controller::get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t *__direction)
 {
   *sensor_type = sensors[sensor_index_in_motor_list].type;
   *sensor_index = sensors[sensor_index_in_motor_list].index;
+
+  *_min_pos = sensors[sensor_index_in_motor_list].min_pos;
+  *_max_pos = sensors[sensor_index_in_motor_list].max_pos;
+  *_home_pos = sensors[sensor_index_in_motor_list].home_pos;
+  *__direction = sensors[sensor_index_in_motor_list]._direction;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_speed, float *_motor_acceleration)
@@ -170,15 +180,16 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
       byte type = sensors[j].type;
 
       if (POTENTIOMETER == type) {
+          int potentiometer_direction = sensors[j]._direction;
 
-        
-          int potentiometer_direction = potentiometers_control->get_direction(sensor_index);
-          if (potentiometers_control->is_lower_bound_reached(sensor_index)) {
+		  int val = potentiometers_control->get_position(sensor_index);
+
+          if (sensors[j].min_pos > val){ // is_lower_bound_reached(sensor_index)) {
             if (distance_to_go * potentiometer_direction < 0) {
               limit_reached = true;
             }
           }
-          if (potentiometers_control->is_upper_bound_reached(sensor_index)) {
+          if (sensors[j].max_pos < val){ //->is_upper_bound_reached(sensor_index)) {
             if (distance_to_go * potentiometer_direction > 0) {
               limit_reached = true;
             }
@@ -187,8 +198,8 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
 		  if (going_home) {
 			  // must stop to home
 			  int pot_position = potentiometers_control->get_position(sensor_index);
-			  int pot_home_position = potentiometers_control->get_home_position(sensor_index);
-			  int8_t pot_direction = potentiometers_control->get_direction(sensor_index);
+			  int pot_home_position = sensors[j].home_pos;// potentiometers_control->get_home_position(sensor_index);
+			  int8_t pot_direction = sensors[j]._direction;// potentiometers_control->get_direction(sensor_index);
 
 			  if (pot_direction == 1) {
 				  if (distance_to_go > 0) {
@@ -215,6 +226,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
 		  }
         
       }
+	  /*
       else if (INFRARED_ANALOG == type) {
 
         
@@ -245,18 +257,13 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
           }
         
       }
+	  */
       else if (BUTTON == type) {
 
         
           int button_direction = buttons_controller->get_direction(sensor_index);
           int button_state = buttons_controller->get_state(sensor_index);
-          /*
-Serial.print(button_state);
-Serial.write(' ');
-Serial.print(button_direction);
-Serial.write(' ');
-Serial.println(distance_to_go);
-*/
+
           if (button_state == 1) // limit reached
             if (distance_to_go * button_direction > 0)
               limit_reached = true;
@@ -306,8 +313,8 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
 
     if (sensor_type == POTENTIOMETER) {
       //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
-      int pot_dir = potentiometers_control->get_direction(sensor_index);
-      int pot_home = potentiometers_control->get_home_position(sensor_index);
+		int pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
+		int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
       int pot_pos = potentiometers_control->get_position(sensor_index);
 	  int distance_to_home = pot_dir * (pot_home - pot_pos) * 10;
 //	  Serial.println(pot_dir);
@@ -320,7 +327,7 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
     else if (sensor_type == INFRARED_ANALOG) {
       //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
       //int i_dir = infrareds_control->get_direction(sensor_index);
-      int i_home = infrareds_control->get_home_position(sensor_index);
+      int i_home = sensors[0].home_pos;
       int i_pos = infrareds_control->get_signal_strength(sensor_index);
       int distance_to_home;
       if (i_home < i_pos)
@@ -345,4 +352,3 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
   }
 }
 //-------------------------------------------------------------------------------
-

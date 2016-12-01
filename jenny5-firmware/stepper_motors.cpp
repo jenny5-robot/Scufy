@@ -81,9 +81,9 @@ void t_stepper_motors_controller::lock(byte motor_index)
   motors[motor_index].lock_motor();
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::add_sensor(byte motor_index, byte sensor_type, byte sensor_index)
+void t_stepper_motors_controller::add_sensor(byte motor_index, byte sensor_type, byte sensor_index, int _min_pos, int _max_pos, int _home_pos, int8_t _direction)
 {
-	motors[motor_index].add_sensor(sensor_type, sensor_index);
+	motors[motor_index].add_sensor(sensor_type, sensor_index, _min_pos, _max_pos, _home_pos, _direction);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motors_controller::set_num_attached_sensors(byte motor_index, byte num_sensors)
@@ -115,9 +115,9 @@ byte t_stepper_motors_controller::is_running(void)
   return 0;
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index)
+void t_stepper_motors_controller::get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t *_direction)
 {
-  motors[motor_index].get_sensor(sensor_index_in_motor_list, sensor_type, sensor_index);
+  motors[motor_index].get_sensor(sensor_index_in_motor_list, sensor_type, sensor_index, _min_pos, _max_pos, _home_pos, _direction);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motors_controller::get_speed_and_acceleration(byte motor_index, float *_motor_speed, float *_motor_acceleration)

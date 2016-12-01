@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.10.16.0");
+  strcpy(firmware_version, "2016.12.01.0");
 
   current_buffer[0] = 0;
 
@@ -311,19 +311,23 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         while (k < num_sensors){
           if (tmp_str[j] == 'P' || tmp_str[j] == 'p') {
             int sensor_index;
-            sscanf(tmp_str + j + 1, "%d", &sensor_index);
+			int _low, _high, _home;
+			int _direction;
+			int num_consumed;
+
+            sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-              stepper_motors_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index);
+              stepper_motors_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index, _low, _high, _home, _direction);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
               dc_motors_controller_TB6612FNG.add_sensor(motor_index, POTENTIOMETER, sensor_index);
-            j += 2;
+            j += 1 + num_consumed;
             k++;
           }
           else if (tmp_str[j] == 'B' || tmp_str[j] == 'b') {
             int sensor_index;
             sscanf(tmp_str + j + 1, "%d", &sensor_index);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-              stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index);
+              stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, 0);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
               dc_motors_controller_TB6612FNG.add_sensor(motor_index, BUTTON, sensor_index);
             j += 2;
@@ -334,7 +338,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             int sensor_index;
             sscanf(tmp_str + j + 1, "%d", &sensor_index);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-              stepper_motors_controller.add_sensor(motor_index, INFRARED_ANALOG, sensor_index);
+              stepper_motors_controller.add_sensor(motor_index, INFRARED_ANALOG, sensor_index, 0, 0, 0, 0);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
               dc_motors_controller_TB6612FNG.add_sensor(motor_index, INFRARED_ANALOG, sensor_index);
             j += 2;
@@ -371,12 +375,12 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         }
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home dir
           int pot_index;
-          int pot_min, pot_max, pot_home;
-		  int8_t pot_dir;
+//          int pot_min, pot_max, pot_home;
+//		  int8_t pot_dir;
           byte pot_pin;
           sscanf(tmp_str + i + 2, "%d", &pot_index);
-          potentiometers_controller.get_params(pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
-          sprintf(tmp_serial_out, "GP%d %d %d %d %d %d#", pot_index, (int)pot_pin, pot_min, pot_max, pot_home, pot_dir);
+          potentiometers_controller.get_params(pot_index, &pot_pin);
+          sprintf(tmp_serial_out, "GP%d %d %d %d %d %d#", pot_index, (int)pot_pin);
           strcat(serial_out, tmp_serial_out);
           i += 5;
         }
@@ -434,18 +438,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             int num_consumed = 0;
             sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
 
-            int num_consumed_total = 3 + num_consumed;
+            int total_num_consumed = 3 + num_consumed;
             stepper_motors_controller.set_num_motors(num_motors);
             for (int k = 0; k < num_motors; k++) {
               int _step_pin, _dir_pin, _enable_pin;
-              sscanf(tmp_str + i + num_consumed_total, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
+              sscanf(tmp_str + i + total_num_consumed, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
               stepper_motors_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
-              num_consumed_total += num_consumed + 1;
+			  total_num_consumed += num_consumed + 1;
             }
             stepper_motors_controller.disable_all();
             sprintf(tmp_serial_out, "CS#");
             strcat(serial_out, tmp_serial_out);
-            i += num_consumed_total;
+            i += total_num_consumed;
           }
         }
         else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // create a list of DC motors
@@ -455,18 +459,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             int num_consumed = 0;
             sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
 
-            int num_consumed_total = 3 + num_consumed;
+            int total_num_consumed = 3 + num_consumed;
             dc_motors_controller_TB6612FNG.set_num_motors(num_motors);
             for (int k = 0; k < num_motors; k++) {
               int pwm_pin, dir_pin1, dir_pin2, enable_pin;
-              sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%n", &pwm_pin, &dir_pin1, &dir_pin2, &enable_pin, &num_consumed);
+              sscanf(tmp_str + i + total_num_consumed, "%d%d%d%d%n", &pwm_pin, &dir_pin1, &dir_pin2, &enable_pin, &num_consumed);
               dc_motors_controller_TB6612FNG.set_motor_pins(k, pwm_pin, dir_pin1, dir_pin2, enable_pin);
-              num_consumed_total += num_consumed + 1;
+			  total_num_consumed += num_consumed + 1;
             }
 
             sprintf(tmp_serial_out, "CD#");
             strcat(serial_out, tmp_serial_out);
-            i += num_consumed_total;
+            i += total_num_consumed;
           }
         }
         else if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { // create a list of ultrasonic sensors
@@ -476,18 +480,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           int num_consumed = 0;
           sscanf(tmp_str + i + 3, "%d%n", &num_sonars, &num_consumed);
 
-          int num_consumed_total = 3 + num_consumed;
+          int total_num_consumed = 3 + num_consumed;
           ultrasonic_sensors_controller.set_num_sensors(num_sonars);
           for (int k = 0; k < num_sonars; k++) {
             int _trig_pin, _echo_pin;
-            sscanf(tmp_str + i + num_consumed_total, "%d%d%n", &_trig_pin, &_echo_pin, &num_consumed);
+            sscanf(tmp_str + i + total_num_consumed, "%d%d%n", &_trig_pin, &_echo_pin, &num_consumed);
             ultrasonic_sensors_controller.set_sensor_pins(k, _trig_pin, _echo_pin);
-            num_consumed_total += num_consumed + 1;
+			total_num_consumed += num_consumed + 1;
           }
 
           sprintf(tmp_serial_out, "CU#");
           strcat(serial_out, tmp_serial_out);
-          i += num_consumed_total;
+          i += total_num_consumed;
         }
         else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // create a list of potentiometers
 
@@ -496,20 +500,18 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           int num_consumed = 0;
           sscanf(tmp_str + i + 3, "%d%n", &num_potentiometers, &num_consumed);
 
-          int num_consumed_total = 3 + num_consumed;
+          int total_num_consumed = 3 + num_consumed;
           potentiometers_controller.set_num_sensors(num_potentiometers);
           for (int k = 0; k < num_potentiometers; k++) {
             int _out_pin;
-			int _low, _high, _home ;
-			int _direction;
-            sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%d%n", &_out_pin, &_low, &_high, &_home, &_direction, &num_consumed);
-            potentiometers_controller.set_params(k, _out_pin, _low, _high, _home, _direction);
-            num_consumed_total += num_consumed + 1;
+            sscanf(tmp_str + i + total_num_consumed, "%d%n", &_out_pin, &num_consumed);
+            potentiometers_controller.set_params(k, _out_pin);
+			total_num_consumed += num_consumed + 1;
           }
 
           sprintf(tmp_serial_out, "CP#");
           strcat(serial_out, tmp_serial_out);
-          i += num_consumed_total;
+          i += total_num_consumed;
         }
         else if (tmp_str[i + 1] == 'I' || tmp_str[i + 1] == 'i') { // create a list of infrared sensors
 
@@ -518,41 +520,41 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           int num_consumed = 0;
           sscanf(tmp_str + i + 3, "%d%n", &num_infrareds, &num_consumed);
 
-          int num_consumed_total = 3 + num_consumed;
+          int total_num_consumed = 3 + num_consumed;
           infrared_analog_sensors_controller.set_num_sensors(num_infrareds);
           for (int k = 0; k < num_infrareds; k++) {
             int out_pin;
             int min_pos, max_pos, home_pos, _direction;
-            int num_read = sscanf(tmp_str + i + num_consumed_total, "%d%d%d%d%d%n", &out_pin, &min_pos, &max_pos, &home_pos, &_direction, &num_consumed);
+            int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &out_pin, &num_consumed);
             if (num_read == 5)
-              infrared_analog_sensors_controller.set_params(k, out_pin, min_pos, max_pos, home_pos, _direction);
+              infrared_analog_sensors_controller.set_params(k, out_pin);
             else {
               sprintf(tmp_serial_out, "E#");
               strcat(serial_out, tmp_serial_out);
             }
-            num_consumed_total += num_consumed + 1;
+			total_num_consumed += num_consumed + 1;
           }
           sprintf(tmp_serial_out, "CI#");
           strcat(serial_out, tmp_serial_out);
-          i += num_consumed_total;
+          i += total_num_consumed;
         }
         else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // create a list of button sensors
           int num_buttons = 0;
           int num_consumed = 0;
           sscanf(tmp_str + i + 3, "%d%n", &num_buttons, &num_consumed);
 
-          int num_consumed_total = 3 + num_consumed;
+          int total_num_consumed = 3 + num_consumed;
           buttons_controller.set_num_sensors(num_buttons);
           for (int k = 0; k < num_buttons; k++) {
             int _pin;
             int _dir;
-            sscanf(tmp_str + i + num_consumed_total, "%d%d%n", &_pin, &_dir, &num_consumed);
+            sscanf(tmp_str + i + total_num_consumed, "%d%d%n", &_pin, &_dir, &num_consumed);
             buttons_controller.set_params(k, _pin, _dir);
-            num_consumed_total += num_consumed + 1;
+			total_num_consumed += num_consumed + 1;
           }
           sprintf(tmp_serial_out, "CB#");
           strcat(serial_out, tmp_serial_out);
-          i += num_consumed_total;
+          i += total_num_consumed;
         }
         else if (tmp_str[i + 1] == 'T' || tmp_str[i + 1] == 't') { // create Tera Ranger One controller
           tera_ranger_one_controller.create_init();

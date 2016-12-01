@@ -47,9 +47,9 @@ class t_stepper_motors_controller
     void set_num_attached_sensors(byte motor_index, byte num_sensors);
     byte get_num_attached_sensors(byte motor_index);
 
-    void add_sensor(byte motor_index, byte sensor_type, byte sensor_index);
+    void add_sensor(byte motor_index, byte sensor_type, byte sensor_index, int _min_pos, int _max_pos, int _home_pos, int8_t _direction);
 
-    void get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index);
+    void get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t *_direction);
 
     void set_is_running(byte motor_index, byte is_running);
     void go_home(byte motor_index, t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_control, t_buttons_controller* buttons_controller);

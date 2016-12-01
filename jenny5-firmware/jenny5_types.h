@@ -16,6 +16,12 @@
 struct t_sensor_info {
   byte type;
   byte index;
+
+  int min_pos;
+  int max_pos;
+  int home_pos;
+
+  int8_t _direction;// 1 - same direction with motor, -1 - different direction
 };
 //---------------------------------------------------
 
