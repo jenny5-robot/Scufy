@@ -13,7 +13,11 @@ void t_potentiometer_controller::set_params (byte _pin)
 //--------------------------------------------------------------------
 int	t_potentiometer_controller::get_position(void)
 {
-	return (int)analogRead(pin);
+  int v1 = analogRead(pin);
+  int v2 = analogRead(pin);
+  int v3 = analogRead(pin);
+  
+	return (v1 + v2 + v3) / 3;
 }
 //--------------------------------------------------------------------
 void t_potentiometer_controller::get_params(byte *_pin)
