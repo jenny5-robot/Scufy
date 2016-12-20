@@ -261,7 +261,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
       else if (BUTTON == type) {
 
         
-          int button_direction = buttons_controller->get_direction(sensor_index);
+          int button_direction = 0;//buttons_controller->get_direction(sensor_index);
           int button_state = buttons_controller->get_state(sensor_index);
 
           if (button_state == 1) // limit reached
@@ -339,7 +339,7 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
     }
     else if (sensor_type ==  BUTTON) {
 
-      int b_direction = buttons_controller->get_direction(sensor_index);
+      int b_direction = 0;//buttons_controller->get_direction(sensor_index);
       int distance_to_home;
       if (b_direction > 0)
         distance_to_home = 200; // assume 1.8 degrees steps

@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.12.01.0");
+  strcpy(firmware_version, "2016.12.20.0");
 
   current_buffer[0] = 0;
 
@@ -396,12 +396,12 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
         else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // get button pin direction
           int button_index;
           byte _pin;
-          unsigned char _dir;
+ 
           sscanf(tmp_str + i + 2, "%d", &button_index);
-          buttons_controller.get_params(button_index, &_pin, &_dir);
-          sprintf(tmp_serial_out, "GB%d %d %d#", button_index, _pin, _dir);
+          buttons_controller.get_params(button_index, &_pin);
+          sprintf(tmp_serial_out, "GB%d %d#", button_index, _pin);
           strcat(serial_out, tmp_serial_out);
-          i += 4;
+          i += 2;
         }
         else
           i++;// incomplete string
@@ -547,9 +547,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           buttons_controller.set_num_sensors(num_buttons);
           for (int k = 0; k < num_buttons; k++) {
             int _pin;
-            int _dir;
-            sscanf(tmp_str + i + total_num_consumed, "%d%d%n", &_pin, &_dir, &num_consumed);
-            buttons_controller.set_params(k, _pin, _dir);
+            sscanf(tmp_str + i + total_num_consumed, "%d%d%n", &_pin, &num_consumed);
+            buttons_controller.set_params(k, _pin);
 			total_num_consumed += num_consumed + 1;
           }
           sprintf(tmp_serial_out, "CB#");
