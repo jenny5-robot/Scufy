@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.12.20.0");
+  strcpy(firmware_version, "2016.12.21.0");
 
   current_buffer[0] = 0;
 
@@ -155,6 +155,8 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           int num_consumed;
           sscanf(tmp_str + i + 2, "%d%d%d%n", &motor_index, &motor_speed, &motor_acceleration, &num_consumed);
           stepper_motors_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
+		  sprintf(tmp_serial_out, "SS%d#", motor_index);
+		  strcat(serial_out, tmp_serial_out);
           i += 2 + num_consumed;
         }
 		else
