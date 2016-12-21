@@ -380,7 +380,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           byte pot_pin;
           sscanf(tmp_str + i + 2, "%d", &pot_index);
           potentiometers_controller.get_params(pot_index, &pot_pin);
-          sprintf(tmp_serial_out, "GP%d %d %d %d %d %d#", pot_index, (int)pot_pin);
+          sprintf(tmp_serial_out, "GP%d %d#", pot_index, (int)pot_pin);
           strcat(serial_out, tmp_serial_out);
           i += 5;
         }
@@ -524,7 +524,6 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           infrared_analog_sensors_controller.set_num_sensors(num_infrareds);
           for (int k = 0; k < num_infrareds; k++) {
             int out_pin;
-            int min_pos, max_pos, home_pos, _direction;
             int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &out_pin, &num_consumed);
             if (num_read == 5)
               infrared_analog_sensors_controller.set_params(k, out_pin);
@@ -547,7 +546,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           buttons_controller.set_num_sensors(num_buttons);
           for (int k = 0; k < num_buttons; k++) {
             int _pin;
-            sscanf(tmp_str + i + total_num_consumed, "%d%d%n", &_pin, &num_consumed);
+            sscanf(tmp_str + i + total_num_consumed, "%d%n", &_pin, &num_consumed);
             buttons_controller.set_params(k, _pin);
 			total_num_consumed += num_consumed + 1;
           }

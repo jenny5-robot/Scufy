@@ -175,7 +175,7 @@ long t_dc_motor_controller_TB6612FNG::update_motor(t_buttons_controller *buttons
 //-------------------------------------------------------------------------------
 void t_dc_motor_controller_TB6612FNG::go_home(t_buttons_controller *buttons_controller)
 {
-  byte sensor_index = 0;
+  byte sensor_index;
   for (byte j = 0 ; j < sensors_count ; ++j) {
     byte type = sensors[j].type;
     if (POTENTIOMETER == type) {
