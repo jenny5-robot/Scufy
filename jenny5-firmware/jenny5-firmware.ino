@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2016.12.21.0");
+  strcpy(firmware_version, "2017.01.02.0");
 
   current_buffer[0] = 0;
 
@@ -425,7 +425,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
       }
       // version number
       if (tmp_str[i] == 'V' || tmp_str[i] == 'v') {
-        sprintf(tmp_serial_out, "%s#", firmware_version);
+        sprintf(tmp_serial_out, "V%s#", firmware_version);
         strcat(serial_out, tmp_serial_out);
         i += 2;
         continue;
