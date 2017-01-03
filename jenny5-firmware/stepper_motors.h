@@ -57,6 +57,8 @@ class t_stepper_motors_controller
     byte is_running(byte motor_index);
     byte is_running(void);
 
+	void go_to_sensor_position(byte motor_index, int potentiometer_stop_position);
+
     void run_motors(t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller, char* serial_out);
 };
 //---------------------------------------------------

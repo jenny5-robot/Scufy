@@ -18,11 +18,13 @@ public:
   
   t_sensor_info  *sensors;
   byte sensors_count;
+
+  int *sensor_stop_position;
   
   AccelStepper  *stepper;
   byte motor_running;
 
-  bool going_home;
+  bool going_to_position;
 
 public:
   t_stepper_motor_controller(void);
@@ -55,6 +57,8 @@ public:
   void go_home(t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller);
   
   byte is_motor_running(void);
+
+  void go_to_sensor_position(int potentiometer_stop_position);
   
   byte run_motor(t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller, int &dist_to_go);
 };

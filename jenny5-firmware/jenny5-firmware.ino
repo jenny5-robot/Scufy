@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2017.01.03.0");
+  strcpy(firmware_version, "2017.01.03.1");
 
   current_buffer[0] = 0;
 
@@ -167,6 +167,19 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &buttons_controller);
 				i += 4;
 			}
+			else
+				if (tmp_str[i + 1] == 'G' || tmp_str[i + 1] == 'g') { // move motor to sensor position
+					int motor_index, sensor_position;
+					int num_consumed;
+					int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &sensor_position, &num_consumed);
+					if (num_read == 2) {
+						stepper_motors_controller.go_to_sensor_position(motor_index, sensor_position);
+						is_command_running = 1;
+						i += 2 + num_consumed;
+					}
+					else
+						i++;// error on incomplete string (does nothing)
+				}
 			else
 				i++;
 			continue;
