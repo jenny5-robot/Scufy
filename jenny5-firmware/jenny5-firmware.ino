@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2017.01.02.0");
+  strcpy(firmware_version, "2017.01.03.0");
 
   current_buffer[0] = 0;
 
@@ -164,14 +164,14 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				int motor_index;
 				int num_consumed;
 				sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
-				stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &infrared_analog_sensors_controller, &buttons_controller);
+				stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &buttons_controller);
 				i += 4;
 			}
 			else
 				i++;
 			continue;
 		}
-
+		
         // dc motor
 		if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // DC motor
 			if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm') { // stepper motor
@@ -665,7 +665,7 @@ void loop()
         }
     }
   }
-  stepper_motors_controller.run_motors(&potentiometers_controller, &infrared_analog_sensors_controller, &buttons_controller, serial_out);
+  stepper_motors_controller.run_motors(&potentiometers_controller, &buttons_controller, serial_out);
   if (serial_out[0]){
     Serial.write(serial_out);
     serial_out[0] = 0;
