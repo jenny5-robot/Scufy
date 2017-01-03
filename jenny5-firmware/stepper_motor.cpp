@@ -164,7 +164,7 @@ void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_
   }
 }
 //-------------------------------------------------------------------------------
-byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrared_controller, t_buttons_controller *buttons_controller, int& dist_to_go)
+byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentiometers_control, t_buttons_controller *buttons_controller, int& dist_left_to_go)
 {
   // returns 1 if is still running
   // returns 2 if it does nothing
@@ -220,59 +220,21 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
 					  if (pot_position >= pot_home_position)
 						  limit_reached = true;
 				  }
-
 			  }
-
 		  }
-        
       }
-	  /*
-      else if (INFRARED_ANALOG == type) {
-
-        
-          int infrared_direction = infrared_controller->get_direction(sensor_index);
-          int infrared_signal_strength = infrared_controller->get_signal_strength(sensor_index);
-          int infrared_home_pos = infrared_controller->get_home_position(sensor_index);
-
-          if (infrared_controller->is_lower_bound_reached(sensor_index)) {
-            if (distance_to_go * infrared_direction < 0) {
-              limit_reached = true;
-            }
-          }
-          if (infrared_controller->is_upper_bound_reached(sensor_index)) {
-            if (distance_to_go * infrared_direction > 0) {
-              limit_reached = true;
-            }
-          }
-          
-          if (going_home) {
-            // must stop to home
-            if (distance_to_go > 0){
-              if (infrared_signal_strength > infrared_home_pos)
-                limit_reached = true;
-            }
-            else // distance to go is negative 
-            if (infrared_signal_strength < infrared_home_pos)
-              limit_reached = true;
-          }
-        
-      }
-	  */
-      else if (BUTTON == type) {
-
-        
-          int button_direction = 0;//buttons_controller->get_direction(sensor_index);
+      else 
+		if (BUTTON == type) {
+          int button_direction = sensors[j]._direction; 
           int button_state = buttons_controller->get_state(sensor_index);
 
           if (button_state == 1) // limit reached
             if (distance_to_go * button_direction > 0)
               limit_reached = true;
-        
-      }
+        }
     }
 
-    if (!limit_reached)
-    {
+    if (!limit_reached){
       stepper->run();
       return MOTOR_STILL_RUNNING; // still running
     }
@@ -281,7 +243,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
         int to_go = stepper->distanceToGo();
         stepper->setCurrentPosition(0);
         stepper->move(0);
-        dist_to_go = to_go;
+        dist_left_to_go = to_go;
         going_home = false;
         //Serial.println("left to go  > 0");
         set_motor_running(0);
@@ -296,7 +258,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
     going_home = false;
     if (is_motor_running()) {
       set_motor_running(0);
-      dist_to_go = 0;
+      dist_left_to_go = 0;
       //Serial.println("left to go == 0");
       return MOTOR_JUST_STOPPED; // distance to go
     }
@@ -305,7 +267,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
   }
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiometers_control, t_infrared_analog_sensors_controller *infrareds_control, t_buttons_controller* buttons_controller)
+void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller)
 {
   if (sensors_count > 0) {
     int sensor_index = sensors[0].index;
@@ -314,9 +276,9 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
     if (sensor_type == POTENTIOMETER) {
       //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 		int pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
-		int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
-      int pot_pos = potentiometers_control->get_position(sensor_index);
-	  int distance_to_home = pot_dir * (pot_home - pot_pos) * 10;
+//		int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
+  //    int pot_pos = potentiometers_control->get_position(sensor_index);
+	  int distance_to_home = pot_dir * 32000; // sign(pot_home - pot_pos) * 10;
 //	  Serial.println(pot_dir);
 //	  Serial.println(pot_home);
 //	  Serial.println(pot_pos);
@@ -324,27 +286,14 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
 	  going_home = true;
       move_motor(distance_to_home);
     }
-    else if (sensor_type == INFRARED_ANALOG) {
-      //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
-      //int i_dir = infrareds_control->get_direction(sensor_index);
-      int i_home = sensors[0].home_pos;
-      int i_pos = infrareds_control->get_signal_strength(sensor_index);
-      int distance_to_home;
-      if (i_home < i_pos)
-        distance_to_home = -32000;
-      else
-        distance_to_home = 32000;
-      going_home = true;
-      move_motor(distance_to_home);
-    }
     else if (sensor_type ==  BUTTON) {
 
-      int b_direction = 0;//buttons_controller->get_direction(sensor_index);
+      int b_direction = sensors[0]._direction;//buttons_controller->get_direction(sensor_index);
       int distance_to_home;
       if (b_direction > 0)
-        distance_to_home = 200; // assume 1.8 degrees steps
+        distance_to_home = 32000; // this depends on microstepping, gear redunction etc
       else
-        distance_to_home = -200;
+        distance_to_home = -32000;
       going_home = true;
       move_motor(distance_to_home);
 
