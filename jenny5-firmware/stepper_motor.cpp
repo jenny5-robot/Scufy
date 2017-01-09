@@ -189,22 +189,21 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
   int distance_to_go = stepper->distanceToGo();
 
   if (distance_to_go) {
-    for (byte j = 0 ; j < sensors_count ; ++j)
-    {
+    for (byte j = 0; j < sensors_count; j++){
       byte sensor_index = sensors[j].index;
       byte type = sensors[j].type;
 
       if (POTENTIOMETER == type) {
           int potentiometer_direction = sensors[j]._direction;
 
-		  int val = potentiometers_control->get_position(sensor_index);
+		      int val = potentiometers_control->get_position(sensor_index);
 
-          if (sensors[j].min_pos > val){ // is_lower_bound_reached(sensor_index)) {
+          if (sensors[j].min_pos > val){ 
             if (distance_to_go * potentiometer_direction < 0) {
               limit_reached = true;
             }
           }
-          if (sensors[j].max_pos < val){ //->is_upper_bound_reached(sensor_index)) {
+          if (sensors[j].max_pos < val){
             if (distance_to_go * potentiometer_direction > 0) {
               limit_reached = true;
             }
@@ -290,25 +289,22 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
 
     if (sensor_type == POTENTIOMETER) {
       //calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
-		int pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
-		int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
+		  int pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
+		  int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
       int pot_pos = potentiometers_control->get_position(sensor_index);
-	  int max_steps_to_home = pot_dir * sign(pot_home - pot_pos) * 32000;
-//	  Serial.println(pot_dir);
-//	  Serial.println(pot_home);
-//	  Serial.println(pot_pos);
-//	  Serial.println(distance_to_home);
-	  going_to_position = true;
+	    int max_steps_to_home = pot_dir * sign(pot_home - pot_pos) * 32000;
+	    going_to_position = true;
+      sensor_stop_position[0] = pot_home;
       move_motor(max_steps_to_home);
     }
     else if (sensor_type ==  BUTTON) {
       int b_direction = sensors[0]._direction;//buttons_controller->get_direction(sensor_index);
       int max_steps_to_home;
       if (b_direction > 0)
-		  max_steps_to_home = 32000; // this depends on microstepping, gear redunction etc
+		    max_steps_to_home = 32000; // this depends on microstepping, gear redunction etc
       else
-		  max_steps_to_home = -32000;
-	  going_to_position = true;
+		    max_steps_to_home = -32000;
+	    going_to_position = true;
       move_motor(max_steps_to_home);
     }
   }
@@ -324,12 +320,14 @@ void t_stepper_motor_controller::go_to_sensor_position(int pot_stop_position)
 			int pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
 			int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
 			
-			int max_steps_to_home = pot_dir * sign(pot_home - pot_stop_position) * 32000;
-			//	  Serial.println(pot_dir);
-			//	  Serial.println(pot_home);
-			//	  Serial.println(pot_pos);
+			int max_steps_to_home = pot_dir * sign(-pot_home + pot_stop_position) * 32000;
+				  //Serial.println(pot_dir);
+				  //Serial.println(pot_home);
+				  //Serial.println(pot_stop_position);
 			//	  Serial.println(distance_to_home);
 			going_to_position = true;
+     sensor_stop_position[0] = pot_stop_position;
+     //Serial.println(max_steps_to_home);
 			move_motor(max_steps_to_home);
 		}
 		else if (sensor_type == BUTTON) {
