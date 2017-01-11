@@ -191,9 +191,9 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
   if (distance_to_go) {
     for (byte j = 0; j < sensors_count; j++){
       byte sensor_index = sensors[j].index;
-      byte type = sensors[j].type;
+      byte sensor_type = sensors[j].type;
 
-      if (POTENTIOMETER == type) {
+      if (sensor_type == POTENTIOMETER) {
           int potentiometer_direction = sensors[j]._direction;
 
 		      int val = potentiometers_control->get_position(sensor_index);
@@ -238,7 +238,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
 		  }
       }
       else 
-		if (BUTTON == type) {
+		if (sensor_type == BUTTON) {
           int button_direction = sensors[j]._direction; 
           int button_state = buttons_controller->get_state(sensor_index);
 
@@ -329,17 +329,7 @@ void t_stepper_motor_controller::go_to_sensor_position(int pot_stop_position)
      sensor_stop_position[0] = pot_stop_position;
      //Serial.println(max_steps_to_home);
 			move_motor(max_steps_to_home);
-		}
-		else if (sensor_type == BUTTON) {
-			int b_direction = sensors[0]._direction;//buttons_controller->get_direction(sensor_index);
-			int max_steps_to_home;
-			if (b_direction > 0)
-				max_steps_to_home = 32000; // this depends on microstepping, gear redunction etc
-			else
-				max_steps_to_home = -32000;
-			going_to_position = true;
-			move_motor(max_steps_to_home);
-		}
+		}	
 	}
 }
 //-------------------------------------------------------------------------------
