@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2017.01.09.0");
+  strcpy(firmware_version, "2017.01.11.0");
 
   current_buffer[0] = 0;
 
@@ -340,12 +340,14 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
           }
           else if (tmp_str[j] == 'B' || tmp_str[j] == 'b') {
             int sensor_index;
-            sscanf(tmp_str + j + 1, "%d", &sensor_index);
+            int _direction;
+            int num_consumed;
+            sscanf(tmp_str + j + 1, "%d%d", &sensor_index, &_direction, &num_consumed);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-              stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, 0);
+              stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, _direction);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
               dc_motors_controller_TB6612FNG.add_sensor(motor_index, BUTTON, sensor_index);
-            j += 2;
+            j += 1 + num_consumed;
             k++;
           }
           else 
