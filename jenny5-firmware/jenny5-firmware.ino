@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2017.01.11.0");
+  strcpy(firmware_version, "2017.01.12.0");
 
   current_buffer[0] = 0;
 
@@ -173,7 +173,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 					int num_consumed;
 					int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &sensor_position, &num_consumed);
 					if (num_read == 2) {
-						stepper_motors_controller.go_to_sensor_position(motor_index, sensor_position);
+						stepper_motors_controller.go_to_sensor_position(motor_index, &potentiometers_controller, sensor_position);
 						is_command_running = 1;
 						i += 2 + num_consumed;
 					}

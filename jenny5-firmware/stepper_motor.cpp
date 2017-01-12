@@ -310,17 +310,19 @@ void t_stepper_motor_controller::go_home(t_potentiometers_controller *potentiome
   }
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motor_controller::go_to_sensor_position(int pot_stop_position)
+void t_stepper_motor_controller::go_to_sensor_position(t_potentiometers_controller *potentiometers_control, int pot_stop_position)
 {
 	if (sensors_count > 0) {
 		byte sensor_type = sensors[0].type;
+       int sensor_index = sensors[0].index;
 
 		if (sensor_type == POTENTIOMETER) {
 			//calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 			int pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
-			int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
+			//int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
+     int pot_pos = potentiometers_control->get_position(sensor_index);
 			
-			int max_steps_to_home = pot_dir * sign(-pot_home + pot_stop_position) * 32000;
+			int max_steps_to_home = pot_dir * sign(-pot_pos + pot_stop_position) * 32000;
 				  //Serial.println(pot_dir);
 				  //Serial.println(pot_home);
 				  //Serial.println(pot_stop_position);

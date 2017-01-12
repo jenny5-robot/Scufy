@@ -154,8 +154,8 @@ void t_stepper_motors_controller::disable_all(void)
     motors[m].disable_motor();
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::go_to_sensor_position(byte motor_index, int potentiometer_stop_position)
+void t_stepper_motors_controller::go_to_sensor_position(byte motor_index, t_potentiometers_controller *potentiometers_control, int potentiometer_stop_position)
 {
-	motors[motor_index].go_to_sensor_position(potentiometer_stop_position);
+	motors[motor_index].go_to_sensor_position(potentiometers_control, potentiometer_stop_position);
 }
 //-------------------------------------------------------------------------------
