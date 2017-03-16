@@ -335,3 +335,9 @@ void t_stepper_motor_controller::go_to_sensor_position(t_potentiometers_controll
 	}
 }
 //-------------------------------------------------------------------------------
+void t_stepper_motor_controller::stop(void)
+{
+	stepper->setCurrentPosition(0);
+	stepper->move(0);
+}
+//-------------------------------------------------------------------------------

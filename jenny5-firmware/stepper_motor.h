@@ -59,6 +59,7 @@ public:
   byte is_motor_running(void);
 
   void go_to_sensor_position(t_potentiometers_controller *potentiometers_control, int potentiometer_stop_position);
+  void stop(void);
   
   byte run_motor(t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller, int &dist_to_go);
 };

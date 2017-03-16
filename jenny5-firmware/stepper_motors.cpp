@@ -159,3 +159,8 @@ void t_stepper_motors_controller::go_to_sensor_position(byte motor_index, t_pote
 	motors[motor_index].go_to_sensor_position(potentiometers_control, potentiometer_stop_position);
 }
 //-------------------------------------------------------------------------------
+void t_stepper_motors_controller::stop(byte motor_index)
+{
+	motors[motor_index].stop();
+}
+//-------------------------------------------------------------------------------

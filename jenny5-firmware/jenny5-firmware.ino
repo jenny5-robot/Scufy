@@ -39,7 +39,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2017.01.12.0");
+  strcpy(firmware_version, "2017.03.16.0");
 
   current_buffer[0] = 0;
 
@@ -181,6 +181,15 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 						i++;// error on incomplete string (does nothing)
 				}
 			else
+				if (tmp_str[i + 1] == 'T' || tmp_str[i + 1] == 't') {// stop
+					int motor_index;
+					int num_consumed;
+					sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
+					stepper_motors_controller.stop(motor_index);
+					i += 4;
+				}
+				else
+
 				i++;
 			continue;
 		}
@@ -342,7 +351,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
             int sensor_index;
             int _direction;
             int num_consumed;
-            sscanf(tmp_str + j + 1, "%d%d", &sensor_index, &_direction, &num_consumed);
+            sscanf(tmp_str + j + 1, "%d%d%n", &sensor_index, &_direction, &num_consumed);
             if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
               stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, _direction);
             else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
