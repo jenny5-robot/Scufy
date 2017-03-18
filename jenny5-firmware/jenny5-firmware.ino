@@ -26,7 +26,9 @@ char is_command_running;
 
 char firmware_version[20];// year.month.day.build number
 
-char current_buffer[65];
+#define MAX_BUFFER_LENGTH 100
+
+char current_buffer[MAX_BUFFER_LENGTH];
 
 //#define DEBUG
 //#define PRINT_HELP
@@ -39,7 +41,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2017.03.16.0");
+  strcpy(firmware_version, "2017.03.18.0");
 
   current_buffer[0] = 0;
 
@@ -615,7 +617,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 //Main loop
 void loop()
 {
-  char serial_out[100];
+  char serial_out[MAX_BUFFER_LENGTH];
 
   // check to see if there are new results from ultrasonic sensor
   ultrasonic_sensors_controller.update_results(serial_out);
@@ -640,7 +642,8 @@ void loop()
     serial_buffer[num_read] = 0;// terminate the string
     if (serial_buffer[0] || current_buffer[0]) {
       if (serial_buffer[0])
-        strcat(current_buffer, serial_buffer);
+		  if (strlen(serial_buffer) + strlen(current_buffer) < MAX_BUFFER_LENGTH) // concat only if it fits
+			strcat(current_buffer, serial_buffer);
 
 #ifdef DEBUG
       Serial.write("initial buffer is=");
