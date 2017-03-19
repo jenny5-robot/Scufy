@@ -26,7 +26,7 @@ char is_command_running;
 
 char firmware_version[20];// year.month.day.build number
 
-#define MAX_BUFFER_LENGTH 100
+#define MAX_BUFFER_LENGTH 65
 
 char current_buffer[MAX_BUFFER_LENGTH];
 
@@ -41,7 +41,7 @@ bool first_start;
 void setup()
 {
   first_start = 0;
-  strcpy(firmware_version, "2017.03.18.0");
+  strcpy(firmware_version, "2017.03.19.0");
 
   current_buffer[0] = 0;
 
