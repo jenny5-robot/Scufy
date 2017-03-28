@@ -278,7 +278,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				  i += 3;
 			  }
 			  else
-				  if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') {// lidar halt
+				  if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') {// set speed and acceleration
 					  int motor_speed, motor_acceleration;
 					  int num_consumed;
 					  sscanf(tmp_str + i + 2, "%d%d%n", &motor_speed, &motor_acceleration, &num_consumed);
