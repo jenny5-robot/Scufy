@@ -193,60 +193,66 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
       byte sensor_index = sensors[j].index;
       byte sensor_type = sensors[j].type;
 
-      if (sensor_type == POTENTIOMETER) {
-          int potentiometer_direction = sensors[j]._direction;
+      switch (sensor_type){
+		  case POTENTIOMETER:
+		  {
+			  int potentiometer_direction = sensors[j]._direction;
 
-		      int val = potentiometers_control->get_position(sensor_index);
+			  int val = potentiometers_control->get_position(sensor_index);
 
-          if (sensors[j].min_pos > val){ 
-            if (distance_to_go * potentiometer_direction < 0) {
-              limit_reached = true;
-            }
-          }
-          if (sensors[j].max_pos < val){
-            if (distance_to_go * potentiometer_direction > 0) {
-              limit_reached = true;
-            }
-          }
-
-		  if (going_to_position) {
-			  // must stop to home
-			  int pot_position = potentiometers_control->get_position(sensor_index);
-			  int pot_stop_position = sensor_stop_position[j]; // sensors[j].home_pos;// potentiometers_control->get_home_position(sensor_index);
-			  int8_t pot_direction = sensors[j]._direction;// potentiometers_control->get_direction(sensor_index);
-
-			  if (pot_direction == 1) {
-				  if (distance_to_go > 0) {
-					  if (pot_position >= pot_stop_position)
-						  limit_reached = true;
-				  }
-				  else { // distance to go is negative 
-					  if (pot_position <= pot_stop_position)
-						  limit_reached = true;
+			  if (sensors[j].min_pos > val) {
+				  if (distance_to_go * potentiometer_direction < 0) {
+					  limit_reached = true;
 				  }
 			  }
-			  else {// pot direction == -1
-				  if (distance_to_go > 0) {
-					  if (pot_position <= pot_stop_position)
-						  limit_reached = true;
+			  if (sensors[j].max_pos < val) {
+				  if (distance_to_go * potentiometer_direction > 0) {
+					  limit_reached = true;
 				  }
-				  else { // distance to go is negative 
-					  if (pot_position >= pot_stop_position)
-						  limit_reached = true;
+			  }
+
+			  if (going_to_position) {
+				  // must stop to home
+				  int pot_position = potentiometers_control->get_position(sensor_index);
+				  int pot_stop_position = sensor_stop_position[j]; // sensors[j].home_pos;// potentiometers_control->get_home_position(sensor_index);
+				  int8_t pot_direction = sensors[j]._direction;// potentiometers_control->get_direction(sensor_index);
+
+				  if (pot_direction == 1) {
+					  if (distance_to_go > 0) {
+						  if (pot_position >= pot_stop_position)
+							  limit_reached = true;
+					  }
+					  else { // distance to go is negative 
+						  if (pot_position <= pot_stop_position)
+							  limit_reached = true;
+					  }
+				  }
+				  else {// pot direction == -1
+					  if (distance_to_go > 0) {
+						  if (pot_position <= pot_stop_position)
+							  limit_reached = true;
+					  }
+					  else { // distance to go is negative 
+						  if (pot_position >= pot_stop_position)
+							  limit_reached = true;
+					  }
 				  }
 			  }
 		  }
-      }
-      else 
-		if (sensor_type == BUTTON) {
-          int button_direction = sensors[j]._direction; 
-          int button_state = buttons_controller->get_state(sensor_index);
+		  break;
+      
+		case BUTTON:
+		{
+			int button_direction = sensors[j]._direction;
+			int button_state = buttons_controller->get_state(sensor_index);
 
-          if (button_state == 1) // limit reached
-            if (distance_to_go * button_direction > 0)
-              limit_reached = true;
-        }
-    }
+			if (button_state == 1) // limit reached
+				if (distance_to_go * button_direction > 0)
+					limit_reached = true;
+		}
+		  break;
+        }// end switch
+    } // end for (byte j = 0; j < sensors_count; j++)
 
     if (!limit_reached){
       stepper->run();
@@ -266,7 +272,7 @@ byte t_stepper_motor_controller::run_motor(t_potentiometers_controller *potentio
       else
         return MOTOR_DOES_NOTHING;
     }
-  }
+  } // end if (distance_to_go)
   else {
     // the motor has just finished the move, so we output that event
     going_to_position = false;
