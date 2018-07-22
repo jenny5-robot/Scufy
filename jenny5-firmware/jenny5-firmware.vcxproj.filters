@@ -48,9 +48,6 @@
     <ClInclude Include="jenny5_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryFree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="potentiometer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -76,6 +73,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ultrasonic_sensors.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -104,9 +104,6 @@
     <ClCompile Include="infrared_digital_sensors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MemoryFree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="potentiometer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -132,6 +129,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ultrasonic_sensors.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
