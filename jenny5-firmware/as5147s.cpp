@@ -2,13 +2,13 @@
 #include "as5147s.h"
 
 //--------------------------------------------------------------------
-t_as5147_s_controller::t_as5147_s_controller(void)
+t_as5147s_controller::t_as5147s_controller(void)
 {
 	num_sensors = 0;
 	sensors = NULL;
 }
 //--------------------------------------------------------------------
-int	t_as5147_s_controller::get_position(byte sensor_index)
+int	t_as5147s_controller::get_position(byte sensor_index)
 {
 	return sensors[sensor_index].get_position();
 }
@@ -25,12 +25,12 @@ int t_as5147_s_controller::get_home_position(byte potentiometer_index)
 }
 */
 //--------------------------------------------------------------------
-void t_as5147_s_controller::set_params(byte sensor_index, byte pin)
+void t_as5147s_controller::set_params(byte sensor_index, byte pin)
 {
 	sensors[sensor_index].set_params(pin);
 }
 //--------------------------------------------------------------------
-void t_as5147_s_controller::get_params(byte sensor_index, byte *pin)
+void t_as5147s_controller::get_params(byte sensor_index, byte *pin)
 {
 	sensors[sensor_index].get_params(pin);
 }
@@ -42,7 +42,7 @@ byte t_as5147_s_controller::is_within_limits(byte sensor_index)
 }
 */
 //--------------------------------------------------------------------
-void t_as5147_s_controller::set_num_sensors(byte new_num_sensors)
+void t_as5147s_controller::set_num_sensors(byte new_num_sensors)
 {
 	if (new_num_sensors != num_sensors) {
 		num_sensors = new_num_sensors;
@@ -60,7 +60,7 @@ void t_as5147_s_controller::set_num_sensors(byte new_num_sensors)
 	}
 }
 //--------------------------------------------------------------------
-byte t_as5147_s_controller::get_num_sensors(void)
+byte t_as5147s_controller::get_num_sensors(void)
 {
 	return num_sensors;
 }
