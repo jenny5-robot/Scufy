@@ -7,6 +7,7 @@
 #include "infrared_analog_sensors.h"
 #include "buttons.h"
 #include "jenny5_types.h"
+#include "as5147s.h"
 
 //---------------------------------------------------
 class t_stepper_motor_controller
@@ -54,14 +55,14 @@ public:
   void get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t *_direction);
 
   void set_motor_running(byte is_running);
-  void go_home(t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller);
+  void go_home(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller);
   
   byte is_motor_running(void);
 
-  void go_to_sensor_position(t_potentiometers_controller *potentiometers_control, int potentiometer_stop_position);
+  void go_to_sensor_position(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, int potentiometer_stop_position);
   void stop(void);
   
-  byte run_motor(t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller, int &dist_to_go);
+  byte run_motor(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller, int &dist_to_go);
 };
 //---------------------------------------------------
 
