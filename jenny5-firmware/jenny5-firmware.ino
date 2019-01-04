@@ -54,14 +54,14 @@ void setup()
   /*
 	Serial.write("Commands are:");
 	Serial.println(F("T# // test connection. Returns T#."));
-	Serial.println(F("MSx y# // Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs MSx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
+	Serial.println(F("SMx y# // Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs SMx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
 	Serial.println(F("MDx y# // Moves DC motor x for y miliseconds. Outputs MDx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the time to go."));
 	Serial.println(F("MVx y# // Moves servo motor x for y steps."));
 	Serial.println(F("HSx# // Moves stepper motor x to home position. The first sensor in the list of sensors will establish the home position. The motor does nothing if no sensor is attached. Returns HSx#."));
 	Serial.println(F("HDx# // Moves DC motor x to home position. The first sensor in the list of sensors must be the button which establish the home position. The motor does nothing if no sensor is attached. Returns HDx#."));
 	Serial.println(F("HVx# // Moves servo motor x to home position.  Returns HVx#."));
 
-	Serial.println(F("DSx#  // Disables stepper motor x. Outputs DSx# when done."));
+	Serial.println(F("SDx#  // Disables stepper motor x. Outputs SDx# when done."));
 	Serial.println(F("DDx#  // Disables dc motor x. Outputs DDx# when done."));
 
 	Serial.println(F("Lx#  // Locks stepper motor x. Outputs Lx# when done."));
