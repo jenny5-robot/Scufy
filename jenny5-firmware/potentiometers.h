@@ -7,9 +7,9 @@
 
 class t_potentiometers_controller
 {
-private:
-	byte					num_sensors;
-  t_potentiometer_controller *sensors;
+	private:
+		byte num_sensors;
+		t_potentiometer_controller *sensors;
 
 public:
 	t_potentiometers_controller();

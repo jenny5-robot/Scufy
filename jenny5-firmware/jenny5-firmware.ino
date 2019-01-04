@@ -17,7 +17,7 @@
 t_stepper_motors_controller stepper_motors_controller;
 t_dc_motors_controller_TB6612FNG dc_motors_controller_TB6612FNG;
 t_potentiometers_controller potentiometers_controller;
-t_as5147_s_controller as5147_s_controller;
+t_as5147s_controller as5147s_controller;
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
 t_infrared_analog_sensors_controller infrared_analog_sensors_controller;
 t_buttons_controller buttons_controller;
@@ -43,7 +43,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2018.07.22.4");
+	strcpy(firmware_version, "2018.12.02.0");
 
 	current_buffer[0] = 0;
 
@@ -171,7 +171,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 									int motor_index;
 									int num_consumed;
 									sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
-									stepper_motors_controller.go_home(motor_index, &potentiometers_controller, &buttons_controller);
+									stepper_motors_controller.go_home(motor_index, &as5147s_controller, &potentiometers_controller, &buttons_controller);
 									i += 4;
 								}
 								else
@@ -180,7 +180,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 										int num_consumed;
 										int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &sensor_position, &num_consumed);
 										if (num_read == 2) {
-											stepper_motors_controller.go_to_sensor_position(motor_index, &potentiometers_controller, sensor_position);
+											stepper_motors_controller.go_to_sensor_position(motor_index, &as5147s_controller, &potentiometers_controller, sensor_position);
 											is_command_running = 1;
 											i += 2 + num_consumed;
 										}
@@ -244,7 +244,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				if (tmp_str[i + 1] == 'A' || tmp_str[i + 1] == 'a') {
 					int sensor_index;
 					sscanf(tmp_str + i + 2, "%d", &sensor_index);
-					int sensor_value = as5147_s_controller.get_position(sensor_index);
+					int sensor_value = as5147s_controller.get_position(sensor_index);
 					sprintf(tmp_serial_out, "A%d %d#", sensor_index, sensor_value);
 					strcat(serial_out, tmp_serial_out);
 					i += 3;
@@ -579,7 +579,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 					sscanf(tmp_str + i + 3, "%d%n", &num_as5147, &num_consumed);
 
 					int total_num_consumed = 3 + num_consumed;
-					as5147_s_controller.set_num_sensors(num_as5147);
+					as5147s_controller.set_num_sensors(num_as5147);
 
 					pinMode(SI, OUTPUT);
 					pinMode(SO, INPUT);
@@ -588,7 +588,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 					for (int k = 0; k < num_as5147; k++) {
 						int _out_pin;
 						sscanf(tmp_str + i + total_num_consumed, "%d%n", &_out_pin, &num_consumed);
-						as5147_s_controller.set_params(k, _out_pin);
+						as5147s_controller.set_params(k, _out_pin);
 						total_num_consumed += num_consumed + 1;
 					}
 
@@ -759,7 +759,7 @@ void loop()
 				}
 		}
 	}
-	stepper_motors_controller.run_motors(&potentiometers_controller, &buttons_controller, serial_out);
+	stepper_motors_controller.run_motors(&as5147s_controller, &potentiometers_controller, &buttons_controller, serial_out);
 	if (serial_out[0]) {
 		Serial.write(serial_out);
 		serial_out[0] = 0;

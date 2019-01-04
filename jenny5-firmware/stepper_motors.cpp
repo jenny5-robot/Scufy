@@ -125,7 +125,7 @@ void t_stepper_motors_controller::get_speed_and_acceleration(byte motor_index, f
   motors[motor_index].get_motor_speed_and_acceleration(_motor_speed, _motor_acceleration);
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potentiometers_control, t_buttons_controller *buttons_controller, char* serial_out)
+void t_stepper_motors_controller::run_motors(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller *buttons_controller, char* serial_out)
 {
   serial_out[0] = 0;
   // run motors
@@ -134,7 +134,7 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
   for (int m = 0; m < num_motors; m++)
   {
     int dist_to_go;
-    byte result = motors[m].run_motor(potentiometers_control, buttons_controller, dist_to_go);
+    byte result = motors[m].run_motor(as5147s_controller, potentiometers_control, buttons_controller, dist_to_go);
     if (result == MOTOR_JUST_STOPPED){
       char tmp_str[20];
       sprintf(tmp_str, "SM%d %d#", m, dist_to_go);
@@ -143,9 +143,9 @@ void t_stepper_motors_controller::run_motors(t_potentiometers_controller *potent
   }
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::go_home(byte motor_index, t_potentiometers_controller *potentiometers_control, t_buttons_controller *buttons_controller)
+void t_stepper_motors_controller::go_home(byte motor_index, t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller *buttons_controller)
 {
-  motors[motor_index].go_home(potentiometers_control, buttons_controller);
+  motors[motor_index].go_home(as5147s_controller, potentiometers_control, buttons_controller);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motors_controller::disable_all(void)
@@ -154,9 +154,9 @@ void t_stepper_motors_controller::disable_all(void)
     motors[m].disable_motor();
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motors_controller::go_to_sensor_position(byte motor_index, t_potentiometers_controller *potentiometers_control, int potentiometer_stop_position)
+void t_stepper_motors_controller::go_to_sensor_position(byte motor_index, t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, int potentiometer_stop_position)
 {
-	motors[motor_index].go_to_sensor_position(potentiometers_control, potentiometer_stop_position);
+	motors[motor_index].go_to_sensor_position(as5147s_controller, potentiometers_control, potentiometer_stop_position);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motors_controller::stop(byte motor_index)

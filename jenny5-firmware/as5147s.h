@@ -5,14 +5,14 @@
 #include "as5147.h"
 
 
-class t_as5147_s_controller
+class t_as5147s_controller
 {
 private:
 	byte num_sensors;
 	t_as5147_controller *sensors;
 
 public:
-	t_as5147_s_controller();
+	t_as5147s_controller();
 
 	int get_position(byte sensor_index);
 	//	int8_t get_direction(byte potentiometer_index);
