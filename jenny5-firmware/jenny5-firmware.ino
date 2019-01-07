@@ -43,7 +43,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2018.12.02.0");
+	strcpy(firmware_version, "2019.01.07.1");
 
 	current_buffer[0] = 0;
 
@@ -71,6 +71,7 @@ void setup()
 	Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start."));
 
 	Serial.println(F("ASx n Py Bz ... # // Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z etc)."));
+	Example: AS0 1 A0 280 320 300 1#
 	Serial.println(F("ADx n Py Bz ... # // Attach to dc motor x a list of n sensors (like Potentiometer y, Button z etc)."));
 	Serial.println(F("AVx n Py Bz ... # // Attach to servo motor x a list of n sensors (like Potentiometer y, Button z etc)."));
 
@@ -89,6 +90,7 @@ void setup()
 	Serial.println(F("GAx# // Gets the parameters for AS5147 x: CS pin. Outputs GAx p d#"));
 
 	Serial.println(F("CS n d1 s1 e1 d2 s2 e2# // Creates the stepper motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CS# when done."));
+	CS 3 5 4 11 7 6 11 9 8 11#
 	Serial.println(F("CD n p1 d11 d12 e1 p2 d21 d22 e2# // Creates the dc motors controller and set some of its parameters. n is the number of motors, p is the pwm_pin, d1 and d2 are the direction pins and e is the enable pins. Outputs CD# when done."));
 	Serial.println(F("CV n# // Creates the servo motors controller and set some of its parameters. n is the number of motors, Outputs CV# when done."));
 
@@ -98,7 +100,8 @@ void setup()
 	Serial.println(F("CID n pin1 pin2# // Creates the infrared digital controller and set some of its parameters. n is the number of infrared digital sensors, pin1 is the analog pin index. Outputs CID# when done."));
 	Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
 	Serial.println(F("CTR# // Creates the Tera Ranger One controller. Outputs CTR# when done."));
-	Serial.println(F("CAS# // Creates the AS5147 controller. Outputs CTR# when done."));
+	Serial.println(F("CA n p1 p2 p3# // Creates the AS5147 controller. n is the number of sensors, p* are pins. Outputs CA# when done."));
+// Example: CA 3 18 19 20#
 	- CL creates LIDAR
 
 
@@ -372,7 +375,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 						j += 1 + num_consumed;
 						k++;
 					}
-					else if (tmp_str[j] == 'B' || tmp_str[j] == 'b') {
+					else if (tmp_str[j] == 'B' || tmp_str[j] == 'b') {//buttons
 						int sensor_index;
 						int _direction;
 						int num_consumed;
@@ -385,7 +388,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 						k++;
 					}
 					else
-						if (tmp_str[j] == 'I' || tmp_str[j] == 'i') {
+						if (tmp_str[j] == 'I' || tmp_str[j] == 'i') {// infrared
 							int sensor_index;
 							sscanf(tmp_str + j + 1, "%d", &sensor_index);
 							if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
@@ -396,7 +399,22 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 							k++;
 						}
 						else
-							j++;
+							if (tmp_str[j] == 'A' || tmp_str[j] == 'a') {
+								int sensor_index;
+								int _low, _high, _home;
+								int _direction;
+								int num_consumed;
+
+								sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
+								if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
+									stepper_motors_controller.add_sensor(motor_index, AS5147, sensor_index, _low, _high, _home, _direction);
+								else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
+									dc_motors_controller_TB6612FNG.add_sensor(motor_index, AS5147, sensor_index);
+								j += 1 + num_consumed;
+								k++;
+							}
+							else
+								j++;
 				}
 				i = j + 1;
 				// Serial.println(i);
@@ -477,7 +495,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 			// create something
 			if (tmp_str[i] == 'C' || tmp_str[i] == 'c') {
 				// create a list of stepper motors
-				if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { 
+				if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') {
 					if (!stepper_motors_controller.is_running()) {
 						int num_motors = 0;
 
@@ -501,7 +519,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// create a list of DC motors
-				if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { 
+				if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') {
 					if (!dc_motors_controller_TB6612FNG.is_running()) {
 						int num_motors = 0;
 
@@ -525,7 +543,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// create a list of ultrasonic sensors
-				if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { 
+				if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') {
 
 					int num_sonars = 0;
 
@@ -548,7 +566,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// create a list of potentiometers
-				if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { 
+				if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') {
 
 					int num_potentiometers = 0;
 
@@ -571,7 +589,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// create a list of AS5147
-				if (tmp_str[i + 1] == 'A' || tmp_str[i + 1] == 'a') { 
+				if (tmp_str[i + 1] == 'A' || tmp_str[i + 1] == 'a') {
 
 					int num_as5147 = 0;
 
@@ -599,7 +617,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// create a list of infrared sensors
-				if (tmp_str[i + 1] == 'I' || tmp_str[i + 1] == 'i') { 
+				if (tmp_str[i + 1] == 'I' || tmp_str[i + 1] == 'i') {
 
 					int num_infrareds = 0;
 
@@ -626,7 +644,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// create a list of button sensors
-				if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { 
+				if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') {
 					int num_buttons = 0;
 					int num_consumed = 0;
 					sscanf(tmp_str + i + 3, "%d%n", &num_buttons, &num_consumed);
@@ -646,7 +664,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// create Tera Ranger One controller
-				if (tmp_str[i + 1] == 'T' || tmp_str[i + 1] == 't') { 
+				if (tmp_str[i + 1] == 'T' || tmp_str[i + 1] == 't') {
 					tera_ranger_one_controller.create_init();
 					sprintf(tmp_serial_out, "CT#");
 					strcat(serial_out, tmp_serial_out);
@@ -656,7 +674,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				}
 
 				// creates a LIDAR
-				if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') { 
+				if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') {
 
 					int num_consumed = 0;
 					int _dir_pin, _step_pin, _enable_pin, _infrared_pin;

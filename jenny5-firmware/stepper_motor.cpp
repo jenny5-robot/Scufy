@@ -245,22 +245,89 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 			{
 				int8_t as5147_direction = sensors[j]._direction;
 
-				int val = as5147s_controller->get_position(sensor_index);
+				int as5147_position = as5147s_controller->get_position(sensor_index);
 
-				if (val < sensors[j].min_pos) {
+				if (as5147_direction == 1) { // motor and sensors values have the same sign
+					if (distance_to_go > 0) {
+						if (sensors[j].min_pos < sensors[j].max_pos) {
+							if (as5147_position > sensors[j].max_pos)
+								limit_reached = true;
+							else
+								; // no limit reached ... so do nothing
+						}
+						else { // max < min ... so it overides 360
+							if (as5147_position > sensors[j].max_pos && 
+								abs(as5147_position - sensors[j].max_pos) < abs(as5147_position - sensors[j].min_pos))
+								limit_reached = true;
+							else
+								; // no limit reached ... so do nothing
+						}
+					}
+					else
+						if (distance_to_go < 0) {
+							if (sensors[j].min_pos < sensors[j].max_pos) {
+								if (as5147_position < sensors[j].min_pos)
+									limit_reached = true;
+								else
+									; // no limit reached ... so do nothing
+							}
+							else { // max < min ... so it overides 360
+								if (as5147_position < sensors[j].min_pos && 
+									abs(as5147_position - sensors[j].min_pos) < abs(as5147_position - sensors[j].max_pos))
+									limit_reached = true;
+								else
+									; // no limit reached ... so do nothing
+							}
+						}
+				}
+				else { // as5147_direction == -1 // motor and sensors values have different signs
+					if (distance_to_go > 0) {// if motors increase, the sensor decreases
+						if (sensors[j].min_pos < sensors[j].max_pos) {
+							if (as5147_position < sensors[j].min_pos)
+								limit_reached = true;
+							else
+								; // no limit reached ... so do nothing
+						}
+						else { // max < min ... so it overides 360
+							if (as5147_position < sensors[j].min_pos && 
+								abs(as5147_position - sensors[j].min_pos) < abs(as5147_position - sensors[j].max_pos))
+								limit_reached = true;
+							else
+								; // no limit reached ... so do nothing
+						}
+					}
+					else
+						if (distance_to_go < 0) {
+							if (sensors[j].min_pos < sensors[j].max_pos) {
+								if (as5147_position > sensors[j].max_pos)
+									limit_reached = true;
+								else
+									; // no limit reached ... so do nothing
+							}
+							else { // max < min ... so it overides 360
+								if (as5147_position > sensors[j].max_pos && 
+									abs(as5147_position - sensors[j].max_pos) < abs(as5147_position - sensors[j].min_pos))
+									limit_reached = true;
+								else
+									; // no limit reached ... so do nothing
+							}
+						}
+				}
+					/*
+				if (as5147_position < sensors[j].min_pos) {
 					if (distance_to_go * as5147_direction < 0) {
 						limit_reached = true;
 					}
 				}
-				if (val > sensors[j].max_pos) {
+				if (as5147_position > sensors[j].max_pos) {
 					if (distance_to_go * as5147_direction > 0) {
 						limit_reached = true;
 					}
 				}
-
+				*/
 				if (going_to_position) {
 					// must stop to home
-					int as5147_position = as5147s_controller->get_position(sensor_index);
+					//int as5147_position = as5147s_controller->get_position(sensor_index);
 					int as5147_stop_position = sensor_stop_position[j]; // sensors[j].home_pos;// potentiometers_control->get_home_position(sensor_index);
 					//int8_t pot_direction = sensors[j]._direction;// potentiometers_control->get_direction(sensor_index);
 
@@ -274,7 +341,7 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 								limit_reached = true;
 						}
 					}
-					else {// pot direction == -1
+					else {// sensor direction == -1
 						if (distance_to_go > 0) {
 							if (as5147_position <= as5147_stop_position)
 								limit_reached = true;
