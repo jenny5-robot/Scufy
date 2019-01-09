@@ -1,5 +1,4 @@
 #include <Wire.h>
-//#include <avr/pgmspace.h>
 
 #include "ultrasonic_sensors.h"
 #include "potentiometers.h"
@@ -42,14 +41,20 @@ bool first_start;
 //--------------------------------------------------------------------------------------------
 void setup()
 {
+
 	first_start = 0;
-	strcpy(firmware_version, "2019.01.07.1");
+	strcpy(firmware_version, "2019.01.09.1");
 
 	current_buffer[0] = 0;
 
 	tera_ranger_one_lidar = NULL;
 
 	Serial.begin(115200); //Open Serial connection
+
+	//delay(2000);
+
+	//Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
+	//Serial.flush();
 
   /*
 	Serial.write("Commands are:");
@@ -90,7 +95,7 @@ void setup()
 	Serial.println(F("GAx# // Gets the parameters for AS5147 x: CS pin. Outputs GAx p d#"));
 
 	Serial.println(F("CS n d1 s1 e1 d2 s2 e2# // Creates the stepper motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CS# when done."));
-	CS 3 5 4 11 7 6 11 9 8 11#
+	CS 3 5 4 12 7 6 12 9 8 12#
 	Serial.println(F("CD n p1 d11 d12 e1 p2 d21 d22 e2# // Creates the dc motors controller and set some of its parameters. n is the number of motors, p is the pwm_pin, d1 and d2 are the direction pins and e is the enable pins. Outputs CD# when done."));
 	Serial.println(F("CV n# // Creates the servo motors controller and set some of its parameters. n is the number of motors, Outputs CV# when done."));
 
@@ -112,7 +117,8 @@ void setup()
 
 	Serial.println();
   */
-	Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
+	
+
 }
 //--------------------------------------------------------------------------------------------
 void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out)
