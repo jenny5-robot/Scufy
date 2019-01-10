@@ -12,10 +12,15 @@ t_stepper_motors_controller::t_stepper_motors_controller(void)
 //-------------------------------------------------------------------------------
 t_stepper_motors_controller::~t_stepper_motors_controller()
 {
-  if (motors){
-    delete[] motors;
-    motors = NULL;
-  }
+	delete_memory();
+}
+//-------------------------------------------------------------------------------
+void t_stepper_motors_controller::delete_memory(void)
+{
+	if (motors){
+		delete[] motors;
+		motors = NULL;
+	}
 }
 //-------------------------------------------------------------------------------
 byte t_stepper_motors_controller::get_num_motors(void)

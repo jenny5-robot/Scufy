@@ -23,6 +23,8 @@ class t_stepper_motors_controller
   public:
     t_stepper_motors_controller(void);
     ~t_stepper_motors_controller();
+	void delete_memory(void);
+
 
     void set_pins(byte motor_index, byte _dir, byte _step, byte _enable);
 
