@@ -42,7 +42,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2019.01.10.2");
+	strcpy(firmware_version, "2019.01.12.0");
 
 	current_buffer[0] = 0;
 
@@ -443,18 +443,20 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 void parse_and_execute_create_stepper_motors_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
 	if (!stepper_motors_controller.is_running()) {
-		stepper_motors_controller.delete_memory();
+		//stepper_motors_controller.delete_memory();
 		int num_motors = 0;
 
 		int num_consumed = 0;
 		sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
 
 		int total_num_consumed = 3 + num_consumed;
+		bool new_num_motors = stepper_motors_controller.num_motors != num_motors;
 		stepper_motors_controller.set_num_motors(num_motors);
 		for (int k = 0; k < num_motors; k++) {
 			int _step_pin, _dir_pin, _enable_pin;
 			sscanf(tmp_str + i + total_num_consumed, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
-			stepper_motors_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
+			if (new_num_motors)
+				stepper_motors_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
 			total_num_consumed += num_consumed + 1;
 		}
 		stepper_motors_controller.disable_all();
