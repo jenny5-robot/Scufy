@@ -1,3 +1,9 @@
+// Author: Mihai Oltean, mihaioltean.github.io, mihai.oltean@gmail.com
+// Jenny 5 websites: jenny5.org, jenny5-robot.github.io/
+// Jenny 5 source code: github.com/jenny5-robot
+// MIT License
+//--------------------------------------------------------------
+
 #ifndef dc_motors_controller_TB6612FNG_H
 #define dc_motors_controller_TB6612FNG_H
 

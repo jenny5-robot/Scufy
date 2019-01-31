@@ -78,6 +78,12 @@
     <ClInclude Include="utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="as5147.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="as5147s.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelStepper.cpp">
@@ -132,6 +138,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="as5147.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="as5147s.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="memoryfree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

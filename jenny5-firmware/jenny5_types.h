@@ -1,4 +1,8 @@
-//---------------------------------------------------
+// Author: Mihai Oltean, mihaioltean.github.io, mihai.oltean@gmail.com
+// Jenny 5 websites: jenny5.org, jenny5-robot.github.io/
+// Jenny 5 source code: github.com/jenny5-robot
+// MIT License
+//--------------------------------------------------------------
 #ifndef JENNY_5_TYPES_H
 #define JENNY_5_TYPES_H
 

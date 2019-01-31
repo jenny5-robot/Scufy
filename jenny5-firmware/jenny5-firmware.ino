@@ -1,3 +1,10 @@
+// Author: Mihai Oltean, mihaioltean.github.io, mihai.oltean@gmail.com
+// Jenny 5 websites: jenny5.org, jenny5-robot.github.io/
+// Jenny 5 source code: github.com/jenny5-robot
+// MIT License
+//--------------------------------------------------------------
+
+
 #include <Wire.h>
 
 #include "ultrasonic_sensors.h"
@@ -563,7 +570,7 @@ void parse_and_execute_create_infrared_commands(char* tmp_str, byte str_length, 
 	infrared_analog_sensors_controller.set_num_sensors(num_infrareds);
 	for (int k = 0; k < num_infrareds; k++) {
 		int out_pin;
-		int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &out_pin, &num_consumed);
+		sscanf(tmp_str + i + total_num_consumed, "%d%n", &out_pin, &num_consumed);
 		infrared_analog_sensors_controller.set_params(k, out_pin);
 		total_num_consumed += num_consumed + 1;
 	}
