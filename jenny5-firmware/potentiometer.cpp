@@ -7,6 +7,8 @@
 #include "potentiometer.h"
 #include "Arduino.h"
 //--------------------------------------------------------------------
+#ifdef USE_POTENTIOMETERS
+
 t_potentiometer_controller::t_potentiometer_controller(void)
 {
   pin = 2;
@@ -61,4 +63,7 @@ int t_potentiometer_controller::get_home_position(void)
   return _home;
 }
 //--------------------------------------------------------------------
+
 */
+
+#endif

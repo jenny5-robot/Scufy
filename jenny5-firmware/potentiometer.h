@@ -8,7 +8,10 @@
 #define POTENTIOMETER_CONTROLLER_H
 
 #include "Arduino.h"
+#include "config.h"
 
+
+#ifdef USE_POTENTIOMETERS
 class t_potentiometer_controller
 {
 private:
@@ -27,5 +30,5 @@ public:
 	bool is_upper_bound_reached(void);
 	*/
 };
-
+#endif
 #endif

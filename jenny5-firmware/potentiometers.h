@@ -9,8 +9,9 @@
 
 #include "Arduino.h"
 #include "potentiometer.h"
+#include "config.h"
 
-
+#ifdef USE_POTENTIOMETERS
 class t_potentiometers_controller
 {
 	private:
@@ -34,5 +35,5 @@ byte is_within_limits(byte potentiometer_index);
   void set_num_sensors(byte new_num_sensors);
   byte get_num_sensors(void);
 };
-
+#endif
 #endif

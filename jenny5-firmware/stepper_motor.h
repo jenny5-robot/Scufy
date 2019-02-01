@@ -7,9 +7,13 @@
 #ifndef stepper_motor_controller_H
 #define stepper_motor_controller_H
 
+#include "config.h"
+
 #include "Arduino.h"
 #include "AccelStepper.h"
+#ifdef USE_POTENTIOMETERS
 #include "potentiometers.h"
+#endif
 #include "infrared_analog_sensors.h"
 #include "buttons.h"
 #include "jenny5_types.h"
@@ -61,14 +65,27 @@ public:
   void get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t *_direction);
 
   void set_motor_running(byte is_running);
-  void go_home(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller);
+  void go_home(t_as5147s_controller *as5147s_controller, 
+#ifdef USE_POTENTIOMETERS 
+	  t_potentiometers_controller *potentiometers_control, 
+#endif 
+	 t_buttons_controller* buttons_controller);
   
   byte is_motor_running(void);
 
-  void go_to_sensor_position(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, int potentiometer_stop_position);
+  void go_to_sensor_position(t_as5147s_controller *as5147s_controller,
+#ifdef USE_POTENTIOMETERS
+	  t_potentiometers_controller *potentiometers_control, 
+#endif
+	  int sensor_stop_position
+  );
   void stop(void);
   
-  byte run_motor(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller, int &dist_to_go);
+  byte run_motor(t_as5147s_controller *as5147s_controller, 
+#ifdef USE_POTENTIOMETERS
+	  t_potentiometers_controller *potentiometers_control, 
+#endif
+	  t_buttons_controller* buttons_controller, int &dist_to_go);
 };
 //---------------------------------------------------
 

@@ -185,7 +185,11 @@ void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_
 	}
 }
 //-------------------------------------------------------------------------------
-byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller *buttons_controller, int& dist_left_to_go)
+byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_controller, 
+#ifdef USE_POTENTIOMETERS
+	t_potentiometers_controller *potentiometers_control,
+#endif
+	t_buttons_controller *buttons_controller, int& dist_left_to_go)
 {
 	// returns MOTOR_STILL_RUNNING if is still running
 	// returns MOTOR_DOES_NOTHING if it does nothing
@@ -200,6 +204,7 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 			byte sensor_type = sensors[j].type;
 
 			switch (sensor_type) {
+#ifdef USE_POTENTIOMETERS
 			case POTENTIOMETER:
 			{
 				int8_t potentiometer_direction = sensors[j]._direction;
@@ -244,9 +249,9 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 						}
 					}
 				}
-			}
+			} // end case potentiometer
 			break;
-
+#endif
 			case AS5147:
 			{
 				int8_t as5147_direction = sensors[j]._direction;
@@ -407,13 +412,18 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 	}
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motor_controller::go_home(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, t_buttons_controller* buttons_controller)
+void t_stepper_motor_controller::go_home(t_as5147s_controller *as5147s_controller, 
+#ifdef USE_POTENTIOMETERS
+	t_potentiometers_controller *potentiometers_control, 
+#endif
+	t_buttons_controller* buttons_controller)
 {
 	if (sensors_count > 0) {
 		byte sensor_index = sensors[0].index;
 		byte sensor_type = sensors[0].type;
 
 		switch (sensor_type) {
+#ifdef USE_POTENTIOMETERS
 		case POTENTIOMETER: {
 			//calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 			int8_t pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
@@ -425,7 +435,7 @@ void t_stepper_motor_controller::go_home(t_as5147s_controller *as5147s_controlle
 			move_motor(max_steps_to_home);
 		}
 							break;
-
+#endif
 		case AS5147: {
 			//calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 			int8_t as5147_dir = sensors[0]._direction;
@@ -452,13 +462,19 @@ void t_stepper_motor_controller::go_home(t_as5147s_controller *as5147s_controlle
 	}
 }
 //-------------------------------------------------------------------------------
-void t_stepper_motor_controller::go_to_sensor_position(t_as5147s_controller *as5147s_controller, t_potentiometers_controller *potentiometers_control, int pot_stop_position)
+void t_stepper_motor_controller::go_to_sensor_position(
+	t_as5147s_controller *as5147s_controller,
+#ifdef USE_POTENTIOMETERS
+	t_potentiometers_controller *potentiometers_control, 
+#endif
+	int _stop_position)
 {
 	if (sensors_count > 0) {
 		byte sensor_type = sensors[0].type;
 		byte sensor_index = sensors[0].index;
 
 		switch (sensor_type) {
+#ifdef USE_POTENTIOMETERS
 		case POTENTIOMETER: {
 			//calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 			int8_t pot_dir = sensors[0]._direction; // potentiometers_control->get_direction(sensor_index);
@@ -476,19 +492,20 @@ void t_stepper_motor_controller::go_to_sensor_position(t_as5147s_controller *as5
 			move_motor(max_steps_to_home);
 		}
 							break;
+#endif
 		case AS5147: {
 			//calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 			int8_t as5147_dir = sensors[0]._direction; 
 			//int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
 			int as5147_pos = as5147s_controller->get_position(sensor_index);
 
-			int max_steps_to_home = as5147_dir * sign(-as5147_pos + pot_stop_position) * 32000;
+			int max_steps_to_home = as5147_dir * sign(-as5147_pos + _stop_position) * 32000;
 			//Serial.println(pot_dir);
 			//Serial.println(pot_home);
 			//Serial.println(pot_stop_position);
 	  //	  Serial.println(distance_to_home);
 			going_to_position = true;
-			sensor_stop_position[0] = pot_stop_position;
+			sensor_stop_position[0] = _stop_position;
 			//Serial.println(max_steps_to_home);
 			move_motor(max_steps_to_home);
 		}

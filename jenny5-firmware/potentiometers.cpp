@@ -7,6 +7,7 @@
 #include "potentiometers.h"
 #include "Arduino.h"
 //--------------------------------------------------------------------
+#ifdef USE_POTENTIOMETERS
 t_potentiometers_controller::t_potentiometers_controller(void)
 {
   num_sensors = 0;
@@ -81,4 +82,6 @@ byte t_potentiometers_controller::is_upper_bound_reached(byte potentiometer_inde
   return sensors[potentiometer_index].is_upper_bound_reached();  
 }
 //--------------------------------------------------------------------
+
 */
+#endif

@@ -6,6 +6,7 @@
 
 #include "dc_motor_TB6612FNG.h"
 #include "jenny5_types.h"
+#ifdef USE_TB6612FNG
 
 //-------------------------------------------------------------------------------
 t_dc_motor_controller_TB6612FNG::t_dc_motor_controller_TB6612FNG(void)
@@ -200,3 +201,4 @@ void t_dc_motor_controller_TB6612FNG::go_home(t_buttons_controller *buttons_cont
 }
 //-------------------------------------------------------------------------------
 
+#endif

@@ -10,6 +10,9 @@
 #include "Arduino.h"
 #include "buttons.h"
 #include "jenny5_types.h"
+#include "config.h"
+
+#ifdef USE_TB6612FNG
 
 //---------------------------------------------------
 class t_dc_motor_controller_TB6612FNG
@@ -57,5 +60,5 @@ public:
   long update_motor(t_buttons_controller *buttons_controller, long &time_to_go);
 };
 //---------------------------------------------------
-
+#endif
 #endif

@@ -6,23 +6,33 @@
 
 
 #include <Wire.h>
+#include "config.h"
 
 #include "ultrasonic_sensors.h"
+#ifdef USE_POTENTIOMETERS
 #include "potentiometers.h"
+#endif
 #include "as5147s.h"
 #include "stepper_motors.h"
 #include "buttons.h"
 #include "jenny5_types.h"
 #include "infrared_analog_sensors.h"
 #include "tera_ranger_one.h"
+#ifdef USE_TB6612FNG
 #include "dc_motors_TB6612FNG.h"
+#endif
 #include "tera_ranger_one_lidar.h"
 
 #include "memoryfree.h"
 
 t_stepper_motors_controller stepper_motors_controller;
-t_dc_motors_controller_TB6612FNG dc_motors_controller_TB6612FNG;
-t_potentiometers_controller potentiometers_controller;
+#ifdef USE_TB6612FNG
+	t_dc_motors_controller_TB6612FNG dc_motors_controller_TB6612FNG;
+#endif
+
+#ifdef USE_POTENTIOMETERS
+	t_potentiometers_controller potentiometers_controller;
+#endif
 t_as5147s_controller as5147s_controller;
 t_ultrasonic_sensors_controller ultrasonic_sensors_controller;
 t_infrared_analog_sensors_controller infrared_analog_sensors_controller;
@@ -180,7 +190,11 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 						int motor_index;
 						int num_consumed;
 						sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
-						stepper_motors_controller.go_home(motor_index, &as5147s_controller, &potentiometers_controller, &buttons_controller);
+						stepper_motors_controller.go_home(motor_index, &as5147s_controller, 
+#ifdef USE_POTENTIOMETERS
+							&potentiometers_controller,
+#endif
+							&buttons_controller);
 						i += 4;
 					}
 					else
@@ -190,7 +204,11 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 							int num_consumed;
 							int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &sensor_position, &num_consumed);
 							if (num_read == 2) {
-								stepper_motors_controller.go_to_sensor_position(motor_index, &as5147s_controller, &potentiometers_controller, sensor_position);
+								stepper_motors_controller.go_to_sensor_position(motor_index, &as5147s_controller, 
+#ifdef USE_POTENTIOMETERS
+									&potentiometers_controller, 
+#endif
+									sensor_position);
 								is_command_running = 1;
 								i += 2 + num_consumed;
 							}
@@ -213,6 +231,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 void parse_and_execute_DC_motor_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
 	tmp_serial_out[0] = 0;
+#ifdef USE_TB6612FNG
 
 	if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm') { // move motor
 		int motor_index, num_miliseconds;
@@ -236,6 +255,7 @@ void parse_and_execute_DC_motor_commands(char* tmp_str, byte str_length, byte &i
 
 	else
 		i++; // incomplete string
+#endif
 }
 //----------------------------------------------------------------------
 void parse_and_execute_LIDAR_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
@@ -272,9 +292,13 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 	// Serial.println(num_sensors);
 	if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 		stepper_motors_controller.set_num_attached_sensors(motor_index, num_sensors);
-	else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
-		dc_motors_controller_TB6612FNG.set_num_attached_sensors(motor_index, num_sensors);
 
+	else 
+#ifdef USE_TB6612FNG
+		if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
+			dc_motors_controller_TB6612FNG.set_num_attached_sensors(motor_index, num_sensors);
+#endif
+	;
 	// now I have to add sensors one by one
 	int j = i + 4;
 	i += 5;
@@ -289,8 +313,12 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 			sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
 			if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 				stepper_motors_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index, _low, _high, _home, _direction);
-			else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
-				dc_motors_controller_TB6612FNG.add_sensor(motor_index, POTENTIOMETER, sensor_index);
+			else 
+#ifdef USE_TB6612FNG
+				if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
+					dc_motors_controller_TB6612FNG.add_sensor(motor_index, POTENTIOMETER, sensor_index);
+#endif
+			;
 			j += 1 + num_consumed;
 			k++;
 		}
@@ -301,8 +329,12 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 			sscanf(tmp_str + j + 1, "%d%d%n", &sensor_index, &_direction, &num_consumed);
 			if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 				stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, _direction);
-			else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
-				dc_motors_controller_TB6612FNG.add_sensor(motor_index, BUTTON, sensor_index);
+			else 
+#ifdef USE_TB6612FNG
+				if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
+					dc_motors_controller_TB6612FNG.add_sensor(motor_index, BUTTON, sensor_index);
+#endif
+			;
 			j += 1 + num_consumed;
 			k++;
 		}
@@ -312,8 +344,12 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 				sscanf(tmp_str + j + 1, "%d", &sensor_index);
 				if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 					stepper_motors_controller.add_sensor(motor_index, INFRARED_ANALOG, sensor_index, 0, 0, 0, 0);
-				else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
-					dc_motors_controller_TB6612FNG.add_sensor(motor_index, INFRARED_ANALOG, sensor_index);
+				else 
+#ifdef USE_TB6612FNG
+					if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
+						dc_motors_controller_TB6612FNG.add_sensor(motor_index, INFRARED_ANALOG, sensor_index);
+#endif
+				;
 				j += 2;
 				k++;
 			}
@@ -327,8 +363,12 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 					sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
 					if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 						stepper_motors_controller.add_sensor(motor_index, AS5147, sensor_index, _low, _high, _home, _direction);
-					else if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
-						dc_motors_controller_TB6612FNG.add_sensor(motor_index, AS5147, sensor_index);
+					else 
+#ifdef USE_TB6612FNG
+						if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
+							dc_motors_controller_TB6612FNG.add_sensor(motor_index, AS5147, sensor_index);
+#endif
+					;
 					j += 1 + num_consumed;
 					k++;
 				}
@@ -353,15 +393,22 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 		sprintf(tmp_serial_out, "GS%d %d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors_attached);
 		i += 4;
 	}
-	else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // gets stepper motor speed and acceleration
-		int motor_index;
-		byte motor_speed;
-		sscanf(tmp_str + i + 2, "%d", &motor_index);
-		dc_motors_controller_TB6612FNG.get_speed(motor_index, &motor_speed);
-		sprintf(tmp_serial_out, "GD%d %d#", motor_index, motor_speed);
-		i += 4;
-	}
-	else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home dir
+	else 
+#ifdef USE_TB6612FNG
+
+		if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // gets stepper motor speed and acceleration
+			int motor_index;
+			byte motor_speed;
+			sscanf(tmp_str + i + 2, "%d", &motor_index);
+			dc_motors_controller_TB6612FNG.get_speed(motor_index, &motor_speed);
+			sprintf(tmp_serial_out, "GD%d %d#", motor_index, motor_speed);
+			i += 4;
+		}
+	else
+#endif
+#ifdef USE_POTENTIOMETERS
+
+		if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // get potentiometer min max home dir
 		int pot_index;
 		//          int pot_min, pot_max, pot_home;
 		//		  int8_t pot_dir;
@@ -371,7 +418,9 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 		sprintf(tmp_serial_out, "GP%d %d#", pot_index, (int)pot_pin);
 		i += 5;
 	}
-	else if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { // get ultrasound trig_pin echo_pin
+	else 
+#endif
+			if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { // get ultrasound trig_pin echo_pin
 		int ultrasound_index;
 		byte trig_pin, echo_pin;
 		sscanf(tmp_str + i + 2, "%d", &ultrasound_index);
@@ -394,6 +443,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 //--------------------------------------------------
 void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
+#ifdef USE_POTENTIOMETERS
 	// potentiometer
 	if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') {
 		int sensor_index;
@@ -403,7 +453,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 		i += 3;
 	}
 	else
-
+#endif
 		// AS5147
 		if (tmp_str[i + 1] == 'A' || tmp_str[i + 1] == 'a') {
 			int sensor_index;
@@ -472,6 +522,7 @@ void parse_and_execute_create_stepper_motors_commands(char* tmp_str, byte str_le
 	}
 }
 //--------------------------------------------------
+#ifdef USE_TB6612FNG
 void parse_and_execute_create_DC_motors_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
 	if (!dc_motors_controller_TB6612FNG.is_running()) {
@@ -493,6 +544,7 @@ void parse_and_execute_create_DC_motors_commands(char* tmp_str, byte str_length,
 		i += total_num_consumed;
 	}
 }
+#endif
 //--------------------------------------------------
 void parse_and_execute_create_ultrasonic_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
@@ -514,6 +566,7 @@ void parse_and_execute_create_ultrasonic_commands(char* tmp_str, byte str_length
 	i += total_num_consumed;
 }
 //--------------------------------------------------
+#ifdef USE_POTENTIOMETERS
 void parse_and_execute_create_potentiometer_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
 	int num_potentiometers = 0;
@@ -529,10 +582,11 @@ void parse_and_execute_create_potentiometer_commands(char* tmp_str, byte str_len
 		potentiometers_controller.set_params(k, _out_pin);
 		total_num_consumed += num_consumed + 1;
 	}
-
 	sprintf(tmp_serial_out, "CP#");
 	i += total_num_consumed;
 }
+#endif
+
 //--------------------------------------------------
 void parse_and_execute_create_as5147_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
@@ -707,28 +761,28 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 					strcat(serial_out, tmp_serial_out);
 					continue;
 				}
-
+#ifdef USE_TB6612FNG
 				// create a list of DC motors
 				if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') {
 					parse_and_execute_create_DC_motors_commands(tmp_str, str_length, i, tmp_serial_out);
 					strcat(serial_out, tmp_serial_out);
 					continue;
 				}
-
+#endif
 				// create a list of ultrasonic sensors
 				if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') {
 					parse_and_execute_create_ultrasonic_commands(tmp_str, str_length, i, tmp_serial_out);
 					strcat(serial_out, tmp_serial_out);
 					continue;
 				}
-
+#ifdef USE_POTENTIOMETERS
 				// create a list of potentiometers
 				if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') {
 					parse_and_execute_create_potentiometer_commands(tmp_str, str_length, i, tmp_serial_out);
 					strcat(serial_out, tmp_serial_out);
 					continue;
 				}
-
+#endif
 				// create a list of AS5147
 				if (tmp_str[i + 1] == 'A' || tmp_str[i + 1] == 'a') {
 					parse_and_execute_create_as5147_commands(tmp_str, str_length, i, tmp_serial_out);
@@ -863,18 +917,22 @@ void loop()
 				}
 		}
 	}
-	stepper_motors_controller.run_motors(&as5147s_controller, &potentiometers_controller, &buttons_controller, serial_out);
+	stepper_motors_controller.run_motors(&as5147s_controller, 
+#ifdef USE_POTENTIOMETERS		
+		&potentiometers_controller, 
+#endif		
+		&buttons_controller, serial_out);
 	if (serial_out[0]) {
 		Serial.write(serial_out);
 		serial_out[0] = 0;
 	}
-
+#ifdef USE_TB6612FNG
 	dc_motors_controller_TB6612FNG.update_motors(&buttons_controller, serial_out);
 	if (serial_out[0]) {
 		Serial.write(serial_out);
 		serial_out[0] = 0;
 	}
-
+#endif
 	if (tera_ranger_one_lidar) {
 		tera_ranger_one_lidar->run_motor(serial_out);
 		if (serial_out[0]) {

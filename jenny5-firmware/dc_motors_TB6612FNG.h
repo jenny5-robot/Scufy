@@ -8,8 +8,16 @@
 #define dc_motors_controller_TB6612FNG_H
 
 #include "Arduino.h"
-#include "dc_motor_TB6612FNG.h"
-#include "potentiometers.h"
+#include "config.h"
+
+#ifdef USE_TB6612FNG
+	#include "dc_motor_TB6612FNG.h"
+#endif
+#ifdef USE_POTENTIOMETERS
+	#include "potentiometers.h"
+#endif
+
+#ifdef USE_TB6612FNG
 
 //---------------------------------------------------
 class t_dc_motors_controller_TB6612FNG
@@ -54,4 +62,5 @@ public:
   void update_motors(t_buttons_controller *buttons_control, char* serial_out);
 };
 //---------------------------------------------------
+#endif
 #endif
