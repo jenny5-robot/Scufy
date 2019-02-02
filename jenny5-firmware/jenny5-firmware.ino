@@ -26,7 +26,7 @@
 
 #include "memoryfree.h"
 
-t_stepper_motors_controller stepper_motors_controller;
+t_steppers_controller steppers_controller;
 t_servos_controller servos_controller;
 
 #ifdef USE_TB6612FNG
@@ -62,7 +62,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2019.02.02.0");
+	strcpy(firmware_version, "2019.02.02.1");
 
 	current_buffer[0] = 0;
 
@@ -148,7 +148,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 		int num_consumed;
 		int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &num_steps, &num_consumed);
 		if (num_read == 2) {
-			stepper_motors_controller.move_motor(motor_index, num_steps);
+			steppers_controller.move_motor(motor_index, num_steps);
 			is_command_running = 1;
 			i += 2 + num_consumed;
 		}
@@ -160,7 +160,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 			// disable motor
 			int motor_index;
 			sscanf(tmp_str + i + 2, "%d", &motor_index);
-			stepper_motors_controller.disable(motor_index);
+			steppers_controller.disable(motor_index);
 			sprintf(tmp_serial_out, "SD%d#", motor_index);
 			i += 4;
 		}
@@ -169,7 +169,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 				// locks motor
 				int motor_index;
 				sscanf(tmp_str + i + 2, "%d", &motor_index);
-				stepper_motors_controller.lock(motor_index);
+				steppers_controller.lock(motor_index);
 				sprintf(tmp_serial_out, "SL%d#", motor_index);
 				i += 4;
 			}
@@ -180,7 +180,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 					int motor_speed, motor_acceleration;
 					int num_consumed;
 					sscanf(tmp_str + i + 2, "%d%d%d%n", &motor_index, &motor_speed, &motor_acceleration, &num_consumed);
-					stepper_motors_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
+					steppers_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
 					sprintf(tmp_serial_out, "SS%d#", motor_index);
 					i += 2 + num_consumed;
 				}
@@ -190,7 +190,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 						int motor_index;
 						int num_consumed;
 						sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
-						stepper_motors_controller.go_home(motor_index, &as5147s_controller,
+						steppers_controller.go_home(motor_index, &as5147s_controller,
 #ifdef USE_POTENTIOMETERS
 							&potentiometers_controller,
 #endif
@@ -204,7 +204,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 							int num_consumed;
 							int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &sensor_position, &num_consumed);
 							if (num_read == 2) {
-								stepper_motors_controller.go_to_sensor_position(motor_index, &as5147s_controller,
+								steppers_controller.go_to_sensor_position(motor_index, &as5147s_controller,
 #ifdef USE_POTENTIOMETERS
 									&potentiometers_controller,
 #endif
@@ -221,7 +221,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 								int motor_index;
 								int num_consumed;
 								sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
-								stepper_motors_controller.stop(motor_index);
+								steppers_controller.stop(motor_index);
 								i += 4;
 							}
 							else
@@ -309,7 +309,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 	sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_sensors);
 	// Serial.println(num_sensors);
 	if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-		stepper_motors_controller.set_num_attached_sensors(motor_index, num_sensors);
+		steppers_controller.set_num_attached_sensors(motor_index, num_sensors);
 
 	else
 #ifdef USE_TB6612FNG
@@ -330,7 +330,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 
 			sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
 			if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-				stepper_motors_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index, _low, _high, _home, _direction);
+				steppers_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index, _low, _high, _home, _direction);
 			else
 #ifdef USE_TB6612FNG
 				if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
@@ -346,7 +346,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 			int num_consumed;
 			sscanf(tmp_str + j + 1, "%d%d%n", &sensor_index, &_direction, &num_consumed);
 			if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-				stepper_motors_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, _direction);
+				steppers_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, _direction);
 			else
 #ifdef USE_TB6612FNG
 				if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
@@ -361,7 +361,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 				int sensor_index;
 				sscanf(tmp_str + j + 1, "%d", &sensor_index);
 				if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-					stepper_motors_controller.add_sensor(motor_index, INFRARED_ANALOG, sensor_index, 0, 0, 0, 0);
+					steppers_controller.add_sensor(motor_index, INFRARED_ANALOG, sensor_index, 0, 0, 0, 0);
 				else
 #ifdef USE_TB6612FNG
 					if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
@@ -380,7 +380,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 
 					sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
 					if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
-						stepper_motors_controller.add_sensor(motor_index, AS5147, sensor_index, _low, _high, _home, _direction);
+						steppers_controller.add_sensor(motor_index, AS5147, sensor_index, _low, _high, _home, _direction);
 					else
 #ifdef USE_TB6612FNG
 						if (motor_type == 'D' || motor_type == 'd') // attach to DC motors controller
@@ -406,8 +406,8 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 		byte num_sensors_attached;
 		float motor_speed, motor_acceleration;
 		sscanf(tmp_str + i + 2, "%d", &motor_index);
-		stepper_motors_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
-		num_sensors_attached = stepper_motors_controller.get_num_attached_sensors(motor_index);
+		steppers_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
+		num_sensors_attached = steppers_controller.get_num_attached_sensors(motor_index);
 		sprintf(tmp_serial_out, "GS%d %d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors_attached);
 		i += 4;
 	}
@@ -517,7 +517,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 //--------------------------------------------------
 void parse_and_execute_create_stepper_motors_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
-	if (!stepper_motors_controller.is_running()) {
+	if (!steppers_controller.is_running()) {
 		//stepper_motors_controller.delete_memory();
 		int num_motors = 0;
 
@@ -525,16 +525,16 @@ void parse_and_execute_create_stepper_motors_commands(char* tmp_str, byte str_le
 		sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
 
 		int total_num_consumed = 3 + num_consumed;
-		bool new_num_motors = stepper_motors_controller.num_motors != num_motors;
-		stepper_motors_controller.set_num_motors(num_motors);
+		bool new_num_motors = steppers_controller.num_motors != num_motors;
+		steppers_controller.set_num_motors(num_motors);
 		for (int k = 0; k < num_motors; k++) {
 			int _step_pin, _dir_pin, _enable_pin;
 			sscanf(tmp_str + i + total_num_consumed, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
 			if (new_num_motors)
-				stepper_motors_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
+				steppers_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
 			total_num_consumed += num_consumed + 1;
 		}
-		stepper_motors_controller.disable_all();
+		steppers_controller.disable_all();
 		sprintf(tmp_serial_out, "CS#");
 		i += total_num_consumed;
 	}
@@ -973,7 +973,7 @@ void loop()
 				}
 		}
 	}
-	stepper_motors_controller.run_motors(&as5147s_controller,
+	steppers_controller.run_motors(&as5147s_controller,
 #ifdef USE_POTENTIOMETERS		
 		&potentiometers_controller,
 #endif		

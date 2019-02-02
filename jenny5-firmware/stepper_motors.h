@@ -17,7 +17,7 @@
 
 
 //---------------------------------------------------
-class t_stepper_motors_controller
+class t_steppers_controller
 {
   public:
     //Declare pin functions on Arduino
@@ -29,8 +29,8 @@ class t_stepper_motors_controller
     float default_motor_acceleration; //steps/second/second to accelerate
 
   public:
-    t_stepper_motors_controller(void);
-    ~t_stepper_motors_controller();
+	  t_steppers_controller(void);
+    ~t_steppers_controller();
 	void delete_memory(void);
 
 
