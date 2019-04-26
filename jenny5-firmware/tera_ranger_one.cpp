@@ -83,7 +83,7 @@ void t_tera_ranger_one_controller::update_results(char *serial_out)
       int distance = get_last_read_distance();
       if (distance > -1) {
         char tmp_s[10];
-        sprintf(tmp_s, "TR %d#", distance);
+        sprintf(tmp_s, "RT %d#", distance);
         strcat(serial_out, tmp_s);
       }
     }
