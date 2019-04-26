@@ -256,19 +256,19 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 			{
 				int8_t as5147_direction = sensors[j]._direction;
 
-				int as5147_position = as5147s_controller->get_position(sensor_index);
+				int as5147_current_position = as5147s_controller->get_position(sensor_index);
 
 				if (as5147_direction == 1) { // motor and sensors values have the same sign
 					if (distance_to_go > 0) {
 						if (sensors[j].min_pos < sensors[j].max_pos) {
-							if (as5147_position > sensors[j].max_pos)
+							if (as5147_current_position > sensors[j].max_pos)
 								limit_reached = true;
 							else
 								; // no limit reached ... so do nothing
 						}
 						else { // max < min ... so it overides 360
-							if (as5147_position > sensors[j].max_pos && 
-								abs(as5147_position - sensors[j].max_pos) < abs(as5147_position - sensors[j].min_pos))
+							if (as5147_current_position > sensors[j].max_pos &&
+								abs(as5147_current_position - sensors[j].max_pos) < abs(as5147_current_position - sensors[j].min_pos))
 								limit_reached = true;
 							else
 								; // no limit reached ... so do nothing
@@ -277,14 +277,14 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 					else
 						if (distance_to_go < 0) {
 							if (sensors[j].min_pos < sensors[j].max_pos) {
-								if (as5147_position < sensors[j].min_pos)
+								if (as5147_current_position < sensors[j].min_pos)
 									limit_reached = true;
 								else
 									; // no limit reached ... so do nothing
 							}
 							else { // max < min ... so it overides 360
-								if (as5147_position < sensors[j].min_pos && 
-									abs(as5147_position - sensors[j].min_pos) < abs(as5147_position - sensors[j].max_pos))
+								if (as5147_current_position < sensors[j].min_pos &&
+									abs(as5147_current_position - sensors[j].min_pos) < abs(as5147_current_position - sensors[j].max_pos))
 									limit_reached = true;
 								else
 									; // no limit reached ... so do nothing
@@ -294,14 +294,14 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 				else { // as5147_direction == -1 // motor and sensors values have different signs
 					if (distance_to_go > 0) {// if motors increase, the sensor decreases
 						if (sensors[j].min_pos < sensors[j].max_pos) {
-							if (as5147_position < sensors[j].min_pos)
+							if (as5147_current_position < sensors[j].min_pos)
 								limit_reached = true;
 							else
 								; // no limit reached ... so do nothing
 						}
 						else { // max < min ... so it overides 360
-							if (as5147_position < sensors[j].min_pos && 
-								abs(as5147_position - sensors[j].min_pos) < abs(as5147_position - sensors[j].max_pos))
+							if (as5147_current_position < sensors[j].min_pos &&
+								abs(as5147_current_position - sensors[j].min_pos) < abs(as5147_current_position - sensors[j].max_pos))
 								limit_reached = true;
 							else
 								; // no limit reached ... so do nothing
@@ -310,14 +310,14 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 					else
 						if (distance_to_go < 0) {
 							if (sensors[j].min_pos < sensors[j].max_pos) {
-								if (as5147_position > sensors[j].max_pos)
+								if (as5147_current_position > sensors[j].max_pos)
 									limit_reached = true;
 								else
 									; // no limit reached ... so do nothing
 							}
 							else { // max < min ... so it overides 360
-								if (as5147_position > sensors[j].max_pos && 
-									abs(as5147_position - sensors[j].max_pos) < abs(as5147_position - sensors[j].min_pos))
+								if (as5147_current_position > sensors[j].max_pos &&
+									abs(as5147_current_position - sensors[j].max_pos) < abs(as5147_current_position - sensors[j].min_pos))
 									limit_reached = true;
 								else
 									; // no limit reached ... so do nothing
@@ -344,21 +344,21 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 
 					if (as5147_direction == 1) {
 						if (distance_to_go > 0) {
-							if (as5147_position >= as5147_stop_position)
+							if (as5147_current_position >= as5147_stop_position)
 								limit_reached = true;
 						}
 						else { // distance to go is negative 
-							if (as5147_position <= as5147_stop_position)
+							if (as5147_current_position <= as5147_stop_position)
 								limit_reached = true;
 						}
 					}
 					else {// sensor direction == -1
 						if (distance_to_go > 0) {
-							if (as5147_position <= as5147_stop_position)
+							if (as5147_current_position <= as5147_stop_position)
 								limit_reached = true;
 						}
 						else { // distance to go is negative 
-							if (as5147_position >= as5147_stop_position)
+							if (as5147_current_position >= as5147_stop_position)
 								limit_reached = true;
 						}
 					}
@@ -440,8 +440,8 @@ void t_stepper_motor_controller::go_home(t_as5147s_controller *as5147s_controlle
 			//calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 			int8_t as5147_dir = sensors[0]._direction;
 			int as5147_home = sensors[0].home_pos;
-			int as5147_pos = as5147s_controller->get_position(sensor_index);
-			int max_steps_to_home = as5147_dir * sign(as5147_home - as5147_pos) * 32000;
+			int as5147_current_pos = as5147s_controller->get_position(sensor_index);
+			int max_steps_to_home = as5147_dir * sign(as5147_home - as5147_current_pos) * 32000;
 			going_to_position = true;
 			sensor_stop_position[0] = as5147_home;
 			move_motor(max_steps_to_home);
@@ -497,9 +497,9 @@ void t_stepper_motor_controller::go_to_sensor_position(
 			//calculate the remaining distance from the current position to home position, relative to the direction and position of the potentiometer
 			int8_t as5147_dir = sensors[0]._direction; 
 			//int pot_home = sensors[0].home_pos; // potentiometers_control->get_home_position(sensor_index);
-			int as5147_pos = as5147s_controller->get_position(sensor_index);
+			int as5147_current_pos = as5147s_controller->get_position(sensor_index);
 
-			int max_steps_to_home = as5147_dir * sign(-as5147_pos + _stop_position) * 32000;
+			int max_steps_to_home = as5147_dir * sign(_stop_position - as5147_current_pos) * 32000;
 			//Serial.println(pot_dir);
 			//Serial.println(pot_home);
 			//Serial.println(pot_stop_position);
@@ -509,8 +509,8 @@ void t_stepper_motor_controller::go_to_sensor_position(
 			//Serial.println(max_steps_to_home);
 			move_motor(max_steps_to_home);
 		}
-							break;
-		}
+			break;
+		} // end switch
 	}
 }
 //-------------------------------------------------------------------------------
