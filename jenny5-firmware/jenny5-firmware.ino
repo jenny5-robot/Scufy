@@ -62,7 +62,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2019.04.26.0");
+	strcpy(firmware_version, "2019.04.26.2");
 
 	current_buffer[0] = 0;
 
@@ -99,13 +99,13 @@ void setup()
 	Serial.println(F("ADx n Py Bz ... # // Attach to dc motor x a list of n sensors (like Potentiometer y, Button z etc)."));
 	Serial.println(F("AVx n Py Bz ... # // Attach to servo motor x a list of n sensors (like Potentiometer y, Button z etc)."));
 
-	Serial.println(F("RUx# // Read the distance as measured by the ultrasonic sensor x. Outputs Ux d# when the reading has been completed. Note that this works in \"background\" and can output after some time (and in the meantime the program can do something else."));
-	Serial.println(F("RBx# // Read the status of the button x. Outputs Bx s# where s is either 0 or 1."));
-	Serial.println(F("RPx# // Read the position of the potentiometer x. Outputs Px p#"));
-	Serial.println(F("RIx# // Read the value of infrared sensor x. Outputs Ix v#"));
-	Serial.println(F("RTx# // Read the value of Tera Ranger One sensor. Outputs Tx v#"));
-	Serial.println(F("RAx# // Read the value of AS5147 sensor. Outputs Ax v#"));
-	Serial.println(F("RMx# // Free memory. Outputs M v#"));
+	Serial.println(F("RUx# // Read the distance as measured by the ultrasonic sensor x. Outputs RUx d# when the reading has been completed. Note that this works in \"background\" and can output after some time (and in the meantime the program can do something else."));
+	Serial.println(F("RBx# // Read the status of the button x. Outputs RBx s# where s is either 0 or 1."));
+	Serial.println(F("RPx# // Read the position of the potentiometer x. Outputs RPx p#"));
+	Serial.println(F("RIx# // Read the value of infrared sensor x. Outputs RIx v#"));
+	Serial.println(F("RTx# // Read the value of Tera Ranger One sensor. Outputs RTx v#"));
+	Serial.println(F("RAx# // Read the value of AS5147 sensor. Outputs RAx v#"));
+	Serial.println(F("RMx# // Free memory. Outputs RM v#"));
 
 	Serial.println(F("GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors_attached. Outputs GSx s a 1#"));
 	Serial.println(F("GDx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GDx s a 1 0 0#"));
@@ -126,6 +126,7 @@ void setup()
 	Serial.println(F("CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done."));
 	Serial.println(F("CTR# // Creates the Tera Ranger One controller. Outputs CTR# when done."));
 	Serial.println(F("CA n p1 p2 p3# // Creates the AS5147 controller. n is the number of sensors, p* are pins. Outputs CA# when done."));
+
 // Example: CA 3 18 19 20#
 	- CL creates LIDAR
 	Serial.println(F("CV n p1 p2 p3# // Creates the servo motors controller and set its pins. n is the number of motors, p* are pins. CV# when done."));
@@ -393,7 +394,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 				else
 					j++;
 	}
-	sprintf(tmp_serial_out, "AS%d#", motor_index);
+	sprintf(tmp_serial_out, "A%d#", motor_index);
 	i = j + 1;
 	// Serial.println(i);
 }
@@ -478,7 +479,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 			int sensor_index;
 			sscanf(tmp_str + i + 2, "%d", &sensor_index);
 			int sensor_value = as5147s_controller.get_position(sensor_index);
-			sprintf(tmp_serial_out, "A%d %d#", sensor_index, sensor_value);
+			sprintf(tmp_serial_out, "RA%d %d#", sensor_index, sensor_value);
 			i += 3;
 		}
 		else
@@ -488,7 +489,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 				sscanf(tmp_str + i + 2, "%d", &sensor_index);
 				// Serial.println(sensor_index);
 				int sensor_value = buttons_controller.get_state(sensor_index);
-				sprintf(tmp_serial_out, "B%d %d#", sensor_index, sensor_value);
+				sprintf(tmp_serial_out, "RB%d %d#", sensor_index, sensor_value);
 				i += 3;
 			}
 			else
@@ -505,7 +506,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 						int sensor_index;
 						sscanf(tmp_str + i + 2, "%d", &sensor_index);
 						int sensor_value = infrared_analog_sensors_controller.get_signal_strength(sensor_index);
-						sprintf(tmp_serial_out, "I%d %d#", sensor_index, sensor_value);
+						sprintf(tmp_serial_out, "RI%d %d#", sensor_index, sensor_value);
 						i += 3;
 					}
 					else
@@ -514,6 +515,11 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 							tera_ranger_one_controller.trigger();
 							i += 2;
 						}
+						else
+							if (tmp_str[i + 1] == 'M' || tmp_str[i + 1] == 'm') {
+								sprintf(tmp_serial_out, "RM%d#", freeMemory());
+								i += 2;
+							}
 }
 //--------------------------------------------------
 void parse_and_execute_create_stepper_motors_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
@@ -882,13 +888,6 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 				continue;
 			}
 			else
-				if (tmp_str[i] == 'M' || tmp_str[i] == 'm') {
-					sprintf(tmp_serial_out, "M%d#", freeMemory());
-					strcat(serial_out, tmp_serial_out);
-					i += 2;
-					continue;
-				}
-				else
 					i++;// incomplete string
 		}
 		else
