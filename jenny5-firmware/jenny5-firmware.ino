@@ -62,7 +62,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2019.02.02.1");
+	strcpy(firmware_version, "2019.04.26.0");
 
 	current_buffer[0] = 0;
 
@@ -393,6 +393,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 				else
 					j++;
 	}
+	sprintf(tmp_serial_out, "AS%d#", motor_index);
 	i = j + 1;
 	// Serial.println(i);
 }
@@ -769,6 +770,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 	  */
 			if (tmp_str[i] == 'A' || tmp_str[i] == 'a') { // attach sensors to motors
 				parse_and_execute_attach_sensors_commands(tmp_str, str_length, i, tmp_serial_out);
+				strcat(serial_out, tmp_serial_out);
 				continue;
 			}
 			// for debugging purpose
