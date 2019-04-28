@@ -62,13 +62,15 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2019.04.26.2");
+	strcpy(firmware_version, "2019.04.28.4");
 
 	current_buffer[0] = 0;
+
 
 	tera_ranger_one_lidar = NULL;
 
 	Serial.begin(115200); //Open Serial connection
+	//Serial.begin(57600); //Open Serial connection
 
 	//delay(2000);
 
@@ -223,6 +225,7 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 								int num_consumed;
 								sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
 								steppers_controller.stop(motor_index);
+								sprintf(tmp_serial_out, "ST%d#", motor_index);
 								i += 4;
 							}
 							else
@@ -900,6 +903,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 void loop()
 {
 	char serial_out[MAX_BUFFER_LENGTH];
+	serial_out[0] = 0;
 
 	// check to see if there are new results from ultrasonic sensor
 	ultrasonic_sensors_controller.update_results(serial_out);
@@ -927,6 +931,15 @@ void loop()
 				if (strlen(serial_buffer) + strlen(current_buffer) < MAX_BUFFER_LENGTH) // concat only if it fits
 					strcat(current_buffer, serial_buffer);
 
+			if (current_buffer[0]) {
+				Serial.write("I ");
+				Serial.write(current_buffer);
+				Serial.write("/");
+				Serial.write(serial_buffer);
+
+				Serial.write("#");
+			}
+
 #ifdef DEBUG
 			Serial.write("initial buffer is=");
 			Serial.write(current_buffer);
@@ -935,6 +948,7 @@ void loop()
 
 			// parse from the beginning until I find a M, D, L, S, A, P, B, U, G, T
 			int current_buffer_length = strlen(current_buffer);
+//			bool command_found = false;
 			for (int i = 0; i < current_buffer_length; i++)
 				if ((current_buffer[i] >= 'A' && current_buffer[i] <= 'Z') || (current_buffer[i] >= 'a' && current_buffer[i] <= 'z')) { // a command
 				  // find the terminal character #
@@ -950,7 +964,7 @@ void loop()
 						Serial.write(tmp_str);
 						Serial.println();
 #endif
-
+				//		command_found = true;
 						parse_and_execute_commands(current_buffer + i, j - i, serial_out);
 						if (serial_out[0])
 							Serial.write(serial_out);
@@ -972,6 +986,8 @@ void loop()
 						break; // for i
 					}
 				}
+			//if (strlen(current_buffer) && !command_found)// wrong string
+				//current_buffer[0] = 0;
 		}
 	}
 	steppers_controller.run_motors(&as5147s_controller,
