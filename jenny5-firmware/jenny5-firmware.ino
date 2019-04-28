@@ -62,7 +62,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2019.04.28.4");
+	strcpy(firmware_version, "2019.04.28.5");
 
 	current_buffer[0] = 0;
 
@@ -70,6 +70,12 @@ void setup()
 	tera_ranger_one_lidar = NULL;
 
 	Serial.begin(115200); //Open Serial connection
+	while (!Serial);
+	int num_available = Serial.available();
+	if (num_available) {
+		char tmp_str[64];
+		Serial.readBytes(tmp_str, num_available);
+	}
 	//Serial.begin(57600); //Open Serial connection
 
 	//delay(2000);
