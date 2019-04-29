@@ -45,7 +45,7 @@ t_tera_ranger_one_lidar *tera_ranger_one_lidar;
 
 char is_command_running;
 
-char firmware_version[20];// year.month.day.build number
+const char* firmware_version = "2019.04.29.0"; // year.month.day.build number
 
 #define MAX_BUFFER_LENGTH 65
 
@@ -62,7 +62,7 @@ bool first_start;
 void setup()
 {
 	first_start = 0;
-	strcpy(firmware_version, "2019.04.28.5");
+	
 
 	current_buffer[0] = 0;
 
@@ -80,8 +80,8 @@ void setup()
 
 	//delay(2000);
 
-	//Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
-	//Serial.flush();
+	Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
+	Serial.flush();
 
   /*
 	Serial.write("Commands are:");
@@ -921,7 +921,7 @@ void loop()
 		Serial.write(serial_out);
 
 	if (Serial.available() || current_buffer[0]) {
-		int num_read = 0;
+		byte num_read = 0;
 		char serial_buffer[65];
 
 		//num_read = Serial.readBytes(serial_buffer, 64); //Read up to 64 bytes
@@ -930,13 +930,14 @@ void loop()
 		if (incomingByte != -1) {
 			serial_buffer[0] = incomingByte;
 			num_read = 1;
+			//Serial.write("aici");
 		}
 		serial_buffer[num_read] = 0;// terminate the string
 		if (serial_buffer[0] || current_buffer[0]) {
 			if (serial_buffer[0])
 				if (strlen(serial_buffer) + strlen(current_buffer) < MAX_BUFFER_LENGTH) // concat only if it fits
 					strcat(current_buffer, serial_buffer);
-
+			
 			if (current_buffer[0]) {
 				Serial.write("I ");
 				Serial.write(current_buffer);
@@ -945,7 +946,7 @@ void loop()
 
 				Serial.write("#");
 			}
-
+			
 #ifdef DEBUG
 			Serial.write("initial buffer is=");
 			Serial.write(current_buffer);
