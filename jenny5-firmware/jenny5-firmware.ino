@@ -45,7 +45,7 @@ t_tera_ranger_one_lidar *tera_ranger_one_lidar;
 
 char is_command_running;
 
-const char* firmware_version = "2019.04.29.0"; // year.month.day.build number
+const char* firmware_version = "2019.04.30.0"; // year.month.day.build number
 
 #define MAX_BUFFER_LENGTH 65
 
@@ -63,19 +63,15 @@ void setup()
 {
 	first_start = 0;
 	
-
 	current_buffer[0] = 0;
-
 
 	tera_ranger_one_lidar = NULL;
 
 	Serial.begin(115200); //Open Serial connection
 	while (!Serial);
-	int num_available = Serial.available();
-	if (num_available) {
-		char tmp_str[64];
-		Serial.readBytes(tmp_str, num_available);
-	}
+	while (Serial.available() > 0) 
+		char t = Serial.read();
+	
 	//Serial.begin(57600); //Open Serial connection
 
 	//delay(2000);
