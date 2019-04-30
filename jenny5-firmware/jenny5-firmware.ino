@@ -924,8 +924,10 @@ void loop()
 
 		int incomingByte = Serial.read();
 		if (incomingByte != -1) {
-			serial_buffer[0] = incomingByte;
-			num_read = 1;
+			//if (incomingByte >= 'A' && incomingByte <= 'z' || incomingByte >= '0' && incomingByte <= '9' || incomingByte == ' ' || incomingByte == '#') {
+				serial_buffer[0] = incomingByte;
+				num_read = 1;
+			//}
 			//Serial.write("aici");
 		}
 		serial_buffer[num_read] = 0;// terminate the string
