@@ -4,6 +4,7 @@
 t_servos_controller::t_servos_controller()
 {
 	num_motors = 0;
+	servos = NULL;
 }
 //-------------------------------------------------------------------------------
 void t_servos_controller::delete_memory(void)

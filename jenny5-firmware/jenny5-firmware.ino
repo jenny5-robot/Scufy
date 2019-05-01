@@ -461,13 +461,13 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 	tmp_serial_out[0] = 0;
 
 	if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') { // gets stepper motor speed and acceleration num sensors attached
-		int motor_index;
+		byte motor_index;
 		byte num_sensors_attached;
 		float motor_speed, motor_acceleration;
-		int num_read = sscanf(tmp_str + i + 2, "%d", &motor_index);
+		int num_read = sscanf(tmp_str + i + 2, "%u", &motor_index);
 		steppers_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
 		num_sensors_attached = steppers_controller.get_num_attached_sensors(motor_index);
-		sprintf(tmp_serial_out, "GS%d %d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors_attached);
+		sprintf(tmp_serial_out, "GS%d %d %d %u#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors_attached);
 		i += 4;
 	}
 	else
@@ -502,7 +502,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 					byte trig_pin, echo_pin;
 					int num_read = sscanf(tmp_str + i + 2, "%d", &ultrasound_index);
 					ultrasonic_sensors_controller.get_sensor_pins(ultrasound_index, &trig_pin, &echo_pin);
-					sprintf(tmp_serial_out, "GU%d %d %d#", ultrasound_index, trig_pin, echo_pin);
+					sprintf(tmp_serial_out, "GU%d %u %u#", ultrasound_index, trig_pin, echo_pin);
 					i += 4;
 				}
 				else if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') { // get button pin direction
@@ -511,7 +511,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 
 					int num_read = sscanf(tmp_str + i + 2, "%d", &button_index);
 					buttons_controller.get_params(button_index, &_pin);
-					sprintf(tmp_serial_out, "GB%d %d#", button_index, _pin);
+					sprintf(tmp_serial_out, "GB%d %u#", button_index, _pin);
 					i += 2;
 				}
 				else

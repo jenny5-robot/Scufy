@@ -13,9 +13,10 @@ t_dc_motor_controller_TB6612FNG::t_dc_motor_controller_TB6612FNG(void)
 {
   pwm_pin = 3;
   dir_pin1 = 4;
-  dir_pin1 = 5;
+  dir_pin2 = 5;
   enable_pin = 6;
-  
+  speed_pin = 2;
+  start_time = 0;
   sensors_count = 0;
   sensors = NULL;
 

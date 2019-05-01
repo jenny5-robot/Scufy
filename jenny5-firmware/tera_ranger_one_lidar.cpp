@@ -12,6 +12,9 @@ t_tera_ranger_one_lidar::t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_
 	started = false;
 	reference_touched = false;
 	first_reference_touched = false;
+	request_for_distance_sent = false;
+	prev_reference_touched = false;
+	motor_position = 0;
 
 	enable_pin = motor_enable_pin;
 

@@ -60,7 +60,7 @@ void t_ultrasonic_sensors_controller::update_results(char *serial_out)
       int distance = sensors[m].get_last_read_distance();
       if (distance > -1) {
         char tmp_s[10];
-        sprintf(tmp_s, "RU%d %d#", m, distance);
+        sprintf(tmp_s, "RU%u %d#", m, distance);
         strcat(serial_out, tmp_s);
       }
     }

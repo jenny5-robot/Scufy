@@ -14,6 +14,8 @@ t_ultrasonic::t_ultrasonic(void)
 
   last_read_distance = -1;
   trigger_started = false;
+  micros_start = 0;
+  first_high_received = 0;
 }
 //-------------------------------------------------------
 void t_ultrasonic::create_init(byte trigger_pin, byte echo_pin)
