@@ -45,7 +45,7 @@ t_tera_ranger_one_lidar *tera_ranger_one_lidar;
 
 char is_command_running;
 
-const char* firmware_version = "2019.04.30.0"; // year.month.day.build number
+const char* firmware_version = "2019.05.01.0"; // year.month.day.build number
 
 #define MAX_BUFFER_LENGTH 65
 
@@ -67,18 +67,15 @@ void setup()
 
 	tera_ranger_one_lidar = NULL;
 
-	Serial.begin(115200); //Open Serial connection
+	Serial.begin(56700); //Open Serial connection
+	/*
 	while (!Serial);
 	while (Serial.available() > 0) 
 		char t = Serial.read();
-	
-	//Serial.begin(57600); //Open Serial connection
-
-	//delay(2000);
 
 	Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
 	Serial.flush();
-
+	*/
   /*
 	Serial.write("Commands are:");
 	Serial.println(F("T# // test connection. Returns T#."));
@@ -142,6 +139,17 @@ void setup()
 	Serial.println();
   */
 }
+//--------------------------------------------------------------
+void write_info(char *str)
+{
+	int len = strlen(str);
+	for (int i = 0; i < len; i++)
+		if (str[i] == '#')
+			Serial.write('$');
+		else
+			Serial.write(str[i]);
+
+}
 //--------------------------------------------------------------------------------------------
 void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
@@ -152,31 +160,43 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 		int motor_index, num_steps;
 		int num_consumed;
 		int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &num_steps, &num_consumed);
-		if (num_read == 2) {
+		if (num_read != 2) {
+			sprintf(tmp_serial_out, "E#");
+			i += 2;
+			return;
+		}
 			steppers_controller.move_motor(motor_index, num_steps);
 			is_command_running = 1;
 			i += 2 + num_consumed;
-		}
-		else
-			i++;// error on incomplete string (does nothing)
 	}
 	else
 		if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') {
 			// disable motor
 			int motor_index;
-			sscanf(tmp_str + i + 2, "%d", &motor_index);
-			steppers_controller.disable(motor_index);
-			sprintf(tmp_serial_out, "SD%d#", motor_index);
-			i += 4;
+			int num_read = sscanf(tmp_str + i + 2, "%d", &motor_index);
+			if (num_read != 1) {
+				sprintf(tmp_serial_out, "E#");
+				i += 2;
+				return;
+			}
+				steppers_controller.disable(motor_index);
+				sprintf(tmp_serial_out, "SD%d#", motor_index);
+				i += 4;
 		}
 		else
 			if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') {
 				// locks motor
 				int motor_index;
-				sscanf(tmp_str + i + 2, "%d", &motor_index);
-				steppers_controller.lock(motor_index);
-				sprintf(tmp_serial_out, "SL%d#", motor_index);
-				i += 4;
+				int num_read = sscanf(tmp_str + i + 2, "%d", &motor_index);
+				if (num_read != 1) {
+					sprintf(tmp_serial_out, "E#");
+					i += 2;
+					return;
+				}
+					steppers_controller.lock(motor_index);
+					sprintf(tmp_serial_out, "SL%d#", motor_index);
+					i += 4;
+				
 			}
 			else
 				if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') {
@@ -184,23 +204,35 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 					int motor_index;
 					int motor_speed, motor_acceleration;
 					int num_consumed;
-					sscanf(tmp_str + i + 2, "%d%d%d%n", &motor_index, &motor_speed, &motor_acceleration, &num_consumed);
-					steppers_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
-					sprintf(tmp_serial_out, "SS%d#", motor_index);
-					i += 2 + num_consumed;
+					int num_read = sscanf(tmp_str + i + 2, "%d%d%d%n", &motor_index, &motor_speed, &motor_acceleration, &num_consumed);
+					if (num_read != 3) {
+						sprintf(tmp_serial_out, "E#");
+						i += 2;
+						return;
+					}
+						steppers_controller.set_speed_and_acceleration(motor_index, motor_speed, motor_acceleration);
+						sprintf(tmp_serial_out, "SS%d#", motor_index);
+						i += 2 + num_consumed;
+					
 				}
 				else
 					if (tmp_str[i + 1] == 'H' || tmp_str[i + 1] == 'h') {
 						// home
 						int motor_index;
 						int num_consumed;
-						sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
-						steppers_controller.go_home(motor_index, &as5147s_controller,
+						int num_read = sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
+						if (num_read != 1) {
+							sprintf(tmp_serial_out, "E#");
+							i += 2;
+							return;
+						}
+							steppers_controller.go_home(motor_index, &as5147s_controller,
 #ifdef USE_POTENTIOMETERS
-							&potentiometers_controller,
+								&potentiometers_controller,
 #endif
-							&buttons_controller);
-						i += 4;
+								&buttons_controller);
+							i += 4;
+						
 					}
 					else
 						if (tmp_str[i + 1] == 'G' || tmp_str[i + 1] == 'g') {
@@ -208,7 +240,11 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 							int motor_index, sensor_position;
 							int num_consumed;
 							int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &sensor_position, &num_consumed);
-							if (num_read == 2) {
+							if (num_read != 2) {
+								sprintf(tmp_serial_out, "E#");
+								i += 2;
+								return;
+							}
 								steppers_controller.go_to_sensor_position(motor_index, &as5147s_controller,
 #ifdef USE_POTENTIOMETERS
 									&potentiometers_controller,
@@ -216,19 +252,22 @@ void parse_and_execute_stepper_motor_commands(char* tmp_str, byte str_length, by
 									sensor_position);
 								is_command_running = 1;
 								i += 2 + num_consumed;
-							}
-							else
-								i++;// error on incomplete string (does nothing)
 						}
 						else
 							if (tmp_str[i + 1] == 'T' || tmp_str[i + 1] == 't') {
 								// stop
 								int motor_index;
 								int num_consumed;
-								sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
-								steppers_controller.stop(motor_index);
-								sprintf(tmp_serial_out, "ST%d#", motor_index);
-								i += 4;
+								int num_read = sscanf(tmp_str + i + 2, "%d%n", &motor_index, &num_consumed);
+								if (num_read != 1) {
+									sprintf(tmp_serial_out, "E#");
+									i += 1;
+									return;
+								}
+									steppers_controller.stop(motor_index);
+									sprintf(tmp_serial_out, "ST%d#", motor_index);
+									i += 4;
+								
 							}
 							else
 								i++;
@@ -252,7 +291,7 @@ void parse_and_execute_DC_motor_commands(char* tmp_str, byte str_length, byte &i
 	// disables motor
 	else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // disables DC motor
 		int motor_index;
-		sscanf(tmp_str + i + 2, "%d", &motor_index);
+		int num_read = sscanf(tmp_str + i + 2, "%d", &motor_index);
 		dc_motors_controller_TB6612FNG.disable(motor_index);
 		sprintf(tmp_serial_out, "DD%d#", motor_index);
 		i += 4;
@@ -272,13 +311,15 @@ void parse_and_execute_servo_commands(char* tmp_str, byte str_length, byte &i, c
 		int motor_index, position;
 		int num_consumed;
 		int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_index, &position, &num_consumed);
-		if (num_read == 2) {
-			servos_controller.set_position(motor_index, position);
-			is_command_running = 1;
-			i += 2 + num_consumed;
+		if (num_read != 2) {
+			sprintf(tmp_serial_out, "E#");
+			i += 1;
+			return;
 		}
-		else
-			i++;// error on incomplete string (does nothing)
+
+		servos_controller.set_position(motor_index, position);
+		is_command_running = 1;
+		i += 2 + num_consumed;
 	}
 }
 //----------------------------------------------------------------------
@@ -298,9 +339,15 @@ void parse_and_execute_LIDAR_commands(char* tmp_str, byte str_length, byte &i, c
 			if (tmp_str[i + 1] == 'S' || tmp_str[i + 1] == 's') {// set speed and acceleration
 				int motor_speed, motor_acceleration;
 				int num_consumed;
-				sscanf(tmp_str + i + 2, "%d%d%n", &motor_speed, &motor_acceleration, &num_consumed);
-				tera_ranger_one_lidar->set_motor_speed_and_acceleration(motor_speed, motor_acceleration);
-				i += 2 + num_consumed;
+				int num_read = sscanf(tmp_str + i + 2, "%d%d%n", &motor_speed, &motor_acceleration, &num_consumed);
+				if (num_read != 2) {
+					sprintf(tmp_serial_out, "E#");
+					i += 2;
+					return;
+				}
+
+					tera_ranger_one_lidar->set_motor_speed_and_acceleration(motor_speed, motor_acceleration);
+					i += 2 + num_consumed;
 			}
 			else// unknown command
 				i += 2;
@@ -312,8 +359,13 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 
 	int motor_index, num_sensors;
 	char motor_type = tmp_str[i + 1];
-	sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_sensors);
+	int num_read = sscanf(tmp_str + i + 2, "%d%d", &motor_index, &num_sensors);
 	// Serial.println(num_sensors);
+	if (num_read != 2) {
+		sprintf(tmp_serial_out, "E#");
+		i += 2;
+		return;
+	}
 	if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 		steppers_controller.set_num_attached_sensors(motor_index, num_sensors);
 
@@ -334,7 +386,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 			int _direction;
 			int num_consumed;
 
-			sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
+			int num_read = sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
 			if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 				steppers_controller.add_sensor(motor_index, POTENTIOMETER, sensor_index, _low, _high, _home, _direction);
 			else
@@ -350,7 +402,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 			int sensor_index;
 			int _direction;
 			int num_consumed;
-			sscanf(tmp_str + j + 1, "%d%d%n", &sensor_index, &_direction, &num_consumed);
+			int num_read = sscanf(tmp_str + j + 1, "%d%d%n", &sensor_index, &_direction, &num_consumed);
 			if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 				steppers_controller.add_sensor(motor_index, BUTTON, sensor_index, 0, 0, 0, _direction);
 			else
@@ -365,7 +417,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 		else
 			if (tmp_str[j] == 'I' || tmp_str[j] == 'i') {// infrared
 				int sensor_index;
-				sscanf(tmp_str + j + 1, "%d", &sensor_index);
+				int num_read = sscanf(tmp_str + j + 1, "%d", &sensor_index);
 				if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 					steppers_controller.add_sensor(motor_index, INFRARED_ANALOG, sensor_index, 0, 0, 0, 0);
 				else
@@ -384,7 +436,7 @@ void parse_and_execute_attach_sensors_commands(char* tmp_str, byte str_length, b
 					int _direction;
 					int num_consumed;
 
-					sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
+					int num_read = sscanf(tmp_str + j + 1, "%d%d%d%d%d%n", &sensor_index, &_low, &_high, &_home, &_direction, &num_consumed);
 					if (motor_type == 'S' || motor_type == 's') // attach to stepper motors controller
 						steppers_controller.add_sensor(motor_index, AS5147, sensor_index, _low, _high, _home, _direction);
 					else
@@ -412,7 +464,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 		int motor_index;
 		byte num_sensors_attached;
 		float motor_speed, motor_acceleration;
-		sscanf(tmp_str + i + 2, "%d", &motor_index);
+		int num_read = sscanf(tmp_str + i + 2, "%d", &motor_index);
 		steppers_controller.get_speed_and_acceleration(motor_index, &motor_speed, &motor_acceleration);
 		num_sensors_attached = steppers_controller.get_num_attached_sensors(motor_index);
 		sprintf(tmp_serial_out, "GS%d %d %d %d#", motor_index, (int)motor_speed, (int)motor_acceleration, num_sensors_attached);
@@ -424,7 +476,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 		if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // gets stepper motor speed and acceleration
 			int motor_index;
 			byte motor_speed;
-			sscanf(tmp_str + i + 2, "%d", &motor_index);
+			int num_read = sscanf(tmp_str + i + 2, "%d", &motor_index);
 			dc_motors_controller_TB6612FNG.get_speed(motor_index, &motor_speed);
 			sprintf(tmp_serial_out, "GD%d %d#", motor_index, motor_speed);
 			i += 4;
@@ -438,7 +490,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 				//          int pot_min, pot_max, pot_home;
 				//		  int8_t pot_dir;
 				byte pot_pin;
-				sscanf(tmp_str + i + 2, "%d", &pot_index);
+				int num_read = sscanf(tmp_str + i + 2, "%d", &pot_index);
 				potentiometers_controller.get_params(pot_index, &pot_pin);
 				sprintf(tmp_serial_out, "GP%d %d#", pot_index, (int)pot_pin);
 				i += 5;
@@ -448,7 +500,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 				if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') { // get ultrasound trig_pin echo_pin
 					int ultrasound_index;
 					byte trig_pin, echo_pin;
-					sscanf(tmp_str + i + 2, "%d", &ultrasound_index);
+					int num_read = sscanf(tmp_str + i + 2, "%d", &ultrasound_index);
 					ultrasonic_sensors_controller.get_sensor_pins(ultrasound_index, &trig_pin, &echo_pin);
 					sprintf(tmp_serial_out, "GU%d %d %d#", ultrasound_index, trig_pin, echo_pin);
 					i += 4;
@@ -457,7 +509,7 @@ void parse_and_execute_get_commands(char* tmp_str, byte str_length, byte &i, cha
 					int button_index;
 					byte _pin;
 
-					sscanf(tmp_str + i + 2, "%d", &button_index);
+					int num_read = sscanf(tmp_str + i + 2, "%d", &button_index);
 					buttons_controller.get_params(button_index, &_pin);
 					sprintf(tmp_serial_out, "GB%d %d#", button_index, _pin);
 					i += 2;
@@ -472,7 +524,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 	// potentiometer
 	if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') {
 		int sensor_index;
-		sscanf(tmp_str + i + 2, "%d", &sensor_index);
+		int num_read = sscanf(tmp_str + i + 2, "%d", &sensor_index);
 		int sensor_value = potentiometers_controller.get_position(sensor_index);
 		sprintf(tmp_serial_out, "P%d %d#", sensor_index, sensor_value);
 		i += 3;
@@ -482,7 +534,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 		// AS5147
 		if (tmp_str[i + 1] == 'A' || tmp_str[i + 1] == 'a') {
 			int sensor_index;
-			sscanf(tmp_str + i + 2, "%d", &sensor_index);
+			int num_read = sscanf(tmp_str + i + 2, "%d", &sensor_index);
 			int sensor_value = as5147s_controller.get_position(sensor_index);
 			sprintf(tmp_serial_out, "RA%d %d#", sensor_index, sensor_value);
 			i += 3;
@@ -491,7 +543,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 			// button
 			if (tmp_str[i + 1] == 'B' || tmp_str[i + 1] == 'b') {
 				int sensor_index;
-				sscanf(tmp_str + i + 2, "%d", &sensor_index);
+				int num_read = sscanf(tmp_str + i + 2, "%d", &sensor_index);
 				// Serial.println(sensor_index);
 				int sensor_value = buttons_controller.get_state(sensor_index);
 				sprintf(tmp_serial_out, "RB%d %d#", sensor_index, sensor_value);
@@ -501,7 +553,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 				// ultrasonic
 				if (tmp_str[i + 1] == 'U' || tmp_str[i + 1] == 'u') {
 					int sensor_index;
-					sscanf(tmp_str + i + 2, "%d", &sensor_index);
+					int num_read = sscanf(tmp_str + i + 2, "%d", &sensor_index);
 					ultrasonic_sensors_controller.trigger(sensor_index);
 					i += 3;
 				}
@@ -509,7 +561,7 @@ void parse_and_execute_read_commands(char* tmp_str, byte str_length, byte &i, ch
 					// infrared
 					if (tmp_str[i + 1] == 'I' || tmp_str[i + 1] == 'i') {
 						int sensor_index;
-						sscanf(tmp_str + i + 2, "%d", &sensor_index);
+						int num_read = sscanf(tmp_str + i + 2, "%d", &sensor_index);
 						int sensor_value = infrared_analog_sensors_controller.get_signal_strength(sensor_index);
 						sprintf(tmp_serial_out, "RI%d %d#", sensor_index, sensor_value);
 						i += 3;
@@ -534,14 +586,14 @@ void parse_and_execute_create_stepper_motors_commands(char* tmp_str, byte str_le
 		int num_motors = 0;
 
 		int num_consumed = 0;
-		sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
+		int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
 
 		int total_num_consumed = 3 + num_consumed;
 		bool new_num_motors = steppers_controller.num_motors != num_motors;
 		steppers_controller.set_num_motors(num_motors);
 		for (int k = 0; k < num_motors; k++) {
 			int _step_pin, _dir_pin, _enable_pin;
-			sscanf(tmp_str + i + total_num_consumed, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
+			int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &num_consumed);
 			if (new_num_motors)
 				steppers_controller.set_pins(k, _dir_pin, _step_pin, _enable_pin);
 			total_num_consumed += num_consumed + 1;
@@ -557,14 +609,14 @@ void parse_and_execute_create_servo_motors_commands(char* tmp_str, byte str_leng
 	int num_motors = 0;
 
 	int num_consumed = 0;
-	sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
+	int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
 
 	int total_num_consumed = 3 + num_consumed;
 	bool new_num_motors = servos_controller.get_num_servos() != num_motors;
 	servos_controller.set_num_servos(num_motors);
 	for (int k = 0; k < num_motors; k++) {
 		int _pin;
-		sscanf(tmp_str + i + total_num_consumed, "%d%n", &_pin, &num_consumed);
+		int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &_pin, &num_consumed);
 		if (new_num_motors)
 			servos_controller.set_params(k, _pin);
 		total_num_consumed += num_consumed + 1;
@@ -580,13 +632,13 @@ void parse_and_execute_create_DC_motors_commands(char* tmp_str, byte str_length,
 		int num_motors = 0;
 
 		int num_consumed = 0;
-		sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
+		int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_motors, &num_consumed);
 
 		int total_num_consumed = 3 + num_consumed;
 		dc_motors_controller_TB6612FNG.set_num_motors(num_motors);
 		for (int k = 0; k < num_motors; k++) {
 			int pwm_pin, dir_pin1, dir_pin2, enable_pin;
-			sscanf(tmp_str + i + total_num_consumed, "%d%d%d%d%n", &pwm_pin, &dir_pin1, &dir_pin2, &enable_pin, &num_consumed);
+			int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%d%d%d%n", &pwm_pin, &dir_pin1, &dir_pin2, &enable_pin, &num_consumed);
 			dc_motors_controller_TB6612FNG.set_motor_pins(k, pwm_pin, dir_pin1, dir_pin2, enable_pin);
 			total_num_consumed += num_consumed + 1;
 		}
@@ -602,13 +654,13 @@ void parse_and_execute_create_ultrasonic_commands(char* tmp_str, byte str_length
 	int num_sonars = 0;
 
 	int num_consumed = 0;
-	sscanf(tmp_str + i + 3, "%d%n", &num_sonars, &num_consumed);
+	int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_sonars, &num_consumed);
 
 	int total_num_consumed = 3 + num_consumed;
 	ultrasonic_sensors_controller.set_num_sensors(num_sonars);
 	for (int k = 0; k < num_sonars; k++) {
 		int _trig_pin, _echo_pin;
-		sscanf(tmp_str + i + total_num_consumed, "%d%d%n", &_trig_pin, &_echo_pin, &num_consumed);
+		int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%d%n", &_trig_pin, &_echo_pin, &num_consumed);
 		ultrasonic_sensors_controller.set_sensor_pins(k, _trig_pin, _echo_pin);
 		total_num_consumed += num_consumed + 1;
 	}
@@ -623,13 +675,13 @@ void parse_and_execute_create_potentiometer_commands(char* tmp_str, byte str_len
 	int num_potentiometers = 0;
 
 	int num_consumed = 0;
-	sscanf(tmp_str + i + 3, "%d%n", &num_potentiometers, &num_consumed);
+	int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_potentiometers, &num_consumed);
 
 	int total_num_consumed = 3 + num_consumed;
 	potentiometers_controller.set_num_sensors(num_potentiometers);
 	for (int k = 0; k < num_potentiometers; k++) {
 		int _out_pin;
-		sscanf(tmp_str + i + total_num_consumed, "%d%n", &_out_pin, &num_consumed);
+		int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &_out_pin, &num_consumed);
 		potentiometers_controller.set_params(k, _out_pin);
 		total_num_consumed += num_consumed + 1;
 	}
@@ -644,7 +696,7 @@ void parse_and_execute_create_as5147_commands(char* tmp_str, byte str_length, by
 	int num_as5147 = 0;
 
 	int num_consumed = 0;
-	sscanf(tmp_str + i + 3, "%d%n", &num_as5147, &num_consumed);
+	int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_as5147, &num_consumed);
 
 	int total_num_consumed = 3 + num_consumed;
 	as5147s_controller.set_num_sensors(num_as5147);
@@ -655,7 +707,7 @@ void parse_and_execute_create_as5147_commands(char* tmp_str, byte str_length, by
 
 	for (int k = 0; k < num_as5147; k++) {
 		int _out_pin;
-		sscanf(tmp_str + i + total_num_consumed, "%d%n", &_out_pin, &num_consumed);
+		int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &_out_pin, &num_consumed);
 		as5147s_controller.set_params(k, _out_pin);
 		total_num_consumed += num_consumed + 1;
 	}
@@ -669,13 +721,13 @@ void parse_and_execute_create_infrared_commands(char* tmp_str, byte str_length, 
 	int num_infrareds = 0;
 
 	int num_consumed = 0;
-	sscanf(tmp_str + i + 3, "%d%n", &num_infrareds, &num_consumed);
+	int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_infrareds, &num_consumed);
 
 	int total_num_consumed = 3 + num_consumed;
 	infrared_analog_sensors_controller.set_num_sensors(num_infrareds);
 	for (int k = 0; k < num_infrareds; k++) {
 		int out_pin;
-		sscanf(tmp_str + i + total_num_consumed, "%d%n", &out_pin, &num_consumed);
+		int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &out_pin, &num_consumed);
 		infrared_analog_sensors_controller.set_params(k, out_pin);
 		total_num_consumed += num_consumed + 1;
 	}
@@ -687,13 +739,13 @@ void parse_and_execute_create_buttons_commands(char* tmp_str, byte str_length, b
 {
 	int num_buttons = 0;
 	int num_consumed = 0;
-	sscanf(tmp_str + i + 3, "%d%n", &num_buttons, &num_consumed);
+	int num_read = sscanf(tmp_str + i + 3, "%d%n", &num_buttons, &num_consumed);
 
 	int total_num_consumed = 3 + num_consumed;
 	buttons_controller.set_num_sensors(num_buttons);
 	for (int k = 0; k < num_buttons; k++) {
 		int _pin;
-		sscanf(tmp_str + i + total_num_consumed, "%d%n", &_pin, &num_consumed);
+		int num_read = sscanf(tmp_str + i + total_num_consumed, "%d%n", &_pin, &num_consumed);
 		buttons_controller.set_params(k, _pin);
 		total_num_consumed += num_consumed + 1;
 	}
@@ -705,7 +757,7 @@ void parse_and_execute_create_LIDAR_commands(char* tmp_str, byte str_length, byt
 {
 	int num_consumed = 0;
 	int _dir_pin, _step_pin, _enable_pin, _infrared_pin;
-	sscanf(tmp_str + i + 2, "%d%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &_infrared_pin, &num_consumed);
+	int num_read = sscanf(tmp_str + i + 2, "%d%d%d%d%n", &_dir_pin, &_step_pin, &_enable_pin, &_infrared_pin, &num_consumed);
 	tera_ranger_one_lidar = new t_tera_ranger_one_lidar(_dir_pin, _step_pin, _enable_pin, _infrared_pin);
 
 	sprintf(tmp_serial_out, "CL#");
@@ -752,7 +804,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 			/*
 			// go home
 			  else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // go DC home
-				sscanf(tmp_str + i + 2, "%d", &motor_index);
+				int num_read = sscanf(tmp_str + i + 2, "%d", &motor_index);
 				dc_motors_controller_TB6612FNG.go_home(motor_index, &buttons_controller);
 			  }
 			  is_command_running = 1;
@@ -765,14 +817,14 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 			if (tmp_str[i] == 'S' || tmp_str[i] == 's') {
 			  else if (tmp_str[i + 1] == 'P' || tmp_str[i + 1] == 'p') { // potentiometer min max home
 				int pot_index, pot_min, pot_max, pot_home, pot_pin, pot_dir;
-				sscanf(tmp_str + i + 2, "%d%d%d%d%d%d", &pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
+				int num_read = sscanf(tmp_str + i + 2, "%d%d%d%d%d%d", &pot_index, &pot_pin, &pot_min, &pot_max, &pot_home, &pot_dir);
 				potentiometers_controller.set_params(pot_index, pot_pin, pot_min, pot_max, pot_home, pot_dir);
 				i += 7;
 			  }
 			  else if (tmp_str[i + 1] == 'D' || tmp_str[i + 1] == 'd') { // dc motor speed
 				int motor_index;
 				int motor_speed;
-				sscanf(tmp_str + i + 2, "%d%d", &motor_index, &motor_speed);
+				int num_read = sscanf(tmp_str + i + 2, "%d%d", &motor_index, &motor_speed);
 				dc_motors_controller_TB6612FNG.set_speed(motor_index, motor_speed);
 				i += 5;
 			  }
@@ -909,12 +961,16 @@ void loop()
 
 	// check to see if there are new results from ultrasonic sensor
 	ultrasonic_sensors_controller.update_results(serial_out);
-	if (serial_out[0])
+	if (serial_out[0]) {
 		Serial.write(serial_out);
+		Serial.flush();
+	}
 
 	tera_ranger_one_controller.update_results(serial_out);
-	if (serial_out[0])
+	if (serial_out[0]) {
 		Serial.write(serial_out);
+		Serial.flush();
+	}
 
 	if (Serial.available() || current_buffer[0]) {
 		byte num_read = 0;
@@ -938,11 +994,15 @@ void loop()
 			
 			if (current_buffer[0]) {
 				Serial.write("I ");
-				Serial.write(current_buffer);
+				Serial.flush();
+				write_info(current_buffer);
+				Serial.flush();
 				Serial.write("/");
-				Serial.write(serial_buffer);
-
+				Serial.flush();
+				write_info(serial_buffer);
+				Serial.flush();
 				Serial.write("#");
+				Serial.flush();
 			}
 			
 #ifdef DEBUG
@@ -970,9 +1030,17 @@ void loop()
 						Serial.println();
 #endif
 				//		command_found = true;
-						parse_and_execute_commands(current_buffer + i, j - i, serial_out);
-						if (serial_out[0])
+							Serial.write("I ");
+							Serial.write(current_buffer + i, j - i);
+							Serial.write("-#");
+							Serial.flush();
+
+							parse_and_execute_commands(current_buffer + i, j - i, serial_out);
+						if (serial_out[0]) {
+							while (!Serial);
 							Serial.write(serial_out);
+							Serial.flush();
+						}
 
 
 						// remove the current executed command
@@ -988,6 +1056,8 @@ void loop()
 						break; //for i
 					}
 					else { // the string is not completed ... so I must wait for more...
+						Serial.write("I break not found#");
+						Serial.flush();
 						break; // for i
 					}
 				}
@@ -1002,6 +1072,7 @@ void loop()
 		&buttons_controller, serial_out);
 	if (serial_out[0]) {
 		Serial.write(serial_out);
+		Serial.flush();
 		serial_out[0] = 0;
 	}
 #ifdef USE_TB6612FNG
@@ -1015,6 +1086,7 @@ void loop()
 		tera_ranger_one_lidar->run_motor(serial_out);
 		if (serial_out[0]) {
 			Serial.write(serial_out);
+			Serial.flush();
 			serial_out[0] = 0;
 		}
 	}
