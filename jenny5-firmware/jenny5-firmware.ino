@@ -68,14 +68,14 @@ void setup()
 	tera_ranger_one_lidar = NULL;
 
 	Serial.begin(56700); //Open Serial connection
-	/*
+	
 	while (!Serial);
 	while (Serial.available() > 0) 
 		char t = Serial.read();
 
 	Serial.write("T#");// initialization is over; must check for T# string (which is the alive test)
 	Serial.flush();
-	*/
+	
   /*
 	Serial.write("Commands are:");
 	Serial.println(F("T# // test connection. Returns T#."));
@@ -1037,7 +1037,7 @@ void loop()
 
 							parse_and_execute_commands(current_buffer + i, j - i, serial_out);
 						if (serial_out[0]) {
-							while (!Serial);
+						//	while (!Serial);
 							Serial.write(serial_out);
 							Serial.flush();
 						}
@@ -1056,8 +1056,8 @@ void loop()
 						break; //for i
 					}
 					else { // the string is not completed ... so I must wait for more...
-						Serial.write("I break not found#");
-						Serial.flush();
+					//	Serial.write("I break not found#");
+					//	Serial.flush();
 						break; // for i
 					}
 				}
