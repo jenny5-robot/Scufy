@@ -45,7 +45,7 @@ t_tera_ranger_one_lidar *tera_ranger_one_lidar;
 
 char is_command_running;
 
-const char* firmware_version = "2019.05.01.0"; // year.month.day.build number
+const char* firmware_version = "2019.05.02.0"; // year.month.day.build number
 
 #define MAX_BUFFER_LENGTH 65
 
@@ -67,7 +67,7 @@ void setup()
 
 	tera_ranger_one_lidar = NULL;
 
-	Serial.begin(57600); //Open Serial connection
+	Serial.begin(115200); //Open Serial connection
 	
 	while (!Serial);
 	while (Serial.available() > 0) 
@@ -991,7 +991,7 @@ void loop()
 			if (serial_buffer[0])
 				if (strlen(serial_buffer) + strlen(current_buffer) < MAX_BUFFER_LENGTH) // concat only if it fits
 					strcat(current_buffer, serial_buffer);
-			
+			/*
 			if (current_buffer[0]) {
 				Serial.write("I ");
 				Serial.flush();
@@ -1004,6 +1004,7 @@ void loop()
 				Serial.write("#");
 				Serial.flush();
 			}
+			*/
 			
 #ifdef DEBUG
 			Serial.write("initial buffer is=");
@@ -1030,11 +1031,12 @@ void loop()
 						Serial.println();
 #endif
 				//		command_found = true;
+						/*
 							Serial.write("I ");
 							Serial.write(current_buffer + i, j - i);
 							Serial.write("-#");
 							Serial.flush();
-
+							*/
 							parse_and_execute_commands(current_buffer + i, j - i, serial_out);
 						if (serial_out[0]) {
 						//	while (!Serial);
@@ -1044,8 +1046,19 @@ void loop()
 
 
 						// remove the current executed command
+						/*
+						Serial.write("I ");
+						Serial.print(j);
+						Serial.write("*#");
+						Serial.flush();
+						*/
 						strcpy(current_buffer, current_buffer + j + 1);// not sure if this is good due to overlaps
-
+						/*
+						Serial.write("I ");
+						Serial.write(current_buffer);
+						Serial.write("^#");
+						Serial.flush();
+						*/
 #ifdef DEBUG
 						Serial.write("buffer left=");
 						Serial.write(current_buffer);
@@ -1056,8 +1069,8 @@ void loop()
 						break; //for i
 					}
 					else { // the string is not completed ... so I must wait for more...
-					//	Serial.write("I break not found#");
-					//	Serial.flush();
+						//Serial.write("I break not found#");
+						//Serial.flush();
 						break; // for i
 					}
 				}
