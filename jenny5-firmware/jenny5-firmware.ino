@@ -67,7 +67,7 @@ void setup()
 
 	tera_ranger_one_lidar = NULL;
 
-	Serial.begin(56700); //Open Serial connection
+	Serial.begin(57600); //Open Serial connection
 	
 	while (!Serial);
 	while (Serial.available() > 0) 
