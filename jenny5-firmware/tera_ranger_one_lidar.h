@@ -8,7 +8,7 @@
 #define TERA_RANGER_ONE_LIDAR_H
 
 #include "tera_ranger_one.h"
-#include "AccelStepper.h"
+#include "SpeedyStepper.h"
 #include "infrared_digital.h"
 
 class t_tera_ranger_one_lidar{
@@ -18,7 +18,7 @@ class t_tera_ranger_one_lidar{
   byte enable_pin;
   bool request_for_distance_sent;
 
-  AccelStepper *stepper;
+  SpeedyStepper *stepper;
   t_infrared_digital_sensor infrared_sensor;
   t_tera_ranger_one_controller tera_ranger_one;
 

@@ -59,10 +59,11 @@ void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable
 	motor_running = 0;
 	going_to_position = false;
 
-	stepper = new AccelStepper(AccelStepper::DRIVER, _step, _dir);
-	stepper->setMaxSpeed(default_motor_speed);
-	stepper->setSpeed(default_motor_speed);
-	stepper->setAcceleration(default_motor_acceleration);
+	stepper = new SpeedyStepper();
+	stepper->connectToPins(_step, _dir);
+	stepper->setSpeedInStepsPerSecond(default_motor_speed);
+	stepper->setAccelerationInStepsPerSecondPerSecond(default_motor_acceleration);
+	stepper->setCurrentPositionInSteps(0);
 
 	digitalWrite(_step, LOW);
 	digitalWrite(_dir, LOW);
@@ -72,35 +73,34 @@ void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::move_motor(int num_steps)
 {
+	stepper->setCurrentPositionInSteps(0);
 	digitalWrite(enable_pin, LOW); // turn motor on
-	stepper->move(num_steps); //move num_steps
+	stepper->setupMoveInSteps(num_steps); //move num_steps
 	motor_running = 1;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::move_motor_to(int _position)
 {
 	digitalWrite(enable_pin, LOW); // turn motor on
-	stepper->moveTo(_position); //move num_steps
+	stepper->setupMoveInSteps(_position); //move num_steps; !!!!!!!!!!!!!!!!!!!!! this is not absolute
 	motor_running = 1;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_motor_speed(float _motor_speed)
 {
-	stepper->setMaxSpeed(_motor_speed);
-	stepper->setSpeed(_motor_speed);
+	stepper->setSpeedInStepsPerSecond(_motor_speed);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_motor_acceleration(float _motor_acceleration)
 {
-	stepper->setAcceleration(_motor_acceleration);
+	stepper->setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
 	// motor_acceleration = _motor_acceleration;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
 {
-	stepper->setMaxSpeed(_motor_speed);
-	stepper->setSpeed(_motor_speed);
-	stepper->setAcceleration(_motor_acceleration);
+	stepper->setSpeedInStepsPerSecond(_motor_speed);
+	stepper->setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::disable_motor(void)
@@ -176,8 +176,8 @@ void t_stepper_motor_controller::get_sensor(byte sensor_index_in_motor_list, byt
 void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_speed, float *_motor_acceleration)
 {
 	if (stepper) {
-		*_motor_acceleration = stepper->getAcceleration();
-		*_motor_speed = stepper->maxSpeed();
+		*_motor_acceleration = 0;
+		*_motor_speed = 0;
 	}
 	else {
 		*_motor_speed = 0;
@@ -196,7 +196,7 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 	// returns MOTOR_JUST_STOPPED if it has just stopped; in dist_to_go we have what is left to run (or 0)
 
 	bool limit_reached = false;
-	int distance_to_go = stepper->distanceToGo();
+	long distance_to_go = stepper->get_distanceToGo();
 
 	if (distance_to_go) {
 		for (byte j = 0; j < sensors_count; j++) {
@@ -380,14 +380,13 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 		} // end for (byte j = 0; j < sensors_count; j++)
 
 		if (!limit_reached) {
-			stepper->run();
+			stepper->processMovement();
 			return MOTOR_STILL_RUNNING; // still running
 		}
 		else {
 			if (is_motor_running()) {
-				int to_go = stepper->distanceToGo();
-				stepper->setCurrentPosition(0);
-				stepper->move(0);
+				long to_go = stepper->get_distanceToGo();
+				stepper->stop_motor();
 				dist_left_to_go = to_go;
 				going_to_position = false;
 				//Serial.println("left to go  > 0");
@@ -516,7 +515,6 @@ void t_stepper_motor_controller::go_to_sensor_position(
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::stop(void)
 {
-	stepper->setCurrentPosition(0);
-	stepper->move(0);
+	stepper->stop_motor();
 }
 //-------------------------------------------------------------------------------

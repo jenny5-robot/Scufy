@@ -10,7 +10,7 @@
 #include "config.h"
 
 #include "Arduino.h"
-#include "AccelStepper.h"
+#include "SpeedyStepper.h"
 #ifdef USE_POTENTIOMETERS
 #include "potentiometers.h"
 #endif
@@ -32,7 +32,7 @@ public:
 
   int *sensor_stop_position;
   
-  AccelStepper  *stepper;
+  SpeedyStepper *stepper;
   byte motor_running;
 
   bool going_to_position;
