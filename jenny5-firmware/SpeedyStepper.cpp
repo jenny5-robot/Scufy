@@ -713,7 +713,7 @@ bool SpeedyStepper::motionComplete()
 
 long SpeedyStepper::get_distanceToGo(void)
 {
-	return abs(targetPosition_InSteps - currentPosition_InSteps);
+	return targetPosition_InSteps - currentPosition_InSteps;
 }
 
 // -------------------------------------- End --------------------------------------

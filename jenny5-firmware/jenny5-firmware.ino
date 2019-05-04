@@ -45,7 +45,7 @@ t_tera_ranger_one_lidar *tera_ranger_one_lidar;
 
 char is_command_running;
 
-const char* firmware_version = "2019.05.02.0"; // year.month.day.build number
+const char* firmware_version = "2019.05.04.0"; // year.month.day.build number
 
 #define MAX_BUFFER_LENGTH 65
 
