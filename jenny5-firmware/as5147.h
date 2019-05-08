@@ -25,7 +25,7 @@ public:
 	void get_params(byte *_pin);
 
 	int get_position(void);
-	int8_t get_direction(void);
+	//int8_t get_direction(void);
 	/*
 	int get_home_position(void);
 	byte is_within_limits(void);
