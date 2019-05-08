@@ -60,133 +60,7 @@
 // Motor Linear Ramping Just By Addition and Multiplication".  See: 
 //                          www.hwml.com/LeibRamp.pdf
 //
-// Usage:
-//    Near the top of the program, add:
-//        include "SpeedyStepper.h"
-//
-//    For each stepper, declare a global object outside of all functions as 
-//    follows:
-//        SpeedyStepper stepper1;
-//        SpeedyStepper stepper2;
-//
-//    In Setup(), assign IO pins used for Step and Direction:
-//        stepper1.connectToPins(10, 11);
-//        stepper2.connectToPins(12, 14);
-//
-//    Notes: 
-//        * Most stepper motors have 200 steps per revolution.
-//        * With driver board set for 2x microstepping, then 400 steps per 
-//          revolution
-//        * 8x microstepping results in 1600 steps per revolution
-//        * NEMA 17 Steppers with lead screws typically have 25 steps per 
-//          millimeter when the driver is set for 1x microstepping
-//
-//
-//    Move one motor in units of steps:
-//        //
-//        // set the speed in steps/second and acceleration in steps/second/second
-//        //
-//        stepper1.setSpeedInStepsPerSecond(100);
-//        stepper1.setAccelerationInStepsPerSecondPerSecond(100);
-//
-//        //
-//        // move 200 steps in the backward direction
-//        //
-//        stepper1.moveRelativeInSteps(-200);
-//
-//        //
-//        // move to an absolute position of 200 steps
-//        //
-//        stepper1.moveToPositionInSteps(200);
-//
-//
-//    Move one motor in units of revolutions:
-//        //
-//        // set the number of steps per revolutions, 200 with no microstepping, 
-//        // 800 with 4x microstepping
-//        //
-//        stepper1.setStepsPerRevolution(200);
-//
-//        //
-//        // set the speed in rotations/second and acceleration in 
-//        // rotations/second/second
-//        //
-//        stepper1.setSpeedInRevolutionsPerSecond(1);
-//        stepper1.setAccelerationInRevolutionsPerSecondPerSecond(1);
-//
-//        //
-//        // move backward 1.5 revolutions
-//        //
-//        stepper1.moveRelativeInRevolutions(-1.5);
-//
-//        //
-//        // move to an absolute position of 3.75 revolutions
-//        //
-//        stepper1.moveToPositionInRevolutions(3.75);
-//
-//
-//    Move one motor in units of millimeters:
-//        //
-//        // set the number of steps per millimeter
-//        //
-//        stepper1.setStepsPerMillimeter(25);
-//
-//        //
-//        // set the speed in millimeters/second and acceleration in 
-//        // millimeters/second/second
-//        //
-//        stepper1.setSpeedInMillimetersPerSecond(20);
-//        stepper1.setAccelerationInMillimetersPerSecondPerSecond(20);
-//
-//        //
-//        // move backward 15.5 millimeters
-//        //
-//        stepper1.moveRelativeInMillimeters(-15.5);
-//
-//        //
-//        // move to an absolute position of 125 millimeters
-//        //
-//        stepper1.moveToPositionInMillimeters(125);
-//
-//
-//    Move two motors in units of revolutions:
-//        //
-//        // set the number of steps per revolutions, 200 with no microstepping, 
-//        // 800 with 4x microstepping
-//        //
-//        stepper1.setStepsPerRevolution(200);
-//        stepper2.setStepsPerRevolution(200);
-//
-//        //
-//        // set the speed in rotations/second and acceleration in 
-//        // rotations/second/second
-//        //
-//        stepper1.setSpeedInRevolutionsPerSecond(1);
-//        stepper1.setAccelerationInRevolutionsPerSecondPerSecond(1);
-//        stepper2.setSpeedInRevolutionsPerSecond(1);
-//        stepper2.setAccelerationInRevolutionsPerSecondPerSecond(1);
-//
-//        //
-//        // setup motor 1 to move backward 1.5 revolutions, this step does not 
-//        // actually move the motor
-//        //
-//        stepper1.setupRelativeMoveInRevolutions(-1.5);
-//
-//        //
-//        // setup motor 2 to move forward 3.0 revolutions, this step does not 
-//        // actually move the motor
-//        //
-//        stepper2.setupRelativeMoveInRevolutions(3.0);
-//
-//        //
-//        // execute the moves
-//        //
-//        while((!stepper1.motionComplete()) || (!stepper2.motionComplete()))
-//        {
-//          stepper1.processMovement();
-//          stepper2.processMovement();
-//        }
-//
+
 
 
 #include "SpeedyStepper.h"
@@ -443,20 +317,6 @@ bool SpeedyStepper::moveToHomeInSteps(long directionTowardHome,
 
 
 
-//
-// move relative to the current position, units are in steps, this function does 
-// not return until the move is complete
-//  Enter:  distanceToMoveInSteps = signed distance to move relative to the current 
-//            position in steps
-//
-void SpeedyStepper::moveRelativeInSteps(long distanceToMoveInSteps)
-{
-  setupRelativeMoveInSteps(distanceToMoveInSteps);
-  
-  while(!processMovement())
-    ;
-}
-
 
 
 //
@@ -469,22 +329,6 @@ void SpeedyStepper::moveRelativeInSteps(long distanceToMoveInSteps)
 void SpeedyStepper::setupRelativeMoveInSteps(long distanceToMoveInSteps)
 {
   setupMoveInSteps(currentPosition_InSteps + distanceToMoveInSteps);
-}
-
-
-
-//
-// move to the given absolute position, units are in steps, this function does not 
-// return until the move is complete
-//  Enter:  absolutePositionToMoveToInSteps = signed absolute position to move to  
-//            in units of steps
-//
-void SpeedyStepper::moveToPositionInSteps(long absolutePositionToMoveToInSteps)
-{
-  setupMoveInSteps(absolutePositionToMoveToInSteps);
-  
-  while(!processMovement())
-    ;
 }
 
 
@@ -503,6 +347,8 @@ void SpeedyStepper::setupMoveInSteps(long absolutePositionToMoveToInSteps)
   //
   // save the target location
   //
+
+  // = targetPosition_InSteps != currentPosition_InSteps;
   targetPosition_InSteps = absolutePositionToMoveToInSteps;
   
 
@@ -531,16 +377,16 @@ void SpeedyStepper::setupMoveInSteps(long absolutePositionToMoveToInSteps)
   // determine the distance and direction to travel
   //
   distanceToTravel_InSteps = targetPosition_InSteps - currentPosition_InSteps;
-  if (distanceToTravel_InSteps < 0) 
-  {
+  if (distanceToTravel_InSteps < 0) {
     distanceToTravel_InSteps = -distanceToTravel_InSteps;
     direction_Scaler = -1;
-    digitalWrite(directionPin, HIGH);
+	if (directionPin != HIGH)
+		digitalWrite(directionPin, HIGH);
   }
-  else
-  {
+  else{
     direction_Scaler = 1;
-    digitalWrite(directionPin, LOW);
+	if (directionPin != LOW)
+		digitalWrite(directionPin, LOW);
   }
 
 
@@ -556,6 +402,7 @@ void SpeedyStepper::setupMoveInSteps(long absolutePositionToMoveToInSteps)
   //
   ramp_NextStepPeriod_InUS = ramp_InitialStepPeriod_InUS;
   acceleration_InStepsPerUSPerUS = acceleration_InStepsPerSecondPerSecond / 1E12;
+
   startNewMove = true;
 }
 
@@ -713,7 +560,7 @@ bool SpeedyStepper::motionComplete()
 
 long SpeedyStepper::get_distanceToGo(void)
 {
-	return abs(targetPosition_InSteps - currentPosition_InSteps);
+	return targetPosition_InSteps - currentPosition_InSteps;
 }
 
 // -------------------------------------- End --------------------------------------
