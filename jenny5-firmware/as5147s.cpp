@@ -16,7 +16,7 @@ t_as5147s_controller::t_as5147s_controller(void)
 //--------------------------------------------------------------------
 int	t_as5147s_controller::get_position(byte sensor_index)
 {
-	return sensors[sensor_index].get_position();
+	return (sensors[sensor_index].get_position() + sensors[sensor_index].get_position() + sensors[sensor_index].get_position()) / 3;
 }
 //--------------------------------------------------------------------
 /*
