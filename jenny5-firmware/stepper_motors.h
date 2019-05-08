@@ -57,9 +57,10 @@ class t_steppers_controller
     void set_num_attached_sensors(byte motor_index, byte num_sensors);
     byte get_num_attached_sensors(byte motor_index);
 
-    void add_sensor(byte motor_index, byte sensor_type, byte sensor_index, int _min_pos, int _max_pos, int _home_pos, int8_t _direction);
+    void add_sensor(byte motor_index, byte sensor_type, byte sensor_index, int _min_pos, int _max_pos, int _home_pos, int8_t same_direction_as_motor);
 
-    void get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t *_direction);
+    void get_sensor(byte motor_index, byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, 
+						int *_min_pos, int *_max_pos, int *_home_pos, int8_t * same_direction_as_motor);
 
     void set_is_running(byte motor_index, byte is_running);
     void go_home(byte motor_index, t_as5147s_controller *as5147_controller, 

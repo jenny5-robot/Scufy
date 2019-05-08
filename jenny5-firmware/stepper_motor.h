@@ -60,9 +60,9 @@ public:
   void set_num_attached_sensors(byte num_sensors);
   byte get_num_attached_sensors(void);
 
-  void add_sensor(byte sensor_type, byte sensor_index, int _min_pos, int _max_pos, int _home_pos, int8_t __direction);
+  void add_sensor(byte sensor_type, byte sensor_index, int _min_pos, int _max_pos, int _home_pos, int8_t same_direction_as_motor);
 
-  void get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t *_direction);
+  void get_sensor(byte sensor_index_in_motor_list, byte *sensor_type, byte *sensor_index, int *_min_pos, int *_max_pos, int *_home_pos, int8_t * same_direction_as_motor);
 
   void set_motor_running(byte is_running);
   void go_home(t_as5147s_controller *as5147s_controller, 

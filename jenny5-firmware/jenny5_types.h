@@ -26,7 +26,8 @@ struct t_sensor_info {
 	int max_pos;
 	int home_pos;
 
-	int8_t _direction;// 1 - same direction with motor, -1 - different direction
+	int8_t same_direction_as_motor;// 1 - same direction with motor, -1 - different direction
+	//int8_t move_direction;
 };
 //---------------------------------------------------
 
