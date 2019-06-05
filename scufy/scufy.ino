@@ -1,4 +1,6 @@
-// Scufy firmware
+// Scufy - a general Arduino firmware for reading sensors and moving motors
+// Scufy should run in 2KB of RAM (as offered by Arduino Nano / Uno).
+
 // Author: Mihai Oltean, mihaioltean.github.io, mihai.oltean@gmail.com
 // Jenny 5 websites: jenny5.org, jenny5-robot.github.io/
 // Jenny 5 source code: github.com/jenny5-robot
@@ -7,88 +9,143 @@
 
 /*
 	List of commands:
-	T# // test connection. Returns T#.
-	V# // Outputs version string (year.month.day.build_number). eg: 2019.05.10.0#.
-
-	CS n d1 s1 e1 d2 s2 e2 ...# 
-	Example: CS 3 5 4 12 7 6 12 9 8 12#
-	- Creates the stepper motors controller and set some of its parameters.
-	- n is the number of motors, d, s, e are dir, step and enable pins. Outputs CS# when done.
-
-	CD n p1 d11 d12 e1 p2 d21 d22 e2 ...# 
-	- Creates the dc motors controller and set some of its parameters. 
-	- n is the number of motors, p is the pwm_pin, d1 and d2 are the direction pins and e is the enable pins. Outputs CD# when done.
+	T#
+	- Test connection. 
+	- Outputs T#.
 	
-	CV n p1 p2 p3# 
-	- Creates the servo motors controller and set its pins. 
-	- n is the number of motors, p* are pins.
-	- Outputs CV# when done."
+	V#
+	- Outputs version string (year.month.day.build_number). eg: 2019.05.10.0#.
 
-	CP n p1 l1 h1 _h1 _d1 p2 l2 h2 _h2 _d2# 
+	CS n d1 s1 e1 d2 s2 e2 ... dn sn en# 
+	- Creates the stepper motors controller and set some of its parameters.
+	- n is the number of motors, d*, s*, e* are dir, step and enable pins. 
+	- Outputs CS# when done.
+	- Example: CS 3 5 4 12 7 6 12 9 8 12#
+
+	CD n p1 d11 d12 e1 p2 d21 d22 e2 ... pn dn1 dn2 en# 
+	- Creates the dc motors controller and set some of its parameters. 
+	- n is the number of motors, p is the pwm_pin, d*1 and d*2 are the direction pins and e* is the enable pins. 
+	- Outputs CD# when done.
+	
+	CV n p1 p2 ... pn# 
+	- Creates the servo motors controller and set its pins. 
+	- n is the number of motors, p* are Arduino pins where the motors are connected.
+	- Outputs CV# when done.
+
+	CP n p1 p2 ... pn# 
 	- Creates the potentiometers controller and set some of its parameters. 
-	- n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position, _d is the directon of the sensor relative to the direction in which the motor is moving. 
+	- n is the number of potentiometers, p* is the output pin. 
 	- Outputs CP# when done.
 
-	CU n t1 e1 t2 e2# 
+	CU n t1 e1 t2 e2 ... tn en#
 	- Creates the ultrasonic controller and set some of its parameters. 
-	- n is the number of sonars, t and e are trigger and echo pins. 
+	- n is the number of sonars, t* and e* are trigger and echo pins. 
 	- Outputs CU# when done.
 
-	CIA n pin1 min1 max1 home1 dir1 pin2 min2 max2 home2 dir2# 
+	CIA n p1 p2 ... pn# 
 	- Creates the infrared controller and set some of its parameters. 
-	- n is the number of infrared sensors, pin is the analog pin index and min, max and home are the lower, upper bounds and home position of this sensor. 
+	- n is the number of infrared sensors, p* is the analog pin index where this sensor is connected to Arduino. 
 	- Outputs CIA# when done.
 	
-	CID n pin1 pin2# 
+	CID n p1 p2 ... pn# 
 	- Creates the infrared digital controller and set some of its parameters. 
-	- n is the number of infrared digital sensors, pin1 is the analog pin index. 
+	- n is the number of infrared digital sensors, p* is the digital pin index. 
 	- Outputs CID# when done.
 
-	CB n p1 p2# 
+	CB n p1 p2 ... pn# 
 	- Creates the buttons controller and set some of its parameters. 
-	- n is the number of button sensors, p is the digital pin. 
+	- n is the number of button sensors, p* is the digital pin. 
 	- Outputs CB# when done.
 	
 	CTR# 
 	- Creates the Tera Ranger One controller. 
 	- Outputs CTR# when done.
 	
-	CA n p1 p2 p3# 
+	CA n p1 p2 .. pn#
 	- Creates the AS5147 controller. 
 	- n is the number of sensors, p* are pins. 
 	- Outputs CA# when done.
-	Example: CA 3 18 19 20#
+	- Example: CA 3 18 19 20#
 
 	CL creates LIDAR
 
 
-	Serial.println(F("SMx y# // Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs SMx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go."));
-	Serial.println(F("SHx# // Moves stepper motor x to home position. The first sensor in the list of sensors will establish the home position. The motor does nothing if no sensor is attached. Returns HSx#."));
-	Serial.println(F("SDx#  // Disables stepper motor x. Outputs SDx# when done."));
-	Serial.println(F("SLx#  // Locks stepper motor x in the current position. Outputs Lx# when done."));
-	Serial.println(F("SSx s a# // Sets speed of stepper motor x to s and the acceleration to a."));
+	ASx n Py end1 end2 home direction Ak end1 end2 home direction # 
+	- Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z, AS5147 etc).
+	- y is the sensor index. Note that 0 is the first index.
+	- end1 and end2 specify the sensor angular position guarding the motor movement. 
+	- home specifies the home position of the motor.
+	- direction specifies if the increasing values for motor will also increase the values of the sensor.
+	- Outputs ASx# when done.
+	- Example: AS0 1 A0 280 320 300 1#
 
-	Serial.println(F("MDx y# // Moves DC motor x for y miliseconds. Outputs MDx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the time to go."));
-	Serial.println(F("SDx s# // Sets speed of motor x to s."));
-	Serial.println(F("HDx# // Moves DC motor x to home position. The first sensor in the list of sensors must be the button which establish the home position. The motor does nothing if no sensor is attached. Returns HDx#."));
+	SMx y#
+	- Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. 
+	- First motor has index 0.
+	- Outputs SMx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go.
+	- Example: SM1 100#
 
-	Serial.println(F("MVx y# // Moves servo motor x for y steps."));
-	Serial.println(F("HVx# // Moves servo motor x to home position.  Returns HVx#."));
+	SHx#
+	- Moves stepper motor x to home position. 
+	- The first sensor in the list of sensors will establish the home position. The motor does nothing if no sensor is attached. 
+	- Outputs SHx# when done.
 
-	Serial.println(F("SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start."));
+	SDx# 
+	- Disables stepper motor x. 
+	- Outputs SDx# when done.
 
-	Serial.println(F("ASx n Py Bz ... # // Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z etc)."));
-	Example: AS0 1 A0 280 320 300 1#
-	Serial.println(F("ADx n Py Bz ... # // Attach to dc motor x a list of n sensors (like Potentiometer y, Button z etc)."));
-	Serial.println(F("AVx n Py Bz ... # // Attach to servo motor x a list of n sensors (like Potentiometer y, Button z etc)."));
+	SLx#
+	- Locks stepper motor x in the current position. 
+	- Outputs SLx# when done.
 
-	Serial.println(F("RUx# // Read the distance as measured by the ultrasonic sensor x. Outputs RUx d# when the reading has been completed. Note that this works in \"background\" and can output after some time (and in the meantime the program can do something else."));
-	Serial.println(F("RBx# // Read the status of the button x. Outputs RBx s# where s is either 0 or 1."));
-	Serial.println(F("RPx# // Read the position of the potentiometer x. Outputs RPx p#"));
-	Serial.println(F("RIx# // Read the value of infrared sensor x. Outputs RIx v#"));
-	Serial.println(F("RTx# // Read the value of Tera Ranger One sensor. Outputs RTx v#"));
-	Serial.println(F("RAx# // Read the value of AS5147 sensor. Outputs RAx v#"));
-	Serial.println(F("RMx# // Free memory. Outputs RM v#"));
+	SSx s a#
+	- Sets speed of stepper motor x to s and the acceleration to a.
+	- Outputs SSx# when done.
+
+	STx#
+	- Stops motor x.
+	- Outputs STx# when done.
+
+	SGx y#
+	- Moves stepper motor x to y sensor position. The first sensor in list will give the position.
+	- Outputs SMx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go.
+	- Example: SM1 100#
+
+	VMx y# 
+	- Moves servo motor x to y position.
+	- Outputs VMx d# when done. If the move is completed d is 0, otherwise d is 1.
+
+	VHx#
+	- Moves servo motor x to home position.  
+	- Outputs VHx#.
+
+	RUx# 
+	- Read the distance as measured by the ultrasonic sensor x. 
+	- Outputs RUx d# when the reading has been completed. 
+
+	"RBx# 
+	- Read the status of the button x. 
+	- Outputs RBx s# where s is either 0 or 1.
+
+	RPx# 
+	- Read the position of the potentiometer x. 
+	- Outputs RPx p#, where p is the position.
+
+	RIx#
+	- Read the value of infrared sensor x. 
+	Outputs RIx v#.
+
+	RTx# 
+	- Read the value of Tera Ranger One sensor. 
+	- Outputs RTx v# where v is the distance.
+
+	RAx# 
+	- Read the value of AS5147 sensor. 
+	Outputs RAx v#, where v is the angle.
+
+	RMx# 
+	- Free memory. 
+	- Outputs RM v#, where v is the number of free bytes.
 
   */
 
