@@ -9,12 +9,15 @@
 
 /*
 	List of commands:
+
 	T#
 	- Test connection. 
 	- Outputs T#.
 	
 	V#
 	- Outputs version string (year.month.day.build_number). eg: 2019.05.10.0#.
+
+	// CREATE CONTROLLERS
 
 	CS n d1 s1 e1 d2 s2 e2 ... dn sn en# 
 	- Creates the stepper motors controller and set some of its parameters.
@@ -67,8 +70,11 @@
 	- Outputs CA# when done.
 	- Example: CA 3 18 19 20#
 
-	CL creates LIDAR
+	CL dir_pin, step_pin, enable_pin, infrared_pin#
+	- Creates LiDAR which is composed from a stepper motor, a Tera Ranger One distance sensor and an infrared sensor for 0 position detection.
+	- Outputs CL# when done.
 
+	// ATTACH SENSORS TO MOTORS
 
 	ASx n Py end1 end2 home direction Ak end1 end2 home direction # 
 	- Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z, AS5147 etc).
@@ -78,6 +84,8 @@
 	- direction specifies if the increasing values for motor will also increase the values of the sensor.
 	- Outputs ASx# when done.
 	- Example: AS0 1 A0 280 320 300 1#
+
+	// STEPPER COMMANDS
 
 	SMx y#
 	- Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. 
@@ -111,6 +119,8 @@
 	- Outputs SMx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go.
 	- Example: SM1 100#
 
+	// SERVO COMMANDS
+
 	VMx y# 
 	- Moves servo motor x to y position.
 	- Outputs VMx d# when done. If the move is completed d is 0, otherwise d is 1.
@@ -118,6 +128,8 @@
 	VHx#
 	- Moves servo motor x to home position.  
 	- Outputs VHx#.
+
+	// READ SENSORS COMMANDS
 
 	RUx# 
 	- Read the distance as measured by the ultrasonic sensor x. 
@@ -133,7 +145,7 @@
 
 	RIx#
 	- Read the value of infrared sensor x. 
-	Outputs RIx v#.
+	- Outputs RIx v#.
 
 	RTx# 
 	- Read the value of Tera Ranger One sensor. 
@@ -141,11 +153,34 @@
 
 	RAx# 
 	- Read the value of AS5147 sensor. 
-	Outputs RAx v#, where v is the angle.
+	- Outputs RAx v#, where v is the angle.
 
 	RMx# 
 	- Free memory. 
 	- Outputs RM v#, where v is the number of free bytes.
+
+
+	// LiDAR commands
+	LG#
+	- Lidar Go - starts the LiDAR. A stream of distances is sent to the serial port. 
+	- Each data from LiDAR has the format L angle distance#, where angle is between 0 and 359 and distance is read by TeraRanger One.
+
+	LH#
+	- Lidar Halt - stops the LiDAR.
+	- Outputs LH# when done.
+
+	LS speed acceleration#
+	- Sets the speed and acceleration of the stepper motor of the LiDAR.
+	- Outputs LS# when done.
+
+
+	// OTHERS
+	
+	E#
+	- The firmware can output this string if there is something wrong with a given command.
+
+	I information#
+	- The firmware can output this string containing usefull information about the progress of a command.
 
   */
 
@@ -409,16 +444,17 @@ void parse_and_execute_servo_commands(char* tmp_str, byte str_length, byte &i, c
 	}
 }
 //----------------------------------------------------------------------
-void parse_and_execute_LIDAR_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
+void parse_and_execute_LiDAR_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
 	tmp_serial_out[0] = 0;
-	if (tmp_str[i + 1] == 'G' || tmp_str[i + 1] == 'g') {// lidar go
+	if (tmp_str[i + 1] == 'G' || tmp_str[i + 1] == 'g') {// LiDAR go
 		tera_ranger_one_lidar->start();
 		i += 3;
 	}
 	else
-		if (tmp_str[i + 1] == 'H' || tmp_str[i + 1] == 'h') {// lidar halt
+		if (tmp_str[i + 1] == 'H' || tmp_str[i + 1] == 'h') {// LiDAR halt
 			tera_ranger_one_lidar->stop();
+			sprintf(tmp_serial_out, "LH#");
 			i += 3;
 		}
 		else
@@ -432,8 +468,9 @@ void parse_and_execute_LIDAR_commands(char* tmp_str, byte str_length, byte &i, c
 					return;
 				}
 
-					tera_ranger_one_lidar->set_motor_speed_and_acceleration(motor_speed, motor_acceleration);
-					i += 2 + num_consumed;
+				tera_ranger_one_lidar->set_motor_speed_and_acceleration(motor_speed, motor_acceleration);
+				i += 2 + num_consumed;
+				sprintf(tmp_serial_out, "LS#");
 			}
 			else// unknown command
 				i += 2;
@@ -1001,7 +1038,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 			} // end reading
 			// LIDAR
 			if (tmp_str[i] == 'L' || tmp_str[i] == 'l') {// lidar operations
-				parse_and_execute_LIDAR_commands(tmp_str, str_length, i, tmp_serial_out);
+				parse_and_execute_LiDAR_commands(tmp_str, str_length, i, tmp_serial_out);
 				strcat(serial_out, tmp_serial_out);
 				continue;
 			}
