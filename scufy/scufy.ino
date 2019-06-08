@@ -1,5 +1,5 @@
 // Scufy - a general Arduino firmware for reading sensors and moving motors
-// Scufy should run in 2KB of RAM (as offered by Arduino Nano / Uno).
+// Scufy should run in 2KB of RAM (available from Arduino Nano / Uno).
 
 // Author: Mihai Oltean, mihaioltean.github.io, mihai.oltean@gmail.com
 // Jenny 5 websites: jenny5.org, jenny5-robot.github.io/
@@ -15,7 +15,7 @@
 	- Outputs T#.
 	
 	V#
-	- Outputs version string (year.month.day.build_number). eg: 2019.05.10.0#.
+	- Outputs version string (year.month.day.build_number): V2019.05.10.0#.
 
 	// CREATE CONTROLLERS
 
@@ -133,9 +133,9 @@
 
 	RUx# 
 	- Read the distance as measured by the ultrasonic sensor x. 
-	- Outputs RUx d# when the reading has been completed. 
+	- Outputs RUx distance# when the reading has been completed. 
 
-	"RBx# 
+	RBx# 
 	- Read the status of the button x. 
 	- Outputs RBx s# where s is either 0 or 1.
 
@@ -145,15 +145,15 @@
 
 	RIx#
 	- Read the value of infrared sensor x. 
-	- Outputs RIx v#.
+	- Outputs RIx value#.
 
-	RTx# 
+	RT# 
 	- Read the value of Tera Ranger One sensor. 
-	- Outputs RTx v# where v is the distance.
+	- Outputs RTx distance#.
 
 	RAx# 
 	- Read the value of AS5147 sensor. 
-	- Outputs RAx v#, where v is the angle.
+	- Outputs RAx angle#.
 
 	RMx# 
 	- Free memory. 
@@ -180,7 +180,7 @@
 	- The firmware can output this string if there is something wrong with a given command.
 
 	I information#
-	- The firmware can output this string containing usefull information about the progress of a command.
+	- The firmware can output this string containing useful information about the progress of a command.
 
   */
 
@@ -990,7 +990,7 @@ void parse_and_execute_create_buttons_commands(char* tmp_str, byte str_length, b
 	i += total_num_consumed;
 }
 //--------------------------------------------------
-void parse_and_execute_create_LIDAR_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
+void parse_and_execute_create_LiDAR_commands(char* tmp_str, byte str_length, byte &i, char *tmp_serial_out)
 {
 	int num_consumed = 0;
 	uint8_t _dir_pin, _step_pin, _enable_pin, _infrared_pin;
@@ -1178,7 +1178,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char *serial_out
 
 				// creates a LIDAR
 				if (tmp_str[i + 1] == 'L' || tmp_str[i + 1] == 'l') {
-					parse_and_execute_create_LIDAR_commands(tmp_str, str_length, i, tmp_serial_out);
+					parse_and_execute_create_LiDAR_commands(tmp_str, str_length, i, tmp_serial_out);
 					strcat(serial_out, tmp_serial_out);
 					continue;
 				}
