@@ -32,7 +32,7 @@ public:
 
   int *sensor_stop_position;
   
-  SpeedyStepper *stepper;
+  SpeedyStepper stepper;
   byte motor_running;
 
   bool going_to_position;

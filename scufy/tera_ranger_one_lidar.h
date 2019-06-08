@@ -18,7 +18,7 @@ class t_tera_ranger_one_lidar{
   byte enable_pin;
   bool request_for_distance_sent;
 
-  SpeedyStepper *stepper;
+  SpeedyStepper stepper;
   t_infrared_digital_sensor infrared_sensor;
   t_tera_ranger_one_controller tera_ranger_one;
 

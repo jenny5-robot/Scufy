@@ -19,7 +19,7 @@ t_stepper_motor_controller::t_stepper_motor_controller(void)
 	sensors = NULL;
 
 	motor_running = 0;
-	stepper = NULL;
+//	stepper = NULL;
 
 	going_to_position = false;
 	sensor_stop_position = NULL;
@@ -27,8 +27,8 @@ t_stepper_motor_controller::t_stepper_motor_controller(void)
 //-------------------------------------------------------------------------------
 t_stepper_motor_controller::~t_stepper_motor_controller(void)
 {
-	if (stepper)
-		delete stepper;
+//	if (stepper)
+//		delete stepper;
 
 	if (sensors)
 		delete[] sensors;
@@ -45,9 +45,6 @@ void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable
 {
 	enable_pin = _enable;
 
-	if (stepper)
-		delete stepper;
-
 	if (sensors)
 		delete[] sensors;
 
@@ -59,11 +56,10 @@ void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable
 	motor_running = 0;
 	going_to_position = false;
 
-	stepper = new SpeedyStepper();
-	stepper->connectToPins(_step, _dir);
-	stepper->setSpeedInStepsPerSecond(default_motor_speed);
-	stepper->setAccelerationInStepsPerSecondPerSecond(default_motor_acceleration);
-	stepper->setCurrentPositionInSteps(0);
+	stepper.connectToPins(_step, _dir);
+	stepper.setSpeedInStepsPerSecond(default_motor_speed);
+	stepper.setAccelerationInStepsPerSecondPerSecond(default_motor_acceleration);
+	stepper.setCurrentPositionInSteps(0);
 
 	digitalWrite(_step, LOW);
 	digitalWrite(_dir, LOW);
@@ -73,34 +69,34 @@ void t_stepper_motor_controller::create_init(byte _dir, byte _step, byte _enable
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::move_motor(int num_steps)
 {
-	stepper->setCurrentPositionInSteps(0);
+	stepper.setCurrentPositionInSteps(0);
 	digitalWrite(enable_pin, LOW); // turn motor on
-	stepper->setupMoveInSteps(num_steps); //move num_steps
+	stepper.setupMoveInSteps(num_steps); //move num_steps
 	motor_running = 1;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::move_motor_to(int _position)
 {
 	digitalWrite(enable_pin, LOW); // turn motor on
-	stepper->setupMoveInSteps(_position); //move num_steps; !!!!!!!!!!!!!!!!!!!!! this is not absolute
+	stepper.setupMoveInSteps(_position); //move num_steps; !!!!!!!!!!!!!!!!!!!!! this is not absolute
 	motor_running = 1;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_motor_speed(float _motor_speed)
 {
-	stepper->setSpeedInStepsPerSecond(_motor_speed);
+	stepper.setSpeedInStepsPerSecond(_motor_speed);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_motor_acceleration(float _motor_acceleration)
 {
-	stepper->setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
+	stepper.setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
 	// motor_acceleration = _motor_acceleration;
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
 {
-	stepper->setSpeedInStepsPerSecond(_motor_speed);
-	stepper->setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
+	stepper.setSpeedInStepsPerSecond(_motor_speed);
+	stepper.setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
 }
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::disable_motor(void)
@@ -176,14 +172,8 @@ void t_stepper_motor_controller::get_sensor(byte sensor_index_in_motor_list, byt
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::get_motor_speed_and_acceleration(float *_motor_speed, float *_motor_acceleration)
 {
-	if (stepper) {
-		*_motor_acceleration = 0;
-		*_motor_speed = 0;
-	}
-	else {
-		*_motor_speed = 0;
-		*_motor_acceleration = 0;
-	}
+	*_motor_acceleration = 0;
+	*_motor_speed = 0;
 }
 //-------------------------------------------------------------------------------
 byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_controller, 
@@ -197,7 +187,7 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 	// returns MOTOR_JUST_STOPPED if it has just stopped; in dist_to_go we have what is left to run (or 0)
 
 	bool limit_reached = false;
-	long distance_to_go = stepper->get_distanceToGo();
+	long distance_to_go = stepper.get_distanceToGo();
 
 	if (distance_to_go) {
 		for (byte j = 0; j < sensors_count; j++) {
@@ -406,18 +396,18 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 		} // end for (byte j = 0; j < sensors_count; j++)
 
 		if (!limit_reached) {
-			stepper->processMovement();
+			stepper.processMovement();
 			return MOTOR_STILL_RUNNING; // still running
 		}
 		else {
 			if (is_motor_running()) {
-				long to_go = stepper->get_distanceToGo();
-				stepper->stop_motor();
+				long to_go = stepper.get_distanceToGo();
+				stepper.stop_motor();
 				dist_left_to_go = to_go;
 				going_to_position = false;
-				Serial.write("I left to go ");
-				Serial.println(to_go);
-				Serial.write("#");
+				//Serial.write("I left to go ");
+				//Serial.println(to_go);
+				//Serial.write("#");
 				set_motor_running(0);
 				return MOTOR_JUST_STOPPED;
 			}
@@ -431,7 +421,7 @@ byte t_stepper_motor_controller::run_motor(t_as5147s_controller *as5147s_control
 		if (is_motor_running()) {
 			set_motor_running(0);
 			dist_left_to_go = 0;
-			Serial.println("I left to go == 0#");
+			//Serial.println("I left to go == 0#");
 			return MOTOR_JUST_STOPPED; // distance to go
 		}
 		else {
@@ -544,6 +534,6 @@ void t_stepper_motor_controller::go_to_sensor_position(
 //-------------------------------------------------------------------------------
 void t_stepper_motor_controller::stop(void)
 {
-	stepper->stop_motor();
+	stepper.stop_motor();
 }
 //-------------------------------------------------------------------------------

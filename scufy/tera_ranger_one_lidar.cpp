@@ -18,10 +18,9 @@ t_tera_ranger_one_lidar::t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_
 
 	enable_pin = motor_enable_pin;
 
-	stepper = new SpeedyStepper();
-	stepper->connectToPins(motor_step_pin, motor_dir_pin);
-	stepper->setSpeedInStepsPerSecond(200);
-	stepper->setAccelerationInStepsPerSecondPerSecond(100);
+	stepper.connectToPins(motor_step_pin, motor_dir_pin);
+	stepper.setSpeedInStepsPerSecond(200);
+	stepper.setAccelerationInStepsPerSecondPerSecond(100);
 
 	// reset pins
 	digitalWrite(motor_step_pin, LOW);
@@ -35,14 +34,14 @@ t_tera_ranger_one_lidar::t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_
 //-------------------------------------------------------------------------------
 void t_tera_ranger_one_lidar::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
 {
-	stepper->setSpeedInStepsPerSecond(_motor_speed);
-	stepper->setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
+	stepper.setSpeedInStepsPerSecond(_motor_speed);
+	stepper.setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
 }
 //-----------------------------------------------------------------------------
 void t_tera_ranger_one_lidar::start(void)
 {
 	digitalWrite(enable_pin, LOW); // turn motor on
-	stepper->setupMoveInSteps(400); //move num_steps
+	stepper.setupMoveInSteps(400); //move num_steps
 	reference_touched = false;
 	request_for_distance_sent = false;
 	first_reference_touched = false;
@@ -94,9 +93,9 @@ void t_tera_ranger_one_lidar::run_motor(char *serial_out)
 				}
 			}
 
-			long prev_dist_to_go = stepper->get_distanceToGo();
-			stepper->processMovement();
-			long curr_dist_to_go = stepper->get_distanceToGo();
+			long prev_dist_to_go = stepper.get_distanceToGo();
+			stepper.processMovement();
+			long curr_dist_to_go = stepper.get_distanceToGo();
 
 			long traveled_distance = prev_dist_to_go - curr_dist_to_go;
 			//Serial.print(traveled_distance);
@@ -104,13 +103,13 @@ void t_tera_ranger_one_lidar::run_motor(char *serial_out)
 				// now I have to read the distance
 				tera_ranger_one.trigger();
 
-				stepper->setupMoveInSteps(400); //move num_steps
+				stepper.setupMoveInSteps(400); //move num_steps
 				request_for_distance_sent = true;
 				motor_position += traveled_distance;
 			}
 		}
 		else
-			stepper->processMovement();
+			stepper.processMovement();
 	}
 }
 //-----------------------------------------------------------------------------
