@@ -11,7 +11,7 @@
 #include "SpeedyStepper.h"
 #include "infrared_digital.h"
 
-class t_tera_ranger_one_lidar{
+class t_tera_ranger_one_lidar_controller{
 
   private:
 
@@ -27,7 +27,7 @@ class t_tera_ranger_one_lidar{
   int motor_position;
 
 public:
-  t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_step_pin, byte motor_enable_pin, byte infrared_pin);
+	t_tera_ranger_one_lidar_controller(byte motor_dir_pin, byte motor_step_pin, byte motor_enable_pin, byte infrared_pin);
   
   void start(void);
   void stop(void);

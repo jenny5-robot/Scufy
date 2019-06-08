@@ -7,7 +7,7 @@
 #include "tera_ranger_one_lidar.h"
 
 //-----------------------------------------------------------------------------
-t_tera_ranger_one_lidar::t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_step_pin, byte motor_enable_pin, byte infrared_pin)
+t_tera_ranger_one_lidar_controller::t_tera_ranger_one_lidar_controller(byte motor_dir_pin, byte motor_step_pin, byte motor_enable_pin, byte infrared_pin)
 {
 	started = false;
 	reference_touched = false;
@@ -32,13 +32,13 @@ t_tera_ranger_one_lidar::t_tera_ranger_one_lidar(byte motor_dir_pin, byte motor_
 	tera_ranger_one.create_init();
 }
 //-------------------------------------------------------------------------------
-void t_tera_ranger_one_lidar::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
+void t_tera_ranger_one_lidar_controller::set_motor_speed_and_acceleration(float _motor_speed, float _motor_acceleration)
 {
 	stepper.setSpeedInStepsPerSecond(_motor_speed);
 	stepper.setAccelerationInStepsPerSecondPerSecond(_motor_acceleration);
 }
 //-----------------------------------------------------------------------------
-void t_tera_ranger_one_lidar::start(void)
+void t_tera_ranger_one_lidar_controller::start(void)
 {
 	digitalWrite(enable_pin, LOW); // turn motor on
 	stepper.setupMoveInSteps(400); //move num_steps
@@ -51,14 +51,14 @@ void t_tera_ranger_one_lidar::start(void)
 	started = true;
 }
 //-----------------------------------------------------------------------------
-void t_tera_ranger_one_lidar::stop(void)
+void t_tera_ranger_one_lidar_controller::stop(void)
 {
 	digitalWrite(enable_pin, HIGH); // turn motor off
 
 	started = false;
 }
 //-----------------------------------------------------------------------------
-void t_tera_ranger_one_lidar::run_motor(char *serial_out)
+void t_tera_ranger_one_lidar_controller::run_motor(char *serial_out)
 {
 	serial_out[0] = 0;
 

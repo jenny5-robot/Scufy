@@ -40,7 +40,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char* serial_out
 	t_infrared_analog_sensors_controller &infrared_analog_sensors_controller,
 	t_buttons_controller &buttons_controller,
 	t_tera_ranger_one_controller &tera_ranger_one_controller,
-	t_tera_ranger_one_lidar* tera_ranger_one_lidar,
+	t_tera_ranger_one_lidar_controller* tera_ranger_one_lidar,
 	const char* firmware_version
 );
 

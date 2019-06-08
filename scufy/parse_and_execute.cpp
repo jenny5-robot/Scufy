@@ -180,7 +180,8 @@ void parse_and_execute_servo_commands(char* tmp_str, byte str_length, byte& i, c
 	}
 }
 //----------------------------------------------------------------------
-void parse_and_execute_LiDAR_commands(char* tmp_str, byte str_length, byte& i, char* tmp_serial_out, t_tera_ranger_one_lidar *tera_ranger_one_lidar)
+void parse_and_execute_LiDAR_commands(char* tmp_str, byte str_length, byte& i, char* tmp_serial_out, 
+	t_tera_ranger_one_lidar_controller*tera_ranger_one_lidar)
 {
 	tmp_serial_out[0] = 0;
 	if (tmp_str[i + 1] == 'G' || tmp_str[i + 1] == 'g') {// LiDAR go
@@ -745,7 +746,7 @@ void parse_and_execute_create_buttons_commands(char* tmp_str, byte str_length, b
 }
 //--------------------------------------------------
 void parse_and_execute_create_LiDAR_commands(char* tmp_str, byte str_length, byte& i, char* tmp_serial_out,
-	t_tera_ranger_one_lidar*& tera_ranger_one_lidar)
+	t_tera_ranger_one_lidar_controller*& tera_ranger_one_lidar)
 {
 	int num_consumed = 0;
 	uint8_t _dir_pin, _step_pin, _enable_pin, _infrared_pin;
@@ -755,7 +756,7 @@ void parse_and_execute_create_LiDAR_commands(char* tmp_str, byte str_length, byt
 		i += 2;
 		return;
 	}
-	tera_ranger_one_lidar = new t_tera_ranger_one_lidar(_dir_pin, _step_pin, _enable_pin, _infrared_pin);
+	tera_ranger_one_lidar = new t_tera_ranger_one_lidar_controller(_dir_pin, _step_pin, _enable_pin, _infrared_pin);
 
 	strcpy(tmp_serial_out, "CL#");
 	i += num_consumed + 2;
@@ -777,7 +778,7 @@ void parse_and_execute_commands(char* tmp_str, byte str_length, char* serial_out
 	t_infrared_analog_sensors_controller& infrared_analog_sensors_controller,
 	t_buttons_controller& buttons_controller,
 	t_tera_ranger_one_controller& tera_ranger_one_controller,
-	t_tera_ranger_one_lidar* tera_ranger_one_lidar,
+	t_tera_ranger_one_lidar_controller* tera_ranger_one_lidar,
 	const char* firmware_version
 )
 {
