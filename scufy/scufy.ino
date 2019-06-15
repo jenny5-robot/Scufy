@@ -19,20 +19,20 @@
 
 	// CREATE CONTROLLERS
 
-	CS n d1 s1 e1 d2 s2 e2 ... dn sn en# 
+	CS n dir1 step1 en1 dir2 step2 en2 ... dirn stepn enn# 
 	- Creates the stepper motors controller and set some of its parameters.
-	- n is the number of motors, d*, s*, e* are dir, step and enable pins. 
+	- n is the number of motors, dir*, step*, en* are dir, step and enable pins. 
 	- Outputs CS# when done.
 	- Example: CS 3 5 4 12 7 6 12 9 8 12#
 
-	CD n p1 d11 d12 e1 p2 d21 d22 e2 ... pn dn1 dn2 en# 
-	- Creates the dc motors controller and set some of its parameters. 
-	- n is the number of motors, p is the pwm_pin, d*1 and d*2 are the direction pins and e* is the enable pins. 
+	CD n pin1 dir11 dir12 en1 pin2 dir21 dir22 en2 ... pinn dirn1 dirn2 enn# 
+	- Creates the dc motors controller (TB6612FNG) and set some of its parameters. 
+	- n is the number of motors, pin is the PWM_pin, dir*1 and dir*2 are the direction pins and en* is the enable pins. 
 	- Outputs CD# when done.
 	
-	CV n p1 p2 ... pn# 
+	CV n pin1 pin2 ... pinn# 
 	- Creates the servo motors controller and set its pins. 
-	- n is the number of motors, p* are Arduino pins where the motors are connected.
+	- n is the number of motors, pin* are Arduino pins where the motors are connected.
 	- Outputs CV# when done.
 
 	CP n p1 p2 ... pn# 
@@ -226,7 +226,7 @@ t_tera_ranger_one_lidar_controller* tera_ranger_one_lidar_controller;
 
 //char is_command_running;
 
-const char* firmware_version = "2019.06.08.0"; // year.month.day.build number
+const char* firmware_version = "2019.06.15.0"; // year.month.day.build number
 
 #define MAX_BUFFER_LENGTH 65
 
@@ -262,9 +262,8 @@ void write_info(char *str)
 
 }
 //--------------------------------------------------------------------------------------------
-//Main loop
 void loop()
-{
+{//Main loop
 	char serial_out[MAX_BUFFER_LENGTH];
 	serial_out[0] = 0;
 
@@ -284,8 +283,6 @@ void loop()
 	if (Serial.available() || current_buffer[0]) {
 		byte num_read = 0;
 		char serial_buffer[65];
-
-		//num_read = Serial.readBytes(serial_buffer, 64); //Read up to 64 bytes
 
 		int incomingByte = Serial.read();
 		if (incomingByte != -1) {
