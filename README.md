@@ -1,75 +1,184 @@
-# jenny5-firmware
-Arduino firmware for controlling the Jenny 5 robot
+# Scufy - the Arduino firmware
+
+Arduino firmware for reading sensors and moving motors.
 
 The firmware can control multiple stepper and DC motors and can read data from various sensors (ultrasound, buttons, potentiometers, infrared sensors etc). If it is uploaded on a Arduino Nano, it can control up to 4 stepper motors. This limitation si due to the fact that the robot is controlled by multiple Arduino Nano boards and each board has only 14 digital pins from each 2 are for Serial communication and each motor requires 3 pins (dir, step and enable).
 
-There are several commands that can be sent to the firmware (from a Serial port connection). Each command terminates with #.
+There are several commands that can be sent to the firmware (from a Serial port connection). 
+Each command terminates with #.
 
-  T# // test connection. Returns T#.
-  
-  MSx y# // Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. Outputs MSx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go.
-  
-  MDx y# // Moves dc motor x for y miliseconds. Outputs MDx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the time to go.
-  
-  MVx y# // Moves servo motor x for y steps.");
-  
-  HSx# // Moves stepper motor x to home position. The first sensor in the list of sensors must be the potentiometer which establish the home position. The motor does nothing if no potentiometer is attached. Returns HSx#.
-  
-  HDx# // Moves DC motor x to home position. The first sensor in the list of sensors must be the button which establish the home position. The motor does nothing if no potentiometer is attached. Returns HDx#.
-  
-  HVx# // Moves servo motor x to home position.  Returns HVx#.");
-  
-  DSx#  // Disables stepper motor x. Outputs DSx# when done.
-  
-  DDx#  // Disables dc motor x. Outputs DDx# when done.
-  
-  Lx#  // Locks stepper motor x. Outputs Lx# when done.
-  
-  SSx s a# // Sets speed of stepper motor x to s and the acceleration to a.
-  
-  SDx s# // Sets speed of motor x to s.
-  
-  SPx min max home# // Sets the parameters of a potentiometer. Min and max are the limits where it can move and home is from where we bring the robot when we start.
-  
-  ASx n Py Bz ... # // Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z etc).
-  
-  ADx n Py Bz ... # // Attach to dc motor x a list of n sensors (like Potentiometer y, Button z etc).
-  
-  AVx n Py Bz ... # // Attach to servo motor x a list of n sensors (like Potentiometer y, Button z etc).
-  
-  Ux# // Gets the distance as measured by the ultrasonic sensor x. Outputs Ux d# when the reading has been completed. Note that this works in \"background\" and can output after some time (and in the meantime the program can do something else.
-  
-  Bx# // Gets the status of the button x. Outputs Bx s#
-  
-  Px# // Gets the position of the potentiometer x. Outputs Px p#
-  
-  Ix# // Gets the value of infrared sensor x. Outputs Ix v#
-  
-  GSx# // Gets the parameters for stepper motor x: speed acceleration num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GSx s a 1 0 0#
-  
-  GDx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GDx s a 1 0 0#
-  
-  GVx# // Gets the parameters for dc motor x: speed num_sensors sensor_index1, sensor_type1 sensor_index1, sensor_type1. Outputs GVx s a 1 0 0#
-  
-  GPx# // Gets the parameters for potentiometer x: min max home. Outputs PPx l u h#
-  
-  GUx# // Gets the parameters for ultrasound x: trig_pin echo_pin. Outputs UPx t e#
-  
-  CS n d1 s1 e1 d2 s2 e2# // Creates the stepper motors controller and set some of its parameters. n is the number of motors, d, s, e are dir, step and enable pins. Outputs CS# when done.
-  
-  CD n p1 d11 d12 e1 p2 d21 d22 e2# // Creates the dc motors controller and set some of its parameters. n is the number of motors, p is the pwm_pin, d1 and d2 are the direction pins and e is the enable pins. Outputs CD# when done.
-  
-  CV n# // Creates the servo motors controller and set some of its parameters. n is the number of motors, Outputs CV# when done.
+	T#
+	- Test connection. 
+	- Outputs T#.
+	
+	V#
+	- Outputs version string (year.month.day.build_number): V2019.05.10.0#.
 
-  CP n p1 l1 h1 _h1 _d1 p2 l2 h2 _h2 _d2# // Creates the potentiometers controller and set some of its parameters. n is the number of potentiometers, p is the output pin, l, h and _h are bottom, upper and home position, _d is the directon of the sensor relative to the direction in which the motor is moving. Outputs CP# when done.
-  
-  CU n t1 e1 t2 e2# // Creates the ultrasonic controller and set some of its parameters. n is the number of sonars, t and e are trigger and echo pins. Outputs CU# when done.
-  
-  CI n p1 l1 p2 l2# // Creates the infrared controller and set some of its parameters. n is the number of infrared sensors, p is the analog pin and l is the low and e are trigger and echo pins. Outputs CI# when done.
-  
-  CB n p1 p2# // Creates the buttons controller and set some of its parameters. n is the number of button sensors, p is the digital pin. Outputs CB# when done.
-  
-  V# // Outputs version string. eg: 2016.01.17.0#
+	// CREATE CONTROLLERS
+
+	CS n dir1 step1 en1 dir2 step2 en2 ... dirn stepn enn# 
+	- Creates the stepper motors controller and set some of its parameters.
+	- n is the number of motors, dir*, step*, en* are dir, step and enable pins. 
+	- Outputs CS# when done.
+	- Example: CS 3 5 4 12 7 6 12 9 8 12#
+
+	CD n pin1 dir11 dir12 en1 pin2 dir21 dir22 en2 ... pinn dirn1 dirn2 enn# 
+	- Creates the dc motors controller (TB6612FNG) and set some of its parameters. 
+	- n is the number of motors, pin is the PWM_pin, dir*1 and dir*2 are the direction pins and en* is the enable pins. 
+	- Outputs CD# when done.
+	
+	CV n pin1 pin2 ... pinn# 
+	- Creates the servo motors controller and set its pins. 
+	- n is the number of motors, pin* are Arduino pins where the motors are connected.
+	- Outputs CV# when done.
+
+	CP n p1 p2 ... pn# 
+	- Creates the potentiometers controller and set some of its parameters. 
+	- n is the number of potentiometers, p* is the output pin. 
+	- Outputs CP# when done.
+
+	CU n t1 e1 t2 e2 ... tn en#
+	- Creates the ultrasonic controller and set some of its parameters. 
+	- n is the number of sonars, t* and e* are trigger and echo pins. 
+	- Outputs CU# when done.
+
+	CIA n p1 p2 ... pn# 
+	- Creates the infrared controller and set some of its parameters. 
+	- n is the number of infrared sensors, p* is the analog pin index where this sensor is connected to Arduino. 
+	- Outputs CIA# when done.
+	
+	CID n p1 p2 ... pn# 
+	- Creates the infrared digital controller and set some of its parameters. 
+	- n is the number of infrared digital sensors, p* is the digital pin index. 
+	- Outputs CID# when done.
+
+	CB n p1 p2 ... pn# 
+	- Creates the buttons controller and set some of its parameters. 
+	- n is the number of button sensors, p* is the digital pin. 
+	- Outputs CB# when done.
+	
+	CTR# 
+	- Creates the Tera Ranger One controller. 
+	- Outputs CTR# when done.
+	
+	CA n p1 p2 .. pn#
+	- Creates the AS5147 controller. 
+	- n is the number of sensors, p* are pins. 
+	- Outputs CA# when done.
+	- Example: CA 3 18 19 20#
+
+	CL dir_pin, step_pin, enable_pin, infrared_pin#
+	- Creates LiDAR which is composed from a stepper motor, a Tera Ranger One distance sensor and an infrared sensor for 0 position detection.
+	- Outputs CL# when done.
+
+	// ATTACH SENSORS TO MOTORS
+
+	ASx n Py end1 end2 home direction Ak end1 end2 home direction # 
+	- Attach to stepper motor x a list of n sensors (like Potentiometer y, Button z, AS5147 etc).
+	- y is the sensor index. Note that 0 is the first index.
+	- end1 and end2 specify the sensor angular position guarding the motor movement. 
+	- home specifies the home position of the motor.
+	- direction specifies if the increasing values for motor will also increase the values of the sensor.
+	- Outputs ASx# when done.
+	- Example: AS0 1 A0 280 320 300 1#
+
+	// STEPPER COMMANDS
+
+	SMx y#
+	- Moves stepper motor x with y steps. If y is negative the motor runs in the opposite direction. The motor remains locked at the end of the movement. 
+	- First motor has index 0.
+	- Outputs SMx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go.
+	- Example: SM1 100#
+
+	SHx#
+	- Moves stepper motor x to home position. 
+	- The first sensor in the list of sensors will establish the home position. The motor does nothing if no sensor is attached. 
+	- Outputs SHx# when done.
+
+	SDx# 
+	- Disables stepper motor x. 
+	- Outputs SDx# when done.
+
+	SLx#
+	- Locks stepper motor x in the current position. 
+	- Outputs SLx# when done.
+
+	SSx s a#
+	- Sets speed of stepper motor x to s and the acceleration to a.
+	- Outputs SSx# when done.
+
+	STx#
+	- Stops motor x.
+	- Outputs STx# when done.
+
+	SGx y#
+	- Moves stepper motor x to y sensor position. The first sensor in list will give the position.
+	- Outputs SMx d# when motor rotation is over. If movement was complete, then d is 0, otherwise is the distance to go.
+	- Example: SM1 100#
+
+	// SERVO COMMANDS
+
+	VMx y# 
+	- Moves servo motor x to y position.
+	- Outputs VMx d# when done. If the move is completed d is 0, otherwise d is 1.
+
+	VHx#
+	- Moves servo motor x to home position.  
+	- Outputs VHx#.
+
+	// READ SENSORS COMMANDS
+
+	RUx# 
+	- Read the distance as measured by the ultrasonic sensor x. 
+	- Outputs RUx distance# when the reading has been completed. 
+
+	RBx# 
+	- Read the status of the button x. 
+	- Outputs RBx s# where s is either 0 or 1.
+
+	RPx# 
+	- Read the position of the potentiometer x. 
+	- Outputs RPx p#, where p is the position.
+
+	RIx#
+	- Read the value of infrared sensor x. 
+	- Outputs RIx value#.
+
+	RT# 
+	- Read the value of Tera Ranger One sensor. 
+	- Outputs RTx distance#.
+
+	RAx# 
+	- Read the value of AS5147 sensor. 
+	- Outputs RAx angle#.
+
+	RMx# 
+	- Free memory. 
+	- Outputs RM v#, where v is the number of free bytes.
+
+
+	// LiDAR commands
+	LG#
+	- Lidar Go - starts the LiDAR. A stream of distances is sent to the serial port. 
+	- Each data from LiDAR has the format L angle distance#, where angle is between 0 and 359 and distance is read by TeraRanger One.
+
+	LH#
+	- Lidar Halt - stops the LiDAR.
+	- Outputs LH# when done.
+
+	LS speed acceleration#
+	- Sets the speed and acceleration of the stepper motor of the LiDAR.
+	- Outputs LS# when done.
+
+
+	// OTHERS
+	
+	E#
+	- The firmware can output this string if there is something wrong with a given command.
+
+	I information#
+	- The firmware can output this string containing useful information about the progress of a command.
+
 
 motor index is between 0 and number of declared motors - 1.
 Each command is terminated with #.

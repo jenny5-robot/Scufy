@@ -224,7 +224,6 @@ t_buttons_controller buttons_controller;
 t_tera_ranger_one_controller tera_ranger_one_controller;
 t_tera_ranger_one_lidar_controller* tera_ranger_one_lidar_controller;
 
-//char is_command_running;
 
 const char* firmware_version = "2019.06.15.0"; // year.month.day.build number
 
