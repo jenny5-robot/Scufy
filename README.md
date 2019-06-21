@@ -180,15 +180,15 @@ Each command terminates with #.
 	- The firmware can output this string containing useful information about the progress of a command.
 
 
-motor index is between 0 and number of declared motors - 1.
+All motors and sensors are indexed between 0 and number of declared parts - 1.
 Each command is terminated with #.
 
 Example:
 
-MS0 100#
+SM0 100#
 
-DS0#
+SD0#
 
 This will move the stepper motor number 0 with 100 steps and then will disable it.
 
-Multiple commands can be sent once and they will be executed one by one: MS0 100#DS0#
+Multiple commands can be sent once and they will be executed one by one: SM0 100#SD0#
