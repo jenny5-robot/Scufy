@@ -2,10 +2,11 @@
 
 Arduino firmware for reading sensors and moving motors.
 
-The firmware can control multiple stepper and DC motors and can read data from various sensors (ultrasound, buttons, potentiometers, infrared sensors etc). If it is uploaded on a Arduino Nano, it can control up to 4 stepper motors. This limitation si due to the fact that the robot is controlled by multiple Arduino Nano boards and each board has only 14 digital pins from each 2 are for Serial communication and each motor requires 3 pins (dir, step and enable).
+The firmware can control multiple stepper and DC motors and can read data from various sensors (ultrasound, buttons, potentiometers, infrared sensors etc)..
 
 There are several commands that can be sent to the firmware (from a Serial port connection). 
-Each command terminates with #.
+
+Each command terminates with # character.
 
 	T#
 	- Test connection. 
